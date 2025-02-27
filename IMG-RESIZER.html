@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raidpo AI - Image Resizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #0f0f0f;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .upload-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .upload-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .upload-box i {
+      font-size: 2.5rem;
+      color: #ff6f61;
+    }
+
+    .resize-options {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .resize-options h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .resize-options label {
+      display: block;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .resize-options input {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      width: 100px;
+      text-align: center;
+    }
+
+    .size-presets {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .size-preset {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #ff6f61;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .size-preset::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff6f61, #ff3b2f);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+
+    .size-preset:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
+    }
+
+    .size-preset:hover::before {
+      opacity: 0.2;
+    }
+
+    .size-preset.selected {
+      border: 2px solid #ff6f61;
+      background: rgba(255, 111, 97, 0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
+    }
+
+    .size-preset i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #ff6f61;
+    }
+
+    .size-preset span {
+      font-size: 0.9rem;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .download-btn {
+      padding: 1rem 2rem;
+      background: #28a745;
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: none;
+      transition: transform 0.3s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .image-preview {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Image Resizer</h1>
+    <p>Resize images to any dimension while maintaining quality.</p>
+  </section>
+
+  <div class="tool-container">
+    <label class="upload-box">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p id="uploadText">Drag & drop image or click to upload</p>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+    </label>
+
+    <div class="resize-options">
+      <h3>Choose Resize Option</h3>
+      <div class="size-presets">
+        <div class="size-preset" data-width="800" data-height="600">
+          <i class="fas fa-desktop"></i>
+          <span>800x600</span>
+        </div>
+        <div class="size-preset" data-width="1024" data-height="768">
+          <i class="fas fa-laptop"></i>
+          <span>1024x768</span>
+        </div>
+        <div class="size-preset" data-width="1920" data-height="1080">
+          <i class="fas fa-tv"></i>
+          <span>1920x1080</span>
+        </div>
+        <div class="size-preset" data-width="1080" data-height="1080">
+          <i class="fas fa-square"></i>
+          <span>1080x1080</span>
+        </div>
+        <div class="size-preset" data-width="1200" data-height="628">
+          <i class="fas fa-ad"></i>
+          <span>1200x628</span>
+        </div>
+        <div class="size-preset" data-width="1500" data-height="500">
+          <i class="fas fa-image"></i>
+          <span>1500x500</span>
+        </div>
+      </div>
+      <h3>OR</h3>
+      <label for="width">Custom Width (px):</label>
+      <input type="number" id="width" placeholder="Width">
+      <label for="height">Custom Height (px):</label>
+      <input type="number" id="height" placeholder="Height">
+    </div>
+
+    <button class="process-btn" id="processBtn">Resize Image</button>
+
+    <div class="image-preview">
+      <img id="resizedImage" alt="Resized Image">
+    </div>
+
+    <button class="download-btn" id="downloadBtn">Download Resized Image</button>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resizedImage = document.getElementById('resizedImage');
+    const uploadText = document.getElementById('uploadText');
+    const widthInput = document.getElementById('width');
+    const heightInput = document.getElementById('height');
+    const sizePresets = document.querySelectorAll('.size-preset');
+    let resizedUrl = null;
+
+    // Drag and drop handlers
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => {
+      e.preventDefault();
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect();
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect() {
+      if (!fileInput.files.length) return;
+      
+      const reader = new FileReader();
+      reader.onload = e => {
+        resizedImage.src = e.target.result;
+        uploadText.textContent = fileInput.files[0].name + ' uploaded!';
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    function resizeImage(image, width, height) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = width;
+      canvas.height = height;
+
+      ctx.drawImage(image, 0, 0, width, height);
+
+      return canvas.toDataURL('image/jpeg', 1.0);
+    }
+
+    // Handle size preset clicks
+    sizePresets.forEach(preset => {
+      preset.addEventListener('click', () => {
+        // Remove selected class from all presets
+        sizePresets.forEach(p => p.classList.remove('selected'));
+        // Add selected class to the clicked preset
+        preset.classList.add('selected');
+
+        const width = preset.getAttribute('data-width');
+        const height = preset.getAttribute('data-height');
+        widthInput.value = width;
+        heightInput.value = height;
+      });
+    });
+
+    processBtn.addEventListener('click', () => {
+      if (!fileInput.files.length) return alert('Please select an image first!');
+      if (!widthInput.value || !heightInput.value) return alert('Please enter width and height!');
+
+      const width = parseInt(widthInput.value);
+      const height = parseInt(heightInput.value);
+
+      const img = new Image();
+      img.src = URL.createObjectURL(fileInput.files[0]);
+
+      img.onload = () => {
+        const resizedDataUrl = resizeImage(img, width, height);
+        resizedImage.src = resizedDataUrl;
+        resizedUrl = resizedDataUrl;
+        downloadBtn.style.display = 'block';
+      };
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!resizedUrl) return alert('No resized image available!');
+      const link = document.createElement('a');
+      link.href = resizedUrl;
+      link.download = 'resized-image.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+</body>
+</html>
