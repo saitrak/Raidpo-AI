@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raidpo AI - Image to Prompt</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #0f0f0f;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .upload-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .upload-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .upload-box i {
+      font-size: 2.5rem;
+      color: #ff6f61;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover:not(:disabled) {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .process-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .prompt-output {
+      margin-top: 2rem;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .prompt-output textarea {
+      width: 90%;
+      max-width: 600px;
+      height: 150px;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      resize: none;
+      margin: 0 auto;
+    }
+
+    .image-preview {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Image to Prompt</h1>
+    <p>Generate accurate prompts from any image.</p>
+  </section>
+
+  <div class="tool-container">
+    <label class="upload-box">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p id="uploadText">Drag & drop image or click to upload</p>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+    </label>
+
+    <button class="process-btn" id="processBtn">Generate Prompt</button>
+
+    <div class="prompt-output">
+      <textarea id="promptOutput" placeholder="Your prompt will appear here..." readonly></textarea>
+    </div>
+
+    <div class="image-preview">
+      <img id="imagePreview" alt="Uploaded Image">
+    </div>
+  </div>
+
+  <script>
+    // Hugging Face API keys
+    const apiKeys = [
+      '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', // API Key 1
+      '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', // API Key 2
+      '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', // API Key 3
+      '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', // API Key 4
+      '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', // API Key 5
+    ];
+
+    let currentApiKeyIndex = 0;
+
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const promptOutput = document.getElementById('promptOutput');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadText = document.getElementById('uploadText');
+
+    // Drag and drop handlers
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => {
+      e.preventDefault();
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect();
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect() {
+      if (!fileInput.files.length) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        imagePreview.src = e.target.result;
+        uploadText.textContent = fileInput.files[0].name + ' uploaded!';
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    async function generatePromptFromImage(file) {
+      const apiUrl = `https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base`;
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKeys[currentApiKeyIndex]}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ inputs: await fileToBase64(file) }),
+        });
+
+        const data = await response.json();
+
+        // Check if the API key limit is reached
+        if (data.error && data.error.includes('limit')) {
+          currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+          console.log(`Switching to API Key ${currentApiKeyIndex + 1}`);
+          alert('API limit reached. Switching to the next key. Please try again.');
+          return null;
+        }
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        return data[0]?.generated_text || 'No prompt generated.';
+      } catch (error) {
+        console.error('Error:', error);
+        return 'Failed to generate prompt. Please try again.';
+      }
+    }
+
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = (error) => reject(error);
+      });
+    }
+
+    processBtn.addEventListener('click', async () => {
+      if (!fileInput.files.length) return alert('Please upload an image first.');
+
+      // Disable the button during generation
+      processBtn.disabled = true;
+      processBtn.textContent = 'Generating...';
+
+      const file = fileInput.files[0];
+      const prompt = await generatePromptFromImage(file);
+
+      if (prompt) {
+        promptOutput.value = prompt;
+      }
+
+      // Re-enable the button after generation
+      processBtn.disabled = false;
+      processBtn.textContent = 'Generate Prompt';
+    });
+  </script>
+</body>
+</html>
