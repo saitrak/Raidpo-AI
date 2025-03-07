@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #1a1a1a;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .input-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .input-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .input-box input {
+      width: 90%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-box input::placeholder {
+      color: #ccc;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover:not(:disabled) {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .process-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .output-box {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .output-box p {
+      font-size: 1.2rem;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Age Calculator</h1>
+    <p>Calculate your age in years, months, and days.</p>
+  </section>
+
+  <div class="tool-container">
+    <div class="input-box">
+      <input type="date" id="birthdate" placeholder="Enter your birthdate...">
+      <button class="process-btn" id="processBtn">Calculate Age</button>
+    </div>
+
+    <div class="output-box">
+      <p id="result">Your age will appear here...</p>
+    </div>
+  </div>
+
+  <script>
+    const birthdateInput = document.getElementById('birthdate');
+    const processBtn = document.getElementById('processBtn');
+    const result = document.getElementById('result');
+
+    processBtn.addEventListener('click', () => {
+      const birthdate = new Date(birthdateInput.value);
+      const today = new Date();
+
+      if (!birthdateInput.value) return alert('Please enter your birthdate.');
+
+      // Calculate age
+      let years = today.getFullYear() - birthdate.getFullYear();
+      let months = today.getMonth() - birthdate.getMonth();
+      let days = today.getDate() - birthdate.getDate();
+
+      // Adjust for negative months or days
+      if (months < 0 || (months === 0 && days < 0)) {
+        years--;
+        months += 12;
+      }
+      if (days < 0) {
+        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 0);
+        days += lastMonth.getDate();
+        months--;
+      }
+
+      // Display the result
+      result.innerHTML = `
+        Your age is: <br>
+        <strong>${years}</strong> years, <strong>${months}</strong> months, and <strong>${days}</strong> days.
+      `;
+    });
+  </script>
+</body>
+</html>
