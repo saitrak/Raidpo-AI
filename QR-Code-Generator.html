@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #1a1a1a;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .input-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .input-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .input-box input {
+      width: 90%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .options {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .options label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .options input {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 200px;
+      margin-bottom: 1rem;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover:not(:disabled) {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .process-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .output-box {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .output-box canvas {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .download-btn {
+      padding: 1rem 2rem;
+      background: #28a745;
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: none;
+      transition: transform 0.3s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>QR Code Generator</h1>
+    <p>Generate QR codes for URLs or text.</p>
+  </section>
+
+  <div class="tool-container">
+    <div class="input-box">
+      <input type="text" id="inputText" placeholder="Enter URL or text...">
+      <div class="options">
+        <label for="qrSize">QR Code Size (px):</label>
+        <input type="number" id="qrSize" placeholder="e.g., 200" min="100" max="1000" value="200">
+      </div>
+      <button class="process-btn" id="processBtn">Generate QR Code</button>
+    </div>
+
+    <div class="output-box">
+      <canvas id="qrCode"></canvas>
+      <button class="download-btn" id="downloadBtn">Download QR Code</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+  <script>
+    const inputText = document.getElementById('inputText');
+    const qrSizeInput = document.getElementById('qrSize');
+    const processBtn = document.getElementById('processBtn');
+    const qrCodeCanvas = document.getElementById('qrCode');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    processBtn.addEventListener('click', () => {
+      const text = inputText.value.trim();
+      const size = parseInt(qrSizeInput.value);
+
+      if (!text) return alert('Please enter some text or a URL.');
+      if (isNaN(size) || size < 100 || size > 1000) return alert('Please enter a valid size (100-1000).');
+
+      // Generate QR code
+      QRCode.toCanvas(qrCodeCanvas, text, { width: size }, (error) => {
+        if (error) {
+          console.error('Error generating QR code:', error);
+          alert('Failed to generate QR code. Please try again.');
+        } else {
+          downloadBtn.style.display = 'block';
+        }
+      });
+    });
+
+    // Download the QR code as an image
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = qrCodeCanvas.toDataURL('image/png');
+      link.download = 'qr-code.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+</body>
+</html>
