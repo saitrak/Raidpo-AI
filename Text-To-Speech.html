@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raidpo AI - Text to Speech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #0f0f0f;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .upload-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .upload-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .upload-box i {
+      font-size: 2.5rem;
+      color: #ff6f61;
+    }
+
+    .upload-box textarea {
+      width: 100%;
+      height: 100px;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      resize: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .upload-box textarea::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .resize-options {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .resize-options h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .resize-options select,
+    .resize-options input {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .resize-options select option {
+      background: #0f0f0f;
+      color: #fff;
+    }
+
+    .size-presets {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .size-preset {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #ff6f61;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .size-preset::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff6f61, #ff3b2f);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+
+    .size-preset:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
+    }
+
+    .size-preset:hover::before {
+      opacity: 0.2;
+    }
+
+    .size-preset.selected {
+      border: 2px solid #ff6f61;
+      background: rgba(255, 111, 97, 0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
+    }
+
+    .size-preset i {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #ff6f61;
+    }
+
+    .size-preset span {
+      font-size: 0.9rem;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .preview-download {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .preview-download audio {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 1rem;
+    }
+
+    .download-btn {
+      padding: 1rem 2rem;
+      background: #28a745;
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .history {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .history h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .history ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .history ul li {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+
+    .history ul li audio {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .history ul li a {
+      color: #ff6f61;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Text to Speech</h1>
+    <p>Convert text to speech and download the audio file.</p>
+  </section>
+
+  <div class="tool-container">
+    <div class="upload-box">
+      <i class="fas fa-comment-dots"></i>
+      <textarea id="text-to-convert" placeholder="Type or paste your text here..."></textarea>
+    </div>
+
+    <div class="resize-options">
+      <h3>Select Voice</h3>
+      <select id="voice-select"></select>
+    </div>
+
+    <div class="resize-options">
+      <h3>Speed</h3>
+      <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
+      <span id="speed-value">1x</span>
+    </div>
+
+    <div class="resize-options">
+      <h3>Audio Format</h3>
+      <select id="audio-format">
+        <option value="audio/mp3">MP3</option>
+        <option value="audio/wav">WAV</option>
+        <option value="audio/ogg">OGG</option>
+        <option value="audio/webm">WEBM</option>
+      </select>
+    </div>
+
+    <button class="process-btn" id="convert-btn">Convert to Speech</button>
+
+    <div class="preview-download" id="preview-download">
+      <audio id="preview-audio" controls></audio>
+      <button class="download-btn" id="download-link">Download Audio</button>
+    </div>
+
+    <div class="history">
+      <h3>History</h3>
+      <ul id="history-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    const textarea = document.getElementById("text-to-convert");
+    const voiceList = document.getElementById("voice-select");
+    const speechBtn = document.getElementById("convert-btn");
+    const previewDownload = document.getElementById("preview-download");
+    const previewAudio = document.getElementById("preview-audio");
+    const downloadLink = document.getElementById("download-link");
+    const historyList = document.getElementById("history-list");
+    const speedInput = document.getElementById("speed");
+    const speedValue = document.getElementById("speed-value");
+    const audioFormatSelect = document.getElementById("audio-format");
+
+    let synth = speechSynthesis;
+    let voices = [];
+
+    // Populate voice list
+    function populateVoiceList() {
+      voices = synth.getVoices();
+      voiceList.innerHTML = "";
+      voices.forEach((voice, i) => {
+        let option = document.createElement("option");
+        option.textContent = `${voice.name} (${voice.lang})`;
+        option.value = i;
+        if (voice.default) {
+          option.textContent += " — DEFAULT";
+        }
+        voiceList.appendChild(option);
+      });
+    }
+
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    // Update speed value display
+    speedInput.addEventListener("input", () => {
+      speedValue.textContent = `${speedInput.value}x`;
+    });
+
+    // Convert text to speech and generate audio
+    async function textToSpeech(text) {
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = voices[voiceList.value];
+        utterance.rate = parseFloat(speedInput.value); // Set speech speed
+
+        // Create an audio context to capture the audio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const destination = audioContext.createMediaStreamDestination();
+        const mediaRecorder = new MediaRecorder(destination.stream);
+
+        let chunks = [];
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: audioFormatSelect.value });
+          resolve(blob);
+        };
+
+        // Connect the speech synthesis to the audio context
+        const source = audioContext.createMediaStreamSource(destination.stream);
+        source.connect(audioContext.destination);
+
+        mediaRecorder.start();
+        synth.speak(utterance);
+
+        utterance.onend = () => {
+          mediaRecorder.stop();
+        };
+      });
+    }
+
+    // Add to history
+    function addToHistory(text, audioBlob) {
+      const li = document.createElement("li");
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Add audio preview
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = audioUrl;
+      li.appendChild(audio);
+
+      // Add download link
+      const download = document.createElement("a");
+      download.href = audioUrl;
+      download.download = `speech-${historyList.children.length + 1}.${audioFormatSelect.value.split("/")[1]}`;
+      download.textContent = "Download Audio";
+      li.appendChild(download);
+
+      historyList.appendChild(li);
+    }
+
+    // Convert button click event
+    speechBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (textarea.value !== "") {
+        speechBtn.innerText = "Converting...";
+        speechBtn.disabled = true;
+
+        const audioBlob = await textToSpeech(textarea.value);
+
+        // Show preview and download options
+        previewAudio.src = URL.createObjectURL(audioBlob);
+        downloadLink.href = URL.createObjectURL(audioBlob);
+        downloadLink.download = `speech-${historyList.children.length + 1}.${audioFormatSelect.value.split("/")[1]}`;
+        previewDownload.style.display = "block";
+
+        // Add to history
+        addToHistory(textarea.value, audioBlob);
+
+        speechBtn.innerText = "Convert to Speech";
+        speechBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
