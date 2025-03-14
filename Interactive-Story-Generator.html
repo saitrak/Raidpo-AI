@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Story Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            background-color: #1a1a1a; /* Dark background */
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+        }
+
+        .hero h1 {
+            font-size: 2rem; /* Adjusted to match your example */
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            font-size: 1rem; /* Adjusted to match your example */
+            opacity: 0.9;
+        }
+
+        .tool-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .input-box {
+            border: 2px dashed #ff6f61;
+            padding: 2rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .input-box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        textarea {
+            width: 90%;
+            height: 100px;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ff6f61;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            resize: none;
+        }
+
+        textarea::placeholder {
+            color: #ccc;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .options select {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ff6f61;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .options select option {
+            background: #1a1a1a; /* Dark background for dropdown options */
+            color: #fff;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            background: #fff;
+            color: #ff3b2f;
+            border-radius: 50px;
+            font-size: 1rem; /* Adjusted to match your example */
+            border: none;
+            cursor: pointer;
+            margin: 1rem auto;
+            display: block;
+            transition: all 0.3s;
+        }
+
+        button:hover:not(:disabled) {
+            background: #ff6f61;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .story-output {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 1rem; /* Adjusted to match your example */
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>Interactive Story Generator</h1>
+        <p>Create amazing stories with just a prompt!</p>
+    </section>
+
+    <div class="tool-container">
+        <div class="input-box">
+            <textarea id="story-input" placeholder="Enter a story prompt (e.g., 'A knight on a quest to save a kingdom')"></textarea>
+            <div class="options">
+                <select id="length-option">
+                    <option value="very short">Very Short (1-2 paragraphs)</option>
+                    <option value="short">Short (3-4 paragraphs)</option>
+                    <option value="medium">Medium (5-6 paragraphs)</option>
+                    <option value="long">Long (7-8 paragraphs)</option>
+                    <option value="very long">Very Long (9+ paragraphs)</option>
+                    <option value="epic">Epic (20+ paragraphs)</option>
+                </select>
+                <select id="tone-option">
+                    <option value="funny">Funny</option>
+                    <option value="serious">Serious</option>
+                    <option value="dramatic">Dramatic</option>
+                    <option value="romantic">Romantic</option>
+                    <option value="mysterious">Mysterious</option>
+                    <option value="horror">Horror</option>
+                    <option value="inspirational">Inspirational</option>
+                    <option value="sad">Sad</option>
+                    <option value="exciting">Exciting</option>
+                    <option value="suspenseful">Suspenseful</option>
+                    <option value="dark">Dark</option>
+                    <option value="lighthearted">Lighthearted</option>
+                </select>
+            </div>
+            <button id="generate-story">Generate Story</button>
+            <div class="story-output" id="story-output"></div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = 'AIzaSyAF2vtoO7YGSYFtbknlr6l8kPeCBdPRc9o'; // Your Gemini API key
+        const generateButton = document.getElementById('generate-story');
+        const storyInput = document.getElementById('story-input');
+        const lengthOption = document.getElementById('length-option');
+        const toneOption = document.getElementById('tone-option');
+        const storyOutput = document.getElementById('story-output');
+
+        // Function to generate content using the gemini-1.5-flash model
+        async function generateContent(prompt, length, tone) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Write a ${length} ${tone} story about: ${prompt}`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Generate story on button click
+        generateButton.addEventListener('click', async () => {
+            const prompt = storyInput.value.trim();
+            if (!prompt) {
+                alert('Please enter a story prompt!');
+                return;
+            }
+
+            // Disable the button and change text to "Generating..."
+            generateButton.disabled = true;
+            generateButton.textContent = 'Generating...';
+
+            try {
+                const length = lengthOption.value;
+                const tone = toneOption.value;
+                const generatedText = await generateContent(prompt, length, tone);
+                storyOutput.textContent = generatedText;
+            } catch (error) {
+                storyOutput.textContent = `Error: ${error.message}`;
+                console.error(error);
+            } finally {
+                // Re-enable the button and reset text
+                generateButton.disabled = false;
+                generateButton.textContent = 'Generate Story';
+            }
+        });
+    </script>
+</body>
+</html>
