@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Thumbnail Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #1a1a1a; /* Darker background */
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .input-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .input-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .input-box input {
+      width: 90%;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ff6f61;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-box input::placeholder {
+      color: #ccc;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover:not(:disabled) {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .process-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .output-box {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .output-box img {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ff6f61;
+      margin-bottom: 1rem;
+    }
+
+    .download-btn {
+      padding: 1rem 2rem;
+      background: #28a745;
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: none;
+      transition: transform 0.3s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>YouTube Thumbnail Downloader</h1>
+    <p>Download high-quality thumbnails from YouTube videos.</p>
+  </section>
+
+  <div class="tool-container">
+    <div class="input-box">
+      <input type="url" id="urlInput" placeholder="Paste YouTube Video URL Here...">
+      <button class="process-btn" id="processBtn">Get Thumbnail</button>
+    </div>
+
+    <div class="output-box">
+      <img id="thumbnailImage" src="" alt="YouTube Thumbnail" style="display: none;">
+      <button class="download-btn" id="downloadBtn">Download Thumbnail</button>
+    </div>
+  </div>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const processBtn = document.getElementById('processBtn');
+    const thumbnailImage = document.getElementById('thumbnailImage');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    processBtn.addEventListener('click', async () => {
+      const videoUrl = urlInput.value.trim();
+
+      if (!videoUrl) return alert('Please enter a YouTube video URL.');
+
+      // Disable the button during processing
+      processBtn.disabled = true;
+      processBtn.textContent = 'Fetching...';
+
+      try {
+        // Validate YouTube URL
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+/;
+        if (!youtubeRegex.test(videoUrl)) {
+          throw new Error('Please enter a valid YouTube URL.');
+        }
+
+        // Extract Video ID
+        let videoId = '';
+        if (videoUrl.includes('v=')) {
+          videoId = videoUrl.split('v=')[1].split('&')[0];
+        } else if (videoUrl.includes('youtu.be')) {
+          videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        }
+
+        if (!videoId) {
+          throw new Error('Could not extract Video ID from the URL.');
+        }
+
+        // Generate Thumbnail URL (maxresdefault is the highest quality)
+        const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+        // Display Thumbnail
+        thumbnailImage.src = thumbnailUrl;
+        thumbnailImage.style.display = 'block';
+        downloadBtn.style.display = 'block';
+
+        // Enable download functionality
+        downloadBtn.addEventListener('click', () => {
+          const link = document.createElement('a');
+          link.href = thumbnailUrl;
+          link.download = `youtube_thumbnail.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
+      } finally {
+        // Re-enable the button after processing
+        processBtn.disabled = false;
+        processBtn.textContent = 'Get Thumbnail';
+      }
+    });
+  </script>
+</body>
+</html>
