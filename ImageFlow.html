@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ImageFlow - Image Uploader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      background-color: #1a1a1a; /* Dark background */
+    }
+
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+
+    .tool-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .input-box {
+      border: 2px dashed #ff6f61;
+      padding: 3rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .input-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .input-box p {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .input-box input[type="file"] {
+      display: none;
+    }
+
+    .file-names {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .process-btn {
+      padding: 1rem 2rem;
+      background: #fff;
+      color: #ff3b2f;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .process-btn:hover:not(:disabled) {
+      background: #ff6f61;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .process-btn:disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .image-card {
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .image-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .image-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .image-link {
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #fff;
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>ImageFlow</h1>
+    <p>Upload and share your images with ease.</p>
+  </section>
+
+  <div class="tool-container">
+    <div class="input-box" id="uploadBox">
+      <p>Drag & Drop or <span style="color: #ff6f61;">Click to Upload</span></p>
+      <div class="file-names" id="fileNames"></div>
+      <input type="file" id="imageInput" accept="image/*" multiple>
+    </div>
+    <button class="process-btn" id="uploadButton" disabled>Upload Images</button>
+
+    <div class="gallery" id="gallery"></div>
+  </div>
+
+  <script>
+    const CLOUD_NAME = 'dml8j7b8w'; // Your Cloudinary cloud name
+    const UPLOAD_PRESET = 'Saifxss'; // Your Cloudinary upload preset
+
+    const uploadBox = document.getElementById('uploadBox');
+    const imageInput = document.getElementById('imageInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const gallery = document.getElementById('gallery');
+    const fileNames = document.getElementById('fileNames');
+
+    let uploadedImages = [];
+
+    // Click to Upload
+    uploadBox.addEventListener('click', () => {
+      imageInput.click();
+    });
+
+    // Drag and Drop Functionality
+    uploadBox.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadBox.classList.add('dragover');
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.classList.remove('dragover');
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadBox.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        imageInput.files = files;
+        handleFileUpload(files);
+      }
+    });
+
+    // File Input Change
+    imageInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files.length > 0) {
+        handleFileUpload(files);
+      }
+    });
+
+    // Handle File Upload
+    function handleFileUpload(files) {
+      uploadedImages = [];
+      gallery.innerHTML = '';
+      fileNames.innerHTML = Array.from(files)
+        .map((file) => `<div>${file.name}</div>`)
+        .join('');
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          uploadedImages.push({ file, preview: e.target.result });
+          renderGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+      uploadButton.disabled = false;
+    }
+
+    // Render Gallery
+    function renderGallery() {
+      gallery.innerHTML = uploadedImages
+        .map(
+          (image, index) => `
+            <div class="image-card">
+              <img src="${image.preview}" alt="Preview">
+              <button class="delete-btn" onclick="deleteImage(${index})">×</button>
+              <div class="image-link">${image.file.name}</div>
+            </div>
+          `
+        )
+        .join('');
+    }
+
+    // Delete Image
+    window.deleteImage = (index) => {
+      uploadedImages.splice(index, 1);
+      renderGallery();
+    };
+
+    // Upload Images to Cloudinary
+    uploadButton.addEventListener('click', () => {
+      if (uploadedImages.length > 0) {
+        uploadButton.disabled = true;
+        uploadButton.textContent = 'Uploading...';
+
+        const uploadPromises = uploadedImages.map((image) => {
+          const formData = new FormData();
+          formData.append('file', image.file);
+          formData.append('upload_preset', UPLOAD_PRESET);
+
+          return fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.secure_url) {
+                return data.secure_url;
+              } else {
+                throw new Error('Failed to upload image');
+              }
+            });
+        });
+
+        Promise.all(uploadPromises)
+          .then((urls) => {
+            gallery.innerHTML = urls
+              .map(
+                (url) => `
+                  <div class="image-card">
+                    <img src="${url}" alt="Uploaded Image">
+                    <div class="image-link">${url}</div>
+                  </div>
+                `
+              )
+              .join('');
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('Failed to upload images. Please try again.');
+          })
+          .finally(() => {
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Upload Images';
+          });
+      }
+    });
+  </script>
+</body>
+</html>
