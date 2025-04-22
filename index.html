@@ -1126,18 +1126,6 @@
       </div>
     </div>
     
-    <div class="settings-section">
-      <h3>Appearance</h3>
-      <div class="settings-option">
-        <label for="theme">Theme</label>
-        <select id="theme">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-          <option value="system">System Default</option>
-        </select>
-      </div>
-    </div>
-    
     <button class="settings-save" id="settingsSaveBtn">Save Settings</button>
   </div>
 
@@ -1155,7 +1143,7 @@
         <div class="profile-email" id="profileEmail"></div>
         <div class="profile-stats">
           <div class="profile-stat">
-            <div class="profile-stat-value" id="toolsUsed">24</div>
+            <div class="profile-stat-value" id="toolsUsed">0</div>
             <div class="profile-stat-label">Tools Used</div>
           </div>
           <div class="profile-stat">
@@ -1246,7 +1234,11 @@
     const profileEmail = document.getElementById('profileEmail');
     const profileFullName = document.getElementById('profileFullName');
     const profileBio = document.getElementById('profileBio');
+    const toolsUsed = document.getElementById('toolsUsed');
     const toolLinks = document.querySelectorAll('.tool-card a');
+
+    // Track tools used
+    let toolsUsedCount = 0;
 
     // Auth Tab Switching
     authTabs.forEach(tab => {
@@ -1454,6 +1446,10 @@
           cookiesBanner.style.display = 'flex';
         }
 
+        // Reset tools used count
+        toolsUsedCount = 0;
+        toolsUsed.textContent = toolsUsedCount;
+
         // Redirect protection for direct tool access
         const currentPath = window.location.pathname;
         if (currentPath !== '/' && !currentPath.includes('.html')) {
@@ -1494,7 +1490,13 @@
           // Login successful, handled by auth state change
         })
         .catch(error => {
-          loginError.textContent = error.message;
+          if (error.code === 'auth/user-not-found') {
+            loginError.textContent = 'No account found with this email';
+          } else if (error.code === 'auth/wrong-password') {
+            loginError.textContent = 'Incorrect password';
+          } else {
+            loginError.textContent = error.message;
+          }
           loginError.style.display = 'block';
         });
     });
@@ -1527,23 +1529,34 @@
         return;
       }
       
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          return userCredential.user.updateProfile({
-            displayName: name
-          }).then(() => {
-            // Send email verification
-            return userCredential.user.sendEmailVerification({
-              url: window.location.origin,
-              handleCodeInApp: true
-            });
-          });
-        })
-        .then(() => {
-          // Show verification message
-          verificationMessage.style.display = 'block';
-          signupForm.reset();
-          authTabs[0].click();
+      // First check if email exists
+      auth.fetchSignInMethodsForEmail(email)
+        .then((signInMethods) => {
+          if (signInMethods.length > 0) {
+            // Email already exists
+            signupError.textContent = 'This email is already in use';
+            signupError.style.display = 'block';
+          } else {
+            // Email doesn't exist, proceed with signup
+            return auth.createUserWithEmailAndPassword(email, password)
+              .then((userCredential) => {
+                return userCredential.user.updateProfile({
+                  displayName: name
+                }).then(() => {
+                  // Send email verification
+                  return userCredential.user.sendEmailVerification({
+                    url: window.location.origin,
+                    handleCodeInApp: true
+                  });
+                });
+              })
+              .then(() => {
+                // Show verification message
+                verificationMessage.style.display = 'block';
+                signupForm.reset();
+                authTabs[0].click();
+              });
+          }
         })
         .catch(error => {
           signupError.textContent = error.message;
@@ -1582,13 +1595,16 @@
     appleLoginBtn.addEventListener('click', signInWithApple);
     appleSignupBtn.addEventListener('click', signInWithApple);
 
-    // Protect tool links - redirect to auth if not logged in
+    // Track tool usage
     toolLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         if (!auth.currentUser) {
           e.preventDefault();
           authPage.style.display = 'flex';
           homepage.style.display = 'none';
+        } else {
+          toolsUsedCount++;
+          toolsUsed.textContent = toolsUsedCount;
         }
       });
     });
