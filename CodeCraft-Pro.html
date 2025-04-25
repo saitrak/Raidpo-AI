@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeCraft Pro - Editor, Merger, and Separator</title>
+  <title>CodeCraft Pro - Editor, Combiner, and Separator</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     /* General Styles */
@@ -35,7 +35,7 @@
     }
 
     textarea {
-      width: 100%;
+      width: calc(100% - 2rem);
       height: 150px;
       padding: 1rem;
       border-radius: 10px;
@@ -68,18 +68,52 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      padding: 0.5rem 1rem;
-      background: #ff6f61;
+      padding: 0.5rem;
+      background: rgba(255, 111, 97, 0.7);
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 1rem;
-      transition: transform 0.3s;
+      transition: all 0.3s;
     }
 
     .fullscreen-btn:hover {
+      background: #ff6f61;
       transform: scale(1.05);
+    }
+
+    .exit-fullscreen-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 111, 97, 0.7);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s;
+      z-index: 9999;
+      display: none;
+    }
+
+    .exit-fullscreen-btn:hover {
+      background: #ff6f61;
+      transform: scale(1.05);
+    }
+
+    .fullscreen-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: 9998;
+      background: white;
+      display: none;
     }
 
     .process-btn {
@@ -101,6 +135,23 @@
       transform: scale(1.05);
     }
 
+    .secondary-btn {
+      padding: 1rem 2rem;
+      background: #ff6f61;
+      color: #fff;
+      border-radius: 50px;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      margin: 1rem 0.5rem;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .secondary-btn:hover {
+      transform: scale(1.05);
+    }
+
     .download-btn {
       padding: 1rem 2rem;
       background: #28a745;
@@ -108,7 +159,7 @@
       border-radius: 50px;
       border: none;
       cursor: pointer;
-      margin: 1rem auto;
+      margin: 1rem 0.5rem;
       display: inline-block;
       text-decoration: none;
       transition: transform 0.3s;
@@ -124,38 +175,41 @@
       border: 1px solid #ff6f61;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      color: rgba(255, 255, 255, 0.7);
       white-space: pre-wrap;
       word-wrap: break-word;
       min-height: 100px;
     }
 
-    .copy-btn {
-      padding: 0.5rem 1rem;
-      background: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: transform 0.3s;
-      margin-left: 1rem;
+    .button-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 1rem 0;
     }
 
-    .copy-btn-small {
-      padding: 0.3rem 0.8rem; /* Smaller padding to match button size with text */
-      background: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: transform 0.3s;
-      margin-left: 1rem;
+    .combiner-button-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 1rem 0;
     }
 
-    .copy-btn-small:hover {
-      transform: scale(1.05);
+    .combiner-button-group .process-btn {
+      order: 2;
+      margin: 1rem 15px;
+    }
+
+    .combiner-button-group .download-btn {
+      order: 1;
+      margin-right: 15px;
+    }
+
+    .combiner-button-group .secondary-btn {
+      order: 3;
+      margin-left: 15px;
     }
 
     .separate-tool {
@@ -174,93 +228,135 @@
       color: #ff6f61;
     }
 
-    .separated-code-section .code-actions {
+    .code-actions {
       display: flex;
-      gap: 1rem;
+      justify-content: center;
       margin-top: 0.5rem;
+    }
+
+    .code-actions .secondary-btn {
+      margin: 0 10px;
+    }
+
+    .code-actions .download-btn {
+      margin: 0 10px;
+    }
+
+    .tool-title {
+      color: #ff6f61;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .code-title {
+      color: #ff6f61;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
     }
   </style>
 </head>
 <body>
   <section class="hero">
-    <h1>CodeCraft Pro - Editor, Merger, and Separator</h1>
-    <p>Write, preview, merge, separate, and download HTML, CSS, and JavaScript code.</p>
+    <h1>CodeCraft Pro - Editor, Combiner, and Separator</h1>
+    <p>Preview, combine, separate, and download HTML, CSS, and JavaScript code.</p>
   </section>
 
   <div class="tool-container">
-    <!-- HTML Editor and Runner -->
+    <!-- Code Runner Tool -->
+    <h2 class="tool-title">Code Runner Tool</h2>
     <div class="editor-box">
-      <textarea id="combinedCode" placeholder="Write your HTML, CSS, and JavaScript code here..."></textarea>
-    </div>
-
-    <div class="preview-box">
-      <button class="fullscreen-btn" id="fullscreenBtn">Full Screen Preview</button>
-      <iframe id="previewFrame"></iframe>
+      <h3 class="code-title">HTML, CSS & JavaScript Code</h3>
+      <textarea id="combinedCode" placeholder="Enter your HTML, CSS, and JavaScript code here..."></textarea>
     </div>
 
     <button class="process-btn" id="processBtn">Run Code</button>
-    <a class="download-btn" id="downloadBtn" download="code.html">Download Code</a>
 
-    <!-- HTML+CSS+JavaScript Merger Tool -->
+    <div class="preview-box">
+      <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+      <iframe id="previewFrame"></iframe>
+    </div>
+
+    <div class="button-group">
+      <a class="download-btn" id="downloadBtn" download="code.html">Download Code</a>
+    </div>
+
+    <!-- Code Combiner Tool -->
+    <h2 class="tool-title">Code Combiner Tool</h2>
     <div class="editor-box">
+      <h3 class="code-title">HTML Code</h3>
       <textarea id="htmlInput" placeholder="Enter your HTML code here..."></textarea>
+      <h3 class="code-title">CSS Code</h3>
       <textarea id="cssInput" placeholder="Enter your CSS code here..."></textarea>
+      <h3 class="code-title">JavaScript Code</h3>
       <textarea id="jsInput" placeholder="Enter your JavaScript code here..."></textarea>
     </div>
 
-    <div id="mergedCodeBox" class="merged-code-box" contenteditable="true">Merged code will appear here...</div>
-    <button class="copy-btn" id="copyMergedCodeBtn">Copy Merged Code</button>
-    <a class="download-btn" id="mergeDownloadBtn" download="merged-code.html">Download Merged Code</a>
-    <button class="process-btn" id="mergeBtn">Merge Code</button>
+    <div class="combiner-button-group">
+      <a class="download-btn" id="combineDownloadBtn" download="combined-code.html">Download Combined Code</a>
+      <button class="process-btn" id="combineBtn">Combine Code</button>
+      <button class="secondary-btn" id="copyCombinedCodeBtn">Copy Combined Code</button>
+    </div>
+
+    <h3 class="code-title">Combined Result</h3>
+    <div id="combinedCodeBox" class="merged-code-box" contenteditable="true">Combined code will appear here...</div>
 
     <!-- Separator Tool -->
-    <div class="separate-tool">
-      <h2>Separator Tool</h2>
+    <h2 class="tool-title">Separator Tool</h2>
+    <div class="editor-box">
+      <h3 class="code-title">Combined Code</h3>
       <textarea id="combinedInput" placeholder="Paste your combined HTML, CSS, and JavaScript code here..."></textarea>
+    </div>
 
-      <div class="separated-code-section">
-        <div>
-          <h3>HTML Code</h3>
-          <textarea id="separatedHtml" placeholder="Separated HTML code will appear here..."></textarea>
-          <div class="code-actions">
-            <button class="copy-btn-small" id="copyHtmlBtn">Copy HTML</button>
-            <a class="download-btn" id="downloadHtmlBtn" download="separated-html.html">Download HTML</a>
-          </div>
-        </div>
+    <button class="process-btn" id="separateBtn">Separate Code</button>
 
-        <div>
-          <h3>CSS Code</h3>
-          <textarea id="separatedCss" placeholder="Separated CSS code will appear here..."></textarea>
-          <div class="code-actions">
-            <button class="copy-btn-small" id="copyCssBtn">Copy CSS</button>
-            <a class="download-btn" id="downloadCssBtn" download="separated-css.css">Download CSS</a>
-          </div>
-        </div>
-
-        <div>
-          <h3>JavaScript Code</h3>
-          <textarea id="separatedJs" placeholder="Separated JavaScript code will appear here..."></textarea>
-          <div class="code-actions">
-            <button class="copy-btn-small" id="copyJsBtn">Copy JavaScript</button>
-            <a class="download-btn" id="downloadJsBtn" download="separated-js.js">Download JavaScript</a>
-          </div>
+    <div class="separated-code-section">
+      <div>
+        <h3 class="code-title">HTML Code</h3>
+        <textarea id="separatedHtml" placeholder="Separated HTML code will appear here..."></textarea>
+        <div class="code-actions">
+          <button class="secondary-btn" id="copyHtmlBtn">Copy HTML</button>
+          <a class="download-btn" id="downloadHtmlBtn" download="separated-html.html">Download HTML</a>
         </div>
       </div>
 
-      <button class="process-btn" id="separateBtn">Separate Code</button>
+      <div>
+        <h3 class="code-title">CSS Code</h3>
+        <textarea id="separatedCss" placeholder="Separated CSS code will appear here..."></textarea>
+        <div class="code-actions">
+          <button class="secondary-btn" id="copyCssBtn">Copy CSS</button>
+          <a class="download-btn" id="downloadCssBtn" download="separated-css.css">Download CSS</a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="code-title">JavaScript Code</h3>
+        <textarea id="separatedJs" placeholder="Separated JavaScript code will appear here..."></textarea>
+        <div class="code-actions">
+          <button class="secondary-btn" id="copyJsBtn">Copy JavaScript</button>
+          <a class="download-btn" id="downloadJsBtn" download="separated-js.js">Download JavaScript</a>
+        </div>
+      </div>
     </div>
   </div>
+
+  <button class="exit-fullscreen-btn" id="exitFullscreenBtn">← Exit Fullscreen</button>
+  <iframe id="fullscreenFrame" class="fullscreen-iframe"></iframe>
 
   <script>
     // HTML Editor and Runner Logic
     const combinedCode = document.getElementById('combinedCode');
     const processBtn = document.getElementById('processBtn');
     const previewFrame = document.getElementById('previewFrame');
+    const fullscreenFrame = document.getElementById('fullscreenFrame');
     const downloadBtn = document.getElementById('downloadBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+
+    let currentCode = '';
 
     processBtn.addEventListener('click', () => {
       const userCode = combinedCode.value.trim();
+      currentCode = userCode;
 
       // Construct the full HTML document
       const fullCode = `
@@ -278,6 +374,7 @@
 
       // Display the preview in the iframe
       previewFrame.srcdoc = fullCode;
+      fullscreenFrame.srcdoc = fullCode;
 
       // Enable the download button and set the file content
       const blob = new Blob([fullCode], { type: 'text/html' });
@@ -285,37 +382,40 @@
       downloadBtn.style.display = 'inline-block';
     });
 
-    // Full-screen functionality for the preview iframe
+    // Full-screen functionality
     fullscreenBtn.addEventListener('click', () => {
-      const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-
-      if (iframeDoc.documentElement.requestFullscreen) {
-        iframeDoc.documentElement.requestFullscreen();
-      } else if (iframeDoc.documentElement.mozRequestFullScreen) {
-        iframeDoc.documentElement.mozRequestFullScreen(); // Firefox
-      } else if (iframeDoc.documentElement.webkitRequestFullscreen) {
-        iframeDoc.documentElement.webkitRequestFullscreen(); // Chrome, Safari, Opera
-      } else if (iframeDoc.documentElement.msRequestFullscreen) {
-        iframeDoc.documentElement.msRequestFullscreen(); // IE/Edge
+      if (!currentCode) {
+        alert('Please run the code first to see the preview');
+        return;
       }
+      
+      fullscreenFrame.style.display = 'block';
+      exitFullscreenBtn.style.display = 'block';
+      document.body.style.overflow = 'hidden';
     });
 
-    // HTML+CSS+JavaScript Merger Tool Logic
+    exitFullscreenBtn.addEventListener('click', () => {
+      fullscreenFrame.style.display = 'none';
+      exitFullscreenBtn.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    });
+
+    // Code Combiner Tool Logic
     const htmlInput = document.getElementById('htmlInput');
     const cssInput = document.getElementById('cssInput');
     const jsInput = document.getElementById('jsInput');
-    const mergeBtn = document.getElementById('mergeBtn');
-    const mergedCodeBox = document.getElementById('mergedCodeBox');
-    const copyMergedCodeBtn = document.getElementById('copyMergedCodeBtn');
-    const mergeDownloadBtn = document.getElementById('mergeDownloadBtn');
+    const combineBtn = document.getElementById('combineBtn');
+    const combinedCodeBox = document.getElementById('combinedCodeBox');
+    const copyCombinedCodeBtn = document.getElementById('copyCombinedCodeBtn');
+    const combineDownloadBtn = document.getElementById('combineDownloadBtn');
 
-    mergeBtn.addEventListener('click', () => {
+    combineBtn.addEventListener('click', () => {
       const html = htmlInput.value.trim();
       const css = cssInput.value.trim();
       const js = jsInput.value.trim();
 
-      // Construct the merged code
-      const mergedCode = `
+      // Construct the combined code
+      const combinedCode = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -330,19 +430,19 @@
         </html>
       `;
 
-      // Display the merged code in the result box
-      mergedCodeBox.textContent = mergedCode;
+      // Display the combined code in the result box
+      combinedCodeBox.textContent = combinedCode;
 
       // Enable the download button and set the file content
-      const blob = new Blob([mergedCode], { type: 'text/html' });
-      mergeDownloadBtn.href = URL.createObjectURL(blob);
+      const blob = new Blob([combinedCode], { type: 'text/html' });
+      combineDownloadBtn.href = URL.createObjectURL(blob);
     });
 
-    // Copy the merged code to clipboard
-    copyMergedCodeBtn.addEventListener('click', () => {
-      const mergedCode = mergedCodeBox.textContent;
-      navigator.clipboard.writeText(mergedCode).then(() => {
-        alert('Merged code copied to clipboard!');
+    // Copy the combined code to clipboard
+    copyCombinedCodeBtn.addEventListener('click', () => {
+      const combinedCode = combinedCodeBox.textContent;
+      navigator.clipboard.writeText(combinedCode).then(() => {
+        alert('Combined code copied to clipboard!');
       }).catch(err => {
         console.error('Failed to copy text: ', err);
       });
