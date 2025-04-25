@@ -57,7 +57,7 @@
     }
 
     .input-box input::placeholder {
-      color: #ccc;
+      color: rgba(204, 204, 204, 0.5);
     }
 
     .process-btn {
@@ -86,13 +86,27 @@
     }
 
     .output-box {
-      margin-top: 2rem;
+      border: 2px dashed #ff6f61;
+      padding: 2rem;
+      border-radius: 20px;
+      margin: 2rem auto;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
       text-align: center;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .output-box p {
       font-size: 1.2rem;
       color: #fff;
+      margin: 0;
+    }
+
+    .placeholder-text {
+      opacity: 0.5;
     }
   </style>
 </head>
@@ -109,7 +123,7 @@
     </div>
 
     <div class="output-box">
-      <p id="result">Your age will appear here...</p>
+      <p id="result" class="placeholder-text">Your age will appear here...</p>
     </div>
   </div>
 
@@ -145,6 +159,7 @@
         Your age is: <br>
         <strong>${years}</strong> years, <strong>${months}</strong> months, and <strong>${days}</strong> days.
       `;
+      result.classList.remove('placeholder-text');
     });
   </script>
 </body>
