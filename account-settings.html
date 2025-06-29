@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings - Raidpo AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff3b2f;
+      --primary-light: #ff6f61;
+      --dark: #0f0f0f;
+      --dark-light: #1a1a1a;
+      --gray: #333;
+      --light-gray: #555;
+      --text: #fff;
+      --text-secondary: #ccc;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .account-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      padding: 30px 0 120px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 80px;
+    }
+    
+    .account-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .account-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+    }
+    
+    .profile-avatar {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: var(--dark-light);
+      border: 5px solid var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--text);
+      overflow: hidden;
+    }
+    
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Tabs */
+    .settings-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--gray);
+    }
+    
+    .tab-btn {
+      padding: 12px 25px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary);
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      background-color: var(--dark-light);
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--text);
+      position: relative;
+      padding-left: 15px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 5px;
+      height: 70%;
+      width: 4px;
+      background-color: var(--primary);
+      border-radius: 2px;
+    }
+    
+    /* Info Cards */
+    .info-card {
+      background-color: var(--gray);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    .info-card .info-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+      display: block;
+    }
+    
+    .info-card .info-value {
+      font-size: 1.1rem;
+      color: var(--text);
+      word-break: break-all;
+    }
+    
+    .info-card .copy-btn {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 5px;
+    }
+    
+    .info-card .copy-btn:hover {
+      color: var(--primary);
+    }
+    
+    .info-card .copy-btn.copied {
+      color: #4CAF50;
+    }
+    
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      background-color: var(--gray);
+      border: 1px solid var(--light-gray);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .btn {
+      padding: 12px 25px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background-color: var(--gray);
+      color: var(--text);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--light-gray);
+    }
+    
+    .btn-danger {
+      background-color: #d32f2f;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #b71c1c;
+    }
+    
+    /* Alert Messages */
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .alert-success {
+      background-color: #2E7D32;
+      color: white;
+    }
+    
+    .alert-error {
+      background-color: #d32f2f;
+      color: white;
+    }
+    
+    /* Provider Badge */
+    .provider-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 10px;
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .account-header {
+        padding: 20px 0 100px;
+      }
+      
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        bottom: -50px;
+      }
+      
+      .settings-tabs {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 5px;
+      }
+      
+      .tab-content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="account-header">
+    <div class="container">
+      <h1>Account Settings</h1>
+      <p>Manage your Raidpo AI account details</p>
+    </div>
+    <div class="profile-avatar" id="profileAvatar">
+      <i class="fas fa-user"></i>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="settings-tabs">
+      <button class="tab-btn active" data-tab="information">Information</button>
+      <button class="tab-btn" data-tab="private">Private</button>
+      <button class="tab-btn" data-tab="security">Security</button>
+      <button class="tab-btn" data-tab="danger">Danger Zone</button>
+    </div>
+    
+    <!-- Information Tab -->
+    <div class="tab-content active" id="information">
+      <h2 class="section-title">Basic Information</h2>
+      
+      <div class="info-card">
+        <span class="info-label">User ID</span>
+        <span class="info-value" id="userId">Loading...</span>
+        <button class="copy-btn" data-target="userId"><i class="fas fa-copy"></i></button>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Username</span>
+        <span class="info-value" id="displayName">Not set</span>
+        <button class="copy-btn" data-target="displayName"><i class="fas fa-copy"></i></button>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Email</span>
+        <span class="info-value" id="userEmail">Loading...</span>
+        <span class="provider-badge" id="providerBadge"></span>
+        <button class="copy-btn" data-target="userEmail"><i class="fas fa-copy"></i></button>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Account Created</span>
+        <span class="info-value" id="createdAt">Loading...</span>
+      </div>
+      
+      <h2 class="section-title" style="margin-top: 40px;">Additional Information</h2>
+      
+      <div class="info-card">
+        <span class="info-label">Birth Date</span>
+        <span class="info-value" id="birthDate">Not set</span>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Location</span>
+        <span class="info-value" id="location">Not set</span>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Bio</span>
+        <span class="info-value" id="bio">Not set</span>
+      </div>
+      
+      <button class="btn btn-secondary" id="editProfileBtn" style="margin-top: 20px;">
+        <i class="fas fa-edit"></i> Edit Profile
+      </button>
+    </div>
+    
+    <!-- Private Tab -->
+    <div class="tab-content" id="private">
+      <div id="passwordSection">
+        <h2 class="section-title">Password</h2>
+        <div id="passwordAlert" class="alert" style="display: none;"></div>
+        
+        <form id="passwordForm">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+          </div>
+          
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+      </div>
+      
+      <h2 class="section-title" style="margin-top: 40px;">Connected Accounts</h2>
+      <div id="connectedAccounts">
+        <div class="info-card">
+          <span class="info-label">Primary Login Method</span>
+          <span class="info-value" id="primaryProvider">Loading...</span>
+        </div>
+        
+        <div id="providersList" style="margin-top: 20px;">
+          <!-- Providers will be listed here -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security Tab -->
+    <div class="tab-content" id="security">
+      <h2 class="section-title">Security</h2>
+      
+      <div class="info-card">
+        <span class="info-label">Last Login</span>
+        <span class="info-value" id="lastLogin">Loading...</span>
+      </div>
+      
+      <div class="info-card">
+        <span class="info-label">Login Activity</span>
+        <span class="info-value">View recent login attempts</span>
+      </div>
+      
+      <h2 class="section-title" style="margin-top: 40px;">Two-Factor Authentication</h2>
+      
+      <div class="info-card">
+        <span class="info-label">2FA Status</span>
+        <span class="info-value">Disabled</span>
+      </div>
+      
+      <button class="btn btn-secondary" style="margin-top: 20px;">
+        <i class="fas fa-shield-alt"></i> Enable Two-Factor Authentication
+      </button>
+    </div>
+    
+    <!-- Danger Zone Tab -->
+    <div class="tab-content" id="danger">
+      <h2 class="section-title">Danger Zone</h2>
+      
+      <div class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i> These actions are irreversible. Proceed with caution.
+      </div>
+      
+      <div class="info-card" style="border-left: 4px solid #d32f2f;">
+        <span class="info-label">Delete Account</span>
+        <span class="info-value">Permanently delete your account and all associated data</span>
+        <button class="btn btn-danger" id="deleteAccountBtn" style="margin-top: 15px;">
+          <i class="fas fa-trash-alt"></i> Delete Account
+        </button>
+      </div>
+      
+      <div class="info-card" style="border-left: 4px solid #d32f2f; margin-top: 20px;">
+        <span class="info-label">Sign Out Everywhere</span>
+        <span class="info-value">Sign out of all devices and revoke all sessions</span>
+        <button class="btn btn-secondary" id="signOutEverywhereBtn" style="margin-top: 15px;">
+          <i class="fas fa-sign-out-alt"></i> Sign Out Everywhere
+        </button>
+      </div>
+      
+      <button class="btn btn-secondary" id="signOutBtn" style="margin-top: 30px;">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
+      projectId: "raidpo-ai-3c84b",
+      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
+      messagingSenderId: "41213161184",
+      appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
+      measurementId: "G-7MBZHVFCZR"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // DOM Elements
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const copyBtns = document.querySelectorAll('.copy-btn');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const passwordForm = document.getElementById('passwordForm');
+    const passwordAlert = document.getElementById('passwordAlert');
+    const passwordSection = document.getElementById('passwordSection');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const signOutEverywhereBtn = document.getElementById('signOutEverywhereBtn');
+    
+    // Tab Switching
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        
+        // Update active tab button
+        tabBtns.forEach(tb => tb.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update active tab content
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Copy buttons
+    copyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const targetElement = document.getElementById(targetId);
+        const textToCopy = targetElement.textContent;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          btn.classList.add('copied');
+          btn.innerHTML = '<i class="fas fa-check"></i>';
+          
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fas fa-copy"></i>';
+          }, 2000);
+        });
+      });
+    });
+    
+    // Load user data
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = "https://raidpo-ai.netlify.app/";
+        return;
+      }
+      
+      // Basic info
+      document.getElementById('userId').textContent = user.uid;
+      document.getElementById('userEmail').textContent = user.email;
+      
+      // Display name
+      if (user.displayName) {
+        document.getElementById('displayName').textContent = user.displayName;
+        // Set avatar initials
+        const initials = user.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+        profileAvatar.innerHTML = initials;
+      } else {
+        document.getElementById('displayName').textContent = "Not set";
+      }
+      
+      // Account creation date
+      const createdAt = new Date(user.metadata.creationTime);
+      document.getElementById('createdAt').textContent = createdAt.toLocaleString();
+      
+      // Last login
+      const lastLoginAt = new Date(user.metadata.lastSignInTime);
+      document.getElementById('lastLogin').textContent = lastLoginAt.toLocaleString();
+      
+      // Provider info
+      const providerData = user.providerData[0];
+      let providerName = "Email/Password";
+      if (providerData) {
+        if (providerData.providerId === 'google.com') {
+          providerName = "Google";
+        } else if (providerData.providerId === 'apple.com') {
+          providerName = "Apple";
+        } else if (providerData.providerId === 'facebook.com') {
+          providerName = "Facebook";
+        } else if (providerData.providerId === 'github.com') {
+          providerName = "GitHub";
+        }
+        
+        // Set provider badge
+        document.getElementById('providerBadge').textContent = providerName;
+        
+        // Set avatar image if available
+        if (providerData.photoURL) {
+          profileAvatar.innerHTML = `<img src="${providerData.photoURL}" alt="Profile">`;
+        }
+      }
+      
+      document.getElementById('primaryProvider').textContent = providerName;
+      
+      // Hide password section if user signed in with provider
+      if (providerData && providerData.providerId !== 'password') {
+        passwordSection.style.display = 'none';
+      }
+      
+      // Load additional user data from Firestore
+      const userRef = db.collection('users').doc(user.uid);
+      const doc = await userRef.get();
+      
+      if (doc.exists) {
+        const userData = doc.data();
+        
+        if (userData.birthDate) {
+          document.getElementById('birthDate').textContent = userData.birthDate;
+        }
+        
+        if (userData.location) {
+          document.getElementById('location').textContent = userData.location;
+        }
+        
+        if (userData.bio) {
+          document.getElementById('bio').textContent = userData.bio;
+        }
+      }
+    });
+    
+    // Change password
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      if (newPassword !== confirmPassword) {
+        showAlert('Passwords do not match', 'error');
+        return;
+      }
+      
+      if (newPassword.length < 6) {
+        showAlert('Password must be at least 6 characters', 'error');
+        return;
+      }
+      
+      const user = auth.currentUser;
+      const credential = firebase.auth.EmailAuthProvider.credential(
+        user.email, 
+        currentPassword
+      );
+      
+      try {
+        // Reauthenticate user
+        await user.reauthenticateWithCredential(credential);
+        
+        // Change password
+        await user.updatePassword(newPassword);
+        
+        showAlert('Password changed successfully!', 'success');
+        passwordForm.reset();
+      } catch (error) {
+        console.error('Error changing password:', error);
+        showAlert(error.message, 'error');
+      }
+    });
+    
+    // Sign out
+    signOutBtn.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = "https://raidpo-ai.netlify.app/";
+      }).catch(error => {
+        console.error('Error signing out:', error);
+      });
+    });
+    
+    // Delete account
+    deleteAccountBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        const user = auth.currentUser;
+        
+        try {
+          // Delete user from authentication
+          await user.delete();
+          
+          // Delete user data from Firestore
+          await db.collection('users').doc(user.uid).delete();
+          
+          window.location.href = "https://raidpo-ai.netlify.app/";
+        } catch (error) {
+          console.error('Error deleting account:', error);
+          alert('Error deleting account: ' + error.message);
+        }
+      }
+    });
+    
+    // Sign out everywhere
+    signOutEverywhereBtn.addEventListener('click', async () => {
+      if (confirm('This will sign you out of all devices. Continue?')) {
+        try {
+          await auth.signOut();
+          window.location.href = "https://raidpo-ai.netlify.app/";
+        } catch (error) {
+          console.error('Error signing out everywhere:', error);
+          alert('Error: ' + error.message);
+        }
+      }
+    });
+    
+    // Helper function to show alerts
+    function showAlert(message, type) {
+      passwordAlert.textContent = message;
+      passwordAlert.className = 'alert';
+      passwordAlert.classList.add(`alert-${type}`);
+      passwordAlert.style.display = 'block';
+      
+      setTimeout(() => {
+        passwordAlert.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
