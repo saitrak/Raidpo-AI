@@ -29,268 +29,7 @@
       color: inherit;
     }
 
-    /* Auth Page */
-    .auth-page {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
-    }
-
-    .auth-container {
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .auth-header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-header p {
-      color: #ccc;
-    }
-
-    .auth-tabs {
-      display: flex;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid #333;
-    }
-
-    .auth-tab {
-      flex: 1;
-      text-align: center;
-      padding: 1rem;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .auth-tab.active {
-      color: #ff6f61;
-    }
-
-    .auth-tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: #ff6f61;
-    }
-
-    .auth-form {
-      display: none;
-    }
-
-    .auth-form.active {
-      display: block;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 0.8rem;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #333;
-      color: #fff;
-      font-size: 1rem;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #ff6f61;
-    }
-
-    .auth-btn {
-      width: 100%;
-      padding: 1rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .auth-btn:hover {
-      background-color: #ff3b2f;
-    }
-
-    .google-btn {
-      width: 100%;
-      padding: 1rem;
-      background-color: #4285F4;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .apple-btn {
-      width: 100%;
-      padding: 1rem;
-      background-color: #000;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .auth-error {
-      color: #ff6f61;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-
-    .auth-footer a {
-      color: #ff6f61;
-      text-decoration: underline;
-    }
-
-    /* Cookies Banner */
-    .cookies-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: #1a1a1a;
-      padding: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 999;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .cookies-content {
-      flex: 1;
-      margin-right: 1rem;
-    }
-
-    .cookies-content p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #ccc;
-      line-height: 1.5;
-    }
-
-    .cookies-content a {
-      color: #ff6f61;
-      text-decoration: underline;
-    }
-
-    .cookies-buttons {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .cookies-btn {
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    .cookies-accept {
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-    }
-
-    .cookies-decline {
-      background-color: transparent;
-      color: #ccc;
-      border: 1px solid #ccc;
-    }
-
-    /* Verification Message */
-    .verification-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      z-index: 1000;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      display: none;
-    }
-
-    .verification-message h2 {
-      margin-bottom: 1rem;
-      color: #ff6f61;
-    }
-
-    .verification-message p {
-      margin-bottom: 1.5rem;
-      color: #ccc;
-    }
-
-    .verification-message button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* Homepage (hidden initially) */
+    /* Homepage */
     .homepage {
       display: none;
     }
@@ -489,9 +228,10 @@
       overflow: hidden;
       background-size: cover;
       background-position: center;
+      position: relative;
     }
 
-    .user-menu {
+    .user-profile-info {
       position: absolute;
       top: 50px;
       right: 0;
@@ -500,61 +240,55 @@
       padding: 1rem;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       display: none;
-      width: 200px;
+      width: 250px;
+      z-index: 101;
     }
 
-    .user-menu.active {
+    .user-profile-info.active {
       display: block;
     }
 
-    .user-menu-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #333;
-    }
-
-    .user-menu-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .user-menu-details {
-      flex: 1;
-    }
-
-    .user-menu-name {
+    .user-profile-name {
       font-weight: bold;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.5rem;
     }
 
-    .user-menu-email {
+    .user-profile-email {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-profile-uid {
       font-size: 0.8rem;
-      color: #ccc;
+      color: #888;
+      word-break: break-all;
     }
 
-    .user-menu a {
+    .user-profile-link {
       display: block;
+      margin-top: 0.5rem;
       padding: 0.5rem;
-      color: #ccc;
-      transition: color 0.3s;
-      border-radius: 3px;
+      background-color: #ff6f61;
+      color: #fff;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 0.9rem;
     }
 
-    .user-menu a:hover {
-      color: #ff6f61;
-      background-color: rgba(255, 111, 97, 0.1);
-    }
-
-    .user-menu-separator {
-      height: 1px;
-      background-color: #333;
-      margin: 0.5rem 0;
+    /* Login Button */
+    .login-button {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 100;
+      padding: 0.5rem 1rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
     }
 
     /* Settings Page */
@@ -671,6 +405,13 @@
       margin-bottom: 1rem;
     }
 
+    .profile-uid {
+      font-size: 0.9rem;
+      color: #888;
+      word-break: break-all;
+      margin-bottom: 1rem;
+    }
+
     .profile-stats {
       display: flex;
       gap: 1.5rem;
@@ -760,22 +501,6 @@
       .tool-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
-      
-      .cookies-banner {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-      }
-      
-      .cookies-content {
-        margin-right: 0;
-        margin-bottom: 1rem;
-      }
-      
-      .cookies-buttons {
-        width: 100%;
-        justify-content: center;
-      }
 
       .profile-header {
         flex-direction: column;
@@ -789,96 +514,6 @@
   </style>
 </head>
 <body>
-  <!-- Auth Page (shown by default) -->
-  <div class="auth-page" id="authPage">
-    <div class="auth-container">
-      <div class="auth-header">
-        <h1>Raidpo AI</h1>
-        <p>Access powerful AI tools with your account</p>
-      </div>
-      
-      <div class="auth-tabs">
-        <div class="auth-tab active" data-tab="login">Login</div>
-        <div class="auth-tab" data-tab="signup">Sign Up</div>
-      </div>
-      
-      <div id="loginForm" class="auth-form active">
-        <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter your password" required>
-        </div>
-        
-        <button id="loginBtn" class="auth-btn">Login</button>
-        <button id="googleLoginBtn" class="google-btn">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-        <button id="appleLoginBtn" class="apple-btn">
-          <i class="fab fa-apple"></i> Continue with Apple
-        </button>
-        
-        <div id="loginError" class="auth-error"></div>
-        
-        <div class="auth-footer">
-          Don't have an account? <a href="#" id="switchToSignup">Sign up</a>
-        </div>
-      </div>
-      
-      <div id="signupForm" class="auth-form">
-        <div class="form-group">
-          <label for="signupName">Full Name</label>
-          <input type="text" id="signupName" placeholder="Enter your full name" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="signupEmail">Email</label>
-          <input type="email" id="signupEmail" placeholder="Enter your email" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="signupPassword">Password</label>
-          <input type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" required>
-        </div>
-        
-        <button id="signupBtn" class="auth-btn">Sign Up</button>
-        <button id="googleSignupBtn" class="google-btn">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-        <button id="appleSignupBtn" class="apple-btn">
-          <i class="fab fa-apple"></i> Continue with Apple
-        </button>
-        
-        <div id="signupError" class="auth-error"></div>
-        
-        <div class="auth-footer">
-          Already have an account? <a href="#" id="switchToLogin">Login</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Verification Message -->
-  <div class="verification-message" id="verificationMessage">
-    <h2>Verify Your Email</h2>
-    <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
-    <button id="verificationCloseBtn">Close</button>
-  </div>
-
-  <!-- Cookies Banner (shown after auth) -->
-  <div id="cookiesBanner" class="cookies-banner" style="display: none;">
-    <div class="cookies-content">
-      <p>We use cookies and similar technologies to provide and improve our services, personalize content and ads, and analyze traffic. By clicking "Accept", you consent to the use of these technologies. Some cookies are essential for the website to function properly, while others help us enhance your experience. You can learn more about how we use cookies in our <a href="/privacy-policy.html">Privacy Policy</a>. Note that declining cookies may affect certain features of the website.</p>
-    </div>
-    <div class="cookies-buttons">
-      <button class="cookies-btn cookies-decline" id="declineCookies">Decline</button>
-      <button class="cookies-btn cookies-accept" id="acceptCookies">Accept</button>
-    </div>
-  </div>
-
   <!-- Homepage (hidden initially) -->
   <div class="homepage" id="homepage">
     <!-- User Profile -->
@@ -886,21 +521,16 @@
       <div class="user-avatar" id="userAvatar">
         <i class="fas fa-user" id="defaultAvatarIcon"></i>
       </div>
-      <div class="user-menu" id="userMenu">
-        <div class="user-menu-header">
-          <div class="user-menu-avatar" id="userMenuAvatar"></div>
-          <div class="user-menu-details">
-            <div class="user-menu-name" id="userMenuName"></div>
-            <div class="user-menu-email" id="userMenuEmail"></div>
-          </div>
-        </div>
-        <div class="user-menu-separator"></div>
-        <a href="#" id="profileBtn"><i class="fas fa-user"></i> Profile</a>
-        <a href="#" id="settingsBtn"><i class="fas fa-cog"></i> Settings</a>
-        <div class="user-menu-separator"></div>
-        <a href="#" id="signOutBtn"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+      <div class="user-profile-info" id="userProfileInfo">
+        <div class="user-profile-name" id="userProfileName"></div>
+        <div class="user-profile-email" id="userProfileEmail"></div>
+        <div class="user-profile-uid" id="userProfileUid"></div>
+        <a href="/account-settings" class="user-profile-link">Account Settings</a>
       </div>
     </div>
+
+    <!-- Login Button (shown when not logged in) -->
+    <a href="https://raidpo-ai.netlify.app/login-form" class="login-button" id="loginButton">Login</a>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -1141,6 +771,7 @@
       <div class="profile-info">
         <div class="profile-name" id="profileName"></div>
         <div class="profile-email" id="profileEmail"></div>
+        <div class="profile-uid" id="profileUid"></div>
         <div class="profile-stats">
           <div class="profile-stat">
             <div class="profile-stat-value" id="toolsUsed">0</div>
@@ -1183,47 +814,21 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
     // DOM Elements
-    const authPage = document.getElementById('authPage');
     const homepage = document.getElementById('homepage');
     const settingsPage = document.getElementById('settingsPage');
     const profilePage = document.getElementById('profilePage');
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const googleSignupBtn = document.getElementById('googleSignupBtn');
-    const appleLoginBtn = document.getElementById('appleLoginBtn');
-    const appleSignupBtn = document.getElementById('appleSignupBtn');
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPassword = document.getElementById('loginPassword');
-    const signupName = document.getElementById('signupName');
-    const signupEmail = document.getElementById('signupEmail');
-    const signupPassword = document.getElementById('signupPassword');
-    const loginError = document.getElementById('loginError');
-    const signupError = document.getElementById('signupError');
-    const authTabs = document.querySelectorAll('.auth-tab');
-    const switchToSignup = document.getElementById('switchToSignup');
-    const switchToLogin = document.getElementById('switchToLogin');
     const userProfile = document.getElementById('userProfile');
     const userAvatar = document.getElementById('userAvatar');
+    const userProfileInfo = document.getElementById('userProfileInfo');
+    const userProfileName = document.getElementById('userProfileName');
+    const userProfileEmail = document.getElementById('userProfileEmail');
+    const userProfileUid = document.getElementById('userProfileUid');
     const defaultAvatarIcon = document.getElementById('defaultAvatarIcon');
-    const userMenu = document.getElementById('userMenu');
-    const userMenuAvatar = document.getElementById('userMenuAvatar');
-    const userMenuName = document.getElementById('userMenuName');
-    const userMenuEmail = document.getElementById('userMenuEmail');
     const profileBtn = document.getElementById('profileBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const signOutBtn = document.getElementById('signOutBtn');
-    const cookiesBanner = document.getElementById('cookiesBanner');
-    const acceptCookies = document.getElementById('acceptCookies');
-    const declineCookies = document.getElementById('declineCookies');
-    const verificationMessage = document.getElementById('verificationMessage');
-    const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const settingsBackBtn = document.getElementById('settingsBackBtn');
     const profileBackBtn = document.getElementById('profileBackBtn');
     const settingsSaveBtn = document.getElementById('settingsSaveBtn');
@@ -1232,118 +837,88 @@
     const profileDefaultAvatar = document.getElementById('profileDefaultAvatar');
     const profileName = document.getElementById('profileName');
     const profileEmail = document.getElementById('profileEmail');
+    const profileUid = document.getElementById('profileUid');
     const profileFullName = document.getElementById('profileFullName');
     const profileBio = document.getElementById('profileBio');
     const toolsUsed = document.getElementById('toolsUsed');
     const toolLinks = document.querySelectorAll('.tool-card a');
+    const loginButton = document.getElementById('loginButton');
 
     // Track tools used
     let toolsUsedCount = 0;
 
-    // Auth Tab Switching
-    authTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        if (tab.dataset.tab === 'login') {
-          loginForm.classList.add('active');
-          signupForm.classList.remove('active');
+    // Show profile info on hover
+    userAvatar.addEventListener('mouseenter', () => {
+      userProfileInfo.classList.add('active');
+    });
+
+    userProfile.addEventListener('mouseleave', () => {
+      userProfileInfo.classList.remove('active');
+    });
+
+    // Update user profile with photo if available
+    function updateUserProfile(user) {
+      if (user) {
+        // Show profile icon and hide login button
+        userProfile.style.display = 'flex';
+        loginButton.style.display = 'none';
+
+        // Main avatar
+        if (user.photoURL) {
+          userAvatar.style.backgroundImage = `url(${user.photoURL})`;
+          defaultAvatarIcon.style.display = 'none';
         } else {
-          loginForm.classList.remove('active');
-          signupForm.classList.add('active');
+          userAvatar.style.backgroundImage = '';
+          defaultAvatarIcon.style.display = 'flex';
         }
-      });
-    });
 
-    // Switch between login and signup
-    switchToSignup.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[1].click();
-    });
+        // Profile info
+        userProfileName.textContent = user.displayName || 'User';
+        userProfileEmail.textContent = user.email || '';
+        userProfileUid.textContent = `UID: ${user.uid}`;
 
-    switchToLogin.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[0].click();
-    });
-
-    // User Profile Menu Toggle (click only, no hover)
-    userAvatar.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userMenu.classList.toggle('active');
-    });
-
-    // Close User Menu when clicking outside
-    document.addEventListener('click', () => {
-      userMenu.classList.remove('active');
-    });
-
-    // Prevent menu from closing when clicking inside it
-    userMenu.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-
-    // Sign Out
-    signOutBtn.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        // Show auth page and hide homepage
-        authPage.style.display = 'flex';
-        homepage.style.display = 'none';
-        settingsPage.style.display = 'none';
-        profilePage.style.display = 'none';
-      }).catch(error => {
-        console.error('Sign out error:', error);
-      });
-    });
-
-    // Check if user has accepted cookies
-    function hasAcceptedCookies(uid) {
-      return localStorage.getItem(`cookiesAccepted_${uid}`) !== null;
-    }
-
-    // Set cookies preference for user
-    function setCookiesPreference(uid, accepted) {
-      localStorage.setItem(`cookiesAccepted_${uid}`, accepted);
-    }
-
-    // Accept cookies
-    acceptCookies.addEventListener('click', () => {
-      const user = auth.currentUser;
-      if (user) {
-        setCookiesPreference(user.uid, 'true');
+        // Profile page elements
+        if (user.photoURL) {
+          profileAvatar.style.backgroundImage = `url(${user.photoURL})`;
+          profileDefaultAvatar.style.display = 'none';
+        } else {
+          profileAvatar.style.backgroundImage = '';
+          profileDefaultAvatar.style.display = 'flex';
+        }
+        
+        profileName.textContent = user.displayName || 'User';
+        profileEmail.textContent = user.email || '';
+        profileUid.textContent = `UID: ${user.uid}`;
+        profileFullName.value = user.displayName || '';
+        
+        // Set member since year
+        const memberSince = document.getElementById('memberSince');
+        if (user.metadata && user.metadata.creationTime) {
+          const creationDate = new Date(user.metadata.creationTime);
+          memberSince.textContent = creationDate.getFullYear();
+        }
+      } else {
+        // Show login button and hide profile icon
+        userProfile.style.display = 'none';
+        loginButton.style.display = 'block';
       }
-      cookiesBanner.style.display = 'none';
-    });
-
-    // Decline cookies
-    declineCookies.addEventListener('click', () => {
-      const user = auth.currentUser;
-      if (user) {
-        setCookiesPreference(user.uid, 'false');
-      }
-      cookiesBanner.style.display = 'none';
-    });
-
-    // Close verification message
-    verificationCloseBtn.addEventListener('click', () => {
-      verificationMessage.style.display = 'none';
-    });
+    }
 
     // Navigation between pages
-    profileBtn.addEventListener('click', (e) => {
+    profileBtn?.addEventListener('click', (e) => {
       e.preventDefault();
       homepage.style.display = 'none';
       settingsPage.style.display = 'none';
       profilePage.style.display = 'block';
-      userMenu.classList.remove('active');
+      userProfileInfo.classList.remove('active');
     });
 
-    settingsBtn.addEventListener('click', (e) => {
+    settingsBtn?.addEventListener('click', (e) => {
       e.preventDefault();
       homepage.style.display = 'none';
       profilePage.style.display = 'none';
       settingsPage.style.display = 'block';
-      userMenu.classList.remove('active');
+      userProfileInfo.classList.remove('active');
     });
 
     settingsBackBtn.addEventListener('click', (e) => {
@@ -1384,224 +959,12 @@
       }
     });
 
-    // Update user profile with photo if available
-    function updateUserProfile(user) {
-      // Main avatar
-      if (user.photoURL) {
-        userAvatar.style.backgroundImage = `url(${user.photoURL})`;
-        defaultAvatarIcon.style.display = 'none';
-      } else {
-        userAvatar.style.backgroundImage = '';
-        defaultAvatarIcon.style.display = 'flex';
-      }
-
-      // Menu avatar and details
-      if (user.photoURL) {
-        userMenuAvatar.style.backgroundImage = `url(${user.photoURL})`;
-        userMenuAvatar.innerHTML = '';
-      } else {
-        userMenuAvatar.style.backgroundImage = '';
-        userMenuAvatar.innerHTML = '<i class="fas fa-user"></i>';
-      }
-      
-      userMenuName.textContent = user.displayName || 'User';
-      userMenuEmail.textContent = user.email || '';
-
-      // Profile page elements
-      if (user.photoURL) {
-        profileAvatar.style.backgroundImage = `url(${user.photoURL})`;
-        profileDefaultAvatar.style.display = 'none';
-      } else {
-        profileAvatar.style.backgroundImage = '';
-        profileDefaultAvatar.style.display = 'flex';
-      }
-      
-      profileName.textContent = user.displayName || 'User';
-      profileEmail.textContent = user.email || '';
-      profileFullName.value = user.displayName || '';
-      
-      // Set member since year
-      const memberSince = document.getElementById('memberSince');
-      if (user.metadata && user.metadata.creationTime) {
-        const creationDate = new Date(user.metadata.creationTime);
-        memberSince.textContent = creationDate.getFullYear();
-      }
-    }
-
-    // Check Auth State
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in
-        authPage.style.display = 'none';
-        homepage.style.display = 'block';
-        settingsPage.style.display = 'none';
-        profilePage.style.display = 'none';
-        
-        // Show user profile
-        userProfile.style.display = 'flex';
-        updateUserProfile(user);
-        
-        // Check if user needs to accept cookies
-        if (!hasAcceptedCookies(user.uid)) {
-          cookiesBanner.style.display = 'flex';
-        }
-
-        // Reset tools used count
-        toolsUsedCount = 0;
-        toolsUsed.textContent = toolsUsedCount;
-
-        // Redirect protection for direct tool access
-        const currentPath = window.location.pathname;
-        if (currentPath !== '/' && !currentPath.includes('.html')) {
-          window.history.replaceState({}, '', '/');
-        }
-      } else {
-        // User is signed out
-        authPage.style.display = 'flex';
-        homepage.style.display = 'none';
-        settingsPage.style.display = 'none';
-        profilePage.style.display = 'none';
-
-        // Redirect to auth if trying to access tools directly
-        const currentPath = window.location.pathname;
-        if (currentPath !== '/' && !currentPath.includes('auth')) {
-          window.history.replaceState({}, '', '/');
-        }
-      }
-    });
-
-    // Email Login
-    loginBtn.addEventListener('click', () => {
-      const email = loginEmail.value;
-      const password = loginPassword.value;
-      
-      // Clear previous errors
-      loginError.style.display = 'none';
-      
-      // Basic email validation
-      if (!email.includes('@') || !email.includes('.')) {
-        loginError.textContent = 'Please enter a valid email address';
-        loginError.style.display = 'block';
-        return;
-      }
-      
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          // Login successful, handled by auth state change
-        })
-        .catch(error => {
-          if (error.code === 'auth/user-not-found') {
-            loginError.textContent = 'No account found with this email';
-          } else if (error.code === 'auth/wrong-password') {
-            loginError.textContent = 'Incorrect password';
-          } else {
-            loginError.textContent = error.message;
-          }
-          loginError.style.display = 'block';
-        });
-    });
-
-    // Email Sign Up
-    signupBtn.addEventListener('click', () => {
-      const name = signupName.value;
-      const email = signupEmail.value;
-      const password = signupPassword.value;
-      
-      // Clear previous errors
-      signupError.style.display = 'none';
-      
-      // Validation
-      if (!name) {
-        signupError.textContent = 'Please enter your full name';
-        signupError.style.display = 'block';
-        return;
-      }
-      
-      if (!email.includes('@') || !email.includes('.')) {
-        signupError.textContent = 'Please enter a valid email address';
-        signupError.style.display = 'block';
-        return;
-      }
-      
-      if (password.length < 6) {
-        signupError.textContent = 'Password must be at least 6 characters';
-        signupError.style.display = 'block';
-        return;
-      }
-      
-      // First check if email exists
-      auth.fetchSignInMethodsForEmail(email)
-        .then((signInMethods) => {
-          if (signInMethods.length > 0) {
-            // Email already exists
-            signupError.textContent = 'This email is already in use';
-            signupError.style.display = 'block';
-          } else {
-            // Email doesn't exist, proceed with signup
-            return auth.createUserWithEmailAndPassword(email, password)
-              .then((userCredential) => {
-                return userCredential.user.updateProfile({
-                  displayName: name
-                }).then(() => {
-                  // Send email verification
-                  return userCredential.user.sendEmailVerification({
-                    url: window.location.origin,
-                    handleCodeInApp: true
-                  });
-                });
-              })
-              .then(() => {
-                // Show verification message
-                verificationMessage.style.display = 'block';
-                signupForm.reset();
-                authTabs[0].click();
-              });
-          }
-        })
-        .catch(error => {
-          signupError.textContent = error.message;
-          signupError.style.display = 'block';
-        });
-    });
-
-    // Google Login/Signup
-    function signInWithGoogle() {
-      auth.signInWithPopup(googleProvider)
-        .then((result) => {
-          // Google auth successful, handled by auth state change
-        })
-        .catch(error => {
-          const errorElement = loginForm.classList.contains('active') ? loginError : signupError;
-          errorElement.textContent = error.message;
-          errorElement.style.display = 'block';
-        });
-    }
-
-    // Apple Login/Signup
-    function signInWithApple() {
-      auth.signInWithPopup(appleProvider)
-        .then((result) => {
-          // Apple auth successful, handled by auth state change
-        })
-        .catch(error => {
-          const errorElement = loginForm.classList.contains('active') ? loginError : signupError;
-          errorElement.textContent = error.message;
-          errorElement.style.display = 'block';
-        });
-    }
-
-    googleLoginBtn.addEventListener('click', signInWithGoogle);
-    googleSignupBtn.addEventListener('click', signInWithGoogle);
-    appleLoginBtn.addEventListener('click', signInWithApple);
-    appleSignupBtn.addEventListener('click', signInWithApple);
-
     // Track tool usage
     toolLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         if (!auth.currentUser) {
           e.preventDefault();
-          authPage.style.display = 'flex';
-          homepage.style.display = 'none';
+          window.location.href = 'https://raidpo-ai.netlify.app/login-form';
         } else {
           toolsUsedCount++;
           toolsUsed.textContent = toolsUsedCount;
@@ -1609,12 +972,29 @@
       });
     });
 
-    // Show auth page on load if not authenticated
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!auth.currentUser) {
-        authPage.style.display = 'flex';
-        homepage.style.display = 'none';
+    // Check Auth State
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in
+        homepage.style.display = 'block';
+        settingsPage.style.display = 'none';
+        profilePage.style.display = 'none';
+        
+        // Show user profile
+        updateUserProfile(user);
+      } else {
+        // User is signed out
+        homepage.style.display = 'block';
+        settingsPage.style.display = 'none';
+        profilePage.style.display = 'none';
+        updateUserProfile(null);
       }
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Show homepage by default
+      homepage.style.display = 'block';
     });
   </script>
 </body>
