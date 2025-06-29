@@ -329,7 +329,8 @@
         </div>
         
         <!-- reCAPTCHA for login -->
-        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu"></div>
+        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="loginRecaptcha"></div>
+        <div id="recaptchaLoginError" class="auth-error" style="display: none;">Please complete the reCAPTCHA verification</div>
         
         <button id="loginBtn" class="auth-btn">Login</button>
         <button id="googleLoginBtn" class="google-btn">
@@ -385,7 +386,8 @@
         </div>
         
         <!-- reCAPTCHA for signup -->
-        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu"></div>
+        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="signupRecaptcha"></div>
+        <div id="recaptchaSignupError" class="auth-error" style="display: none;">Please complete the reCAPTCHA verification</div>
         
         <button id="signupBtn" class="auth-btn">Sign Up</button>
         <button id="googleSignupBtn" class="google-btn">
@@ -456,11 +458,50 @@
     const switchToLogin = document.getElementById('switchToLogin');
     const verificationMessage = document.getElementById('verificationMessage');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
+    const loginRecaptcha = document.getElementById('loginRecaptcha');
+    const signupRecaptcha = document.getElementById('signupRecaptcha');
+    const recaptchaLoginError = document.getElementById('recaptchaLoginError');
+    const recaptchaSignupError = document.getElementById('recaptchaSignupError');
 
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
+
+    // reCAPTCHA state
+    let recaptchaCompleted = {
+      login: false,
+      signup: false
+    };
+
+    // Track reCAPTCHA completion
+    function onRecaptchaComplete(type) {
+      recaptchaCompleted[type] = true;
+      if (type === 'login') {
+        recaptchaLoginError.style.display = 'none';
+      } else {
+        recaptchaSignupError.style.display = 'none';
+      }
+    }
+
+    // Check if reCAPTCHA is completed
+    function checkRecaptcha(type) {
+      if (!recaptchaCompleted[type]) {
+        if (type === 'login') {
+          recaptchaLoginError.style.display = 'block';
+        } else {
+          recaptchaSignupError.style.display = 'block';
+        }
+        return false;
+      }
+      return true;
+    }
+
+    // Reset reCAPTCHA state on page refresh
+    window.addEventListener('beforeunload', () => {
+      recaptchaCompleted.login = false;
+      recaptchaCompleted.signup = false;
+    });
 
     // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
@@ -589,9 +630,7 @@
       }
       
       // Check if reCAPTCHA is completed
-      if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse().length === 0) {
-        loginError.textContent = 'Please complete the reCAPTCHA verification';
-        loginError.style.display = 'block';
+      if (!checkRecaptcha('login')) {
         return;
       }
       
@@ -599,12 +638,14 @@
         .then(() => {
           // Login successful, handled by auth state change
           if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset();
+            grecaptcha.reset(loginRecaptcha);
+            recaptchaCompleted.login = false;
           }
         })
         .catch(error => {
           if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset();
+            grecaptcha.reset(loginRecaptcha);
+            recaptchaCompleted.login = false;
           }
           if (error.code === 'auth/user-not-found') {
             loginError.textContent = 'No account found with this email';
@@ -655,9 +696,7 @@
       }
       
       // Check if reCAPTCHA is completed
-      if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse().length === 0) {
-        signupError.textContent = 'Please complete the reCAPTCHA verification';
-        signupError.style.display = 'block';
+      if (!checkRecaptcha('signup')) {
         return;
       }
       
@@ -667,7 +706,8 @@
           if (signInMethods.length > 0) {
             // Email already exists
             if (typeof grecaptcha !== 'undefined') {
-              grecaptcha.reset();
+              grecaptcha.reset(signupRecaptcha);
+              recaptchaCompleted.signup = false;
             }
             signupError.textContent = 'This email is already in use';
             signupError.style.display = 'block';
@@ -687,7 +727,8 @@
               })
               .then(() => {
                 if (typeof grecaptcha !== 'undefined') {
-                  grecaptcha.reset();
+                  grecaptcha.reset(signupRecaptcha);
+                  recaptchaCompleted.signup = false;
                 }
                 // Show verification message
                 verificationMessage.style.display = 'block';
@@ -697,7 +738,8 @@
         })
         .catch(error => {
           if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset();
+            grecaptcha.reset(signupRecaptcha);
+            recaptchaCompleted.signup = false;
           }
           signupError.textContent = error.message;
           signupError.style.display = 'block';
@@ -735,10 +777,25 @@
     appleLoginBtn.addEventListener('click', signInWithApple);
     appleSignupBtn.addEventListener('click', signInWithApple);
 
-    // Initialize page
+    // Initialize reCAPTCHA callback functions
+    window.onLoginRecaptchaComplete = function() {
+      onRecaptchaComplete('login');
+    };
+
+    window.onSignupRecaptchaComplete = function() {
+      onRecaptchaComplete('signup');
+    };
+
+    // Update reCAPTCHA elements to use callbacks
     document.addEventListener('DOMContentLoaded', () => {
-      // Show auth page by default
-      authPage.style.display = 'flex';
+      if (typeof grecaptcha !== 'undefined') {
+        // Show auth page by default
+        authPage.style.display = 'flex';
+        
+        // Update reCAPTCHA elements to use callbacks
+        loginRecaptcha.setAttribute('data-callback', 'onLoginRecaptchaComplete');
+        signupRecaptcha.setAttribute('data-callback', 'onSignupRecaptchaComplete');
+      }
     });
   </script>
 </body>
