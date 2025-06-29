@@ -39,7 +39,7 @@
     
     /* Header */
     .account-header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
       padding: 30px 0 120px;
       text-align: center;
       position: relative;
@@ -56,13 +56,18 @@
       font-size: 1rem;
     }
     
-    .profile-avatar {
+    .profile-avatar-container {
       position: absolute;
       bottom: -60px;
       left: 50%;
       transform: translateX(-50%);
       width: 120px;
       height: 120px;
+    }
+    
+    .profile-avatar {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       background-color: var(--dark-light);
       border: 5px solid var(--dark);
@@ -72,12 +77,30 @@
       font-size: 3rem;
       color: var(--text);
       overflow: hidden;
+      position: relative;
+      cursor: pointer;
     }
     
     .profile-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    
+    .avatar-upload-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      display: none;
+    }
+    
+    .profile-avatar:hover .avatar-upload-overlay {
+      display: block;
     }
     
     /* Tabs */
@@ -292,13 +315,69 @@
       color: var(--text-secondary);
     }
     
+    /* Login Activity */
+    .login-activity-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .login-activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .login-activity-info {
+      flex: 1;
+    }
+    
+    .login-activity-time {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    /* Delete Account Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background-color: var(--dark-light);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+    
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
       .account-header {
         padding: 20px 0 100px;
       }
       
-      .profile-avatar {
+      .profile-avatar-container {
         width: 100px;
         height: 100px;
         bottom: -50px;
@@ -322,8 +401,14 @@
       <h1>Account Settings</h1>
       <p>Manage your Raidpo AI account details</p>
     </div>
-    <div class="profile-avatar" id="profileAvatar">
-      <i class="fas fa-user"></i>
+    <div class="profile-avatar-container">
+      <div class="profile-avatar" id="profileAvatar">
+        <i class="fas fa-user" id="avatarIcon"></i>
+        <div class="avatar-upload-overlay">
+          <i class="fas fa-camera"></i> Change Photo
+        </div>
+      </div>
+      <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
     </div>
   </div>
   
@@ -332,7 +417,7 @@
       <button class="tab-btn active" data-tab="information">Information</button>
       <button class="tab-btn" data-tab="private">Private</button>
       <button class="tab-btn" data-tab="security">Security</button>
-      <button class="tab-btn" data-tab="danger">Danger Zone</button>
+      <button class="tab-btn" data-tab="advanced">Advanced</button>
     </div>
     
     <!-- Information Tab -->
@@ -419,7 +504,13 @@
         </div>
         
         <div id="providersList" style="margin-top: 20px;">
-          <!-- Providers will be listed here -->
+          <div class="info-card">
+            <span class="info-label">Linked Accounts</span>
+            <span class="info-value">No additional accounts linked</span>
+            <button class="btn btn-secondary" style="margin-top: 10px;">
+              <i class="fas fa-link"></i> Link Google Account
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -433,29 +524,27 @@
         <span class="info-value" id="lastLogin">Loading...</span>
       </div>
       
-      <div class="info-card">
-        <span class="info-label">Login Activity</span>
-        <span class="info-value">View recent login attempts</span>
-      </div>
-      
-      <h2 class="section-title" style="margin-top: 40px;">Two-Factor Authentication</h2>
+      <h2 class="section-title" style="margin-top: 40px;">Recent Activity</h2>
       
       <div class="info-card">
-        <span class="info-label">2FA Status</span>
-        <span class="info-value">Disabled</span>
+        <div id="loginActivity">
+          <div class="login-activity-item">
+            <div class="login-activity-info">
+              <div>Browser: Chrome</div>
+              <div>Device: Windows PC</div>
+              <div class="login-activity-time" id="lastLoginTime"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <button class="btn btn-secondary" style="margin-top: 20px;">
-        <i class="fas fa-shield-alt"></i> Enable Two-Factor Authentication
-      </button>
     </div>
     
-    <!-- Danger Zone Tab -->
-    <div class="tab-content" id="danger">
-      <h2 class="section-title">Danger Zone</h2>
+    <!-- Advanced Tab -->
+    <div class="tab-content" id="advanced">
+      <h2 class="section-title">Account Management</h2>
       
       <div class="alert alert-error">
-        <i class="fas fa-exclamation-triangle"></i> These actions are irreversible. Proceed with caution.
+        <i class="fas fa-exclamation-triangle"></i> These actions are important. Proceed with caution.
       </div>
       
       <div class="info-card" style="border-left: 4px solid #d32f2f;">
@@ -480,10 +569,31 @@
     </div>
   </div>
 
+  <!-- Delete Account Modal -->
+  <div class="modal" id="deleteAccountModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Confirm Account Deletion</h3>
+      <p>This action cannot be undone. All your data will be permanently deleted.</p>
+      
+      <div id="deleteAccountPasswordSection" style="margin-top: 20px;">
+        <div class="form-group">
+          <label for="deleteAccountPassword">Enter your password to confirm</label>
+          <input type="password" id="deleteAccountPassword" class="form-control" placeholder="Your password">
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   
   <script>
     // Initialize Firebase
@@ -500,19 +610,28 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const storage = firebase.storage();
     
     // DOM Elements
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const copyBtns = document.querySelectorAll('.copy-btn');
     const profileAvatar = document.getElementById('profileAvatar');
+    const avatarIcon = document.getElementById('avatarIcon');
+    const avatarUpload = document.getElementById('avatarUpload');
     const passwordForm = document.getElementById('passwordForm');
     const passwordAlert = document.getElementById('passwordAlert');
     const passwordSection = document.getElementById('passwordSection');
     const signOutBtn = document.getElementById('signOutBtn');
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const signOutEverywhereBtn = document.getElementById('signOutEverywhereBtn');
-    
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteAccountPasswordSection = document.getElementById('deleteAccountPasswordSection');
+    const deleteAccountPassword = document.getElementById('deleteAccountPassword');
+
     // Tab Switching
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -547,6 +666,74 @@
       });
     });
     
+    // Avatar upload
+    avatarUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      // Check if image
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Image must be less than 2MB');
+        return;
+      }
+      
+      // Upload to Firebase Storage
+      const storageRef = storage.ref(`profile_images/${user.uid}`);
+      const uploadTask = storageRef.put(file);
+      
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        }, 
+        (error) => {
+          // Error
+          console.error('Upload error:', error);
+          alert('Error uploading image');
+        }, 
+        () => {
+          // Complete
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            
+            // Update user profile
+            user.updateProfile({
+              photoURL: downloadURL
+            }).then(() => {
+              // Update UI
+              avatarIcon.style.display = 'none';
+              profileAvatar.innerHTML = `<img src="${downloadURL}" alt="Profile">`;
+              
+              // Save to Firestore
+              db.collection('users').doc(user.uid).set({
+                photoURL: downloadURL
+              }, { merge: true });
+            }).catch((error) => {
+              console.error('Error updating profile:', error);
+            });
+          });
+        }
+      );
+    });
+    
+    // Trigger file input when avatar is clicked
+    profileAvatar.addEventListener('click', () => {
+      const user = auth.currentUser;
+      if (user && user.providerData[0].providerId === 'password') {
+        avatarUpload.click();
+      }
+    });
+    
     // Load user data
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -561,9 +748,6 @@
       // Display name
       if (user.displayName) {
         document.getElementById('displayName').textContent = user.displayName;
-        // Set avatar initials
-        const initials = user.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-        profileAvatar.innerHTML = initials;
       } else {
         document.getElementById('displayName').textContent = "Not set";
       }
@@ -575,6 +759,7 @@
       // Last login
       const lastLoginAt = new Date(user.metadata.lastSignInTime);
       document.getElementById('lastLogin').textContent = lastLoginAt.toLocaleString();
+      document.getElementById('lastLoginTime').textContent = lastLoginAt.toLocaleString();
       
       // Provider info
       const providerData = user.providerData[0];
@@ -592,11 +777,6 @@
         
         // Set provider badge
         document.getElementById('providerBadge').textContent = providerName;
-        
-        // Set avatar image if available
-        if (providerData.photoURL) {
-          profileAvatar.innerHTML = `<img src="${providerData.photoURL}" alt="Profile">`;
-        }
       }
       
       document.getElementById('primaryProvider').textContent = providerName;
@@ -604,6 +784,21 @@
       // Hide password section if user signed in with provider
       if (providerData && providerData.providerId !== 'password') {
         passwordSection.style.display = 'none';
+        deleteAccountPasswordSection.style.display = 'none';
+      }
+      
+      // Set avatar
+      if (user.photoURL) {
+        avatarIcon.style.display = 'none';
+        profileAvatar.innerHTML = `<img src="${user.photoURL}" alt="Profile">
+          <div class="avatar-upload-overlay">
+            <i class="fas fa-camera"></i> Change Photo
+          </div>`;
+      } else {
+        // Set initials if no photo
+        const displayName = user.displayName || user.email.split('@')[0];
+        const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        avatarIcon.textContent = initials;
       }
       
       // Load additional user data from Firestore
@@ -675,23 +870,52 @@
       });
     });
     
-    // Delete account
-    deleteAccountBtn.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        const user = auth.currentUser;
-        
-        try {
-          // Delete user from authentication
-          await user.delete();
+    // Delete account modal
+    deleteAccountBtn.addEventListener('click', () => {
+      deleteAccountModal.style.display = 'flex';
+    });
+    
+    cancelDeleteBtn.addEventListener('click', () => {
+      deleteAccountModal.style.display = 'none';
+    });
+    
+    // Confirm account deletion
+    confirmDeleteBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      
+      try {
+        // For email/password users, verify password first
+        if (user.providerData[0].providerId === 'password') {
+          const password = deleteAccountPassword.value;
+          if (!password) {
+            alert('Please enter your password');
+            return;
+          }
           
-          // Delete user data from Firestore
-          await db.collection('users').doc(user.uid).delete();
+          const credential = firebase.auth.EmailAuthProvider.credential(
+            user.email, 
+            password
+          );
           
-          window.location.href = "https://raidpo-ai.netlify.app/";
-        } catch (error) {
-          console.error('Error deleting account:', error);
-          alert('Error deleting account: ' + error.message);
+          await user.reauthenticateWithCredential(credential);
         }
+        
+        // Delete user from authentication
+        await user.delete();
+        
+        // Delete user data from Firestore
+        await db.collection('users').doc(user.uid).delete();
+        
+        // Delete profile image from storage if exists
+        if (user.photoURL) {
+          const storageRef = storage.refFromURL(user.photoURL);
+          await storageRef.delete();
+        }
+        
+        window.location.href = "https://raidpo-ai.netlify.app/";
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        alert('Error deleting account: ' + error.message);
       }
     });
     
@@ -706,6 +930,12 @@
           alert('Error: ' + error.message);
         }
       }
+    });
+    
+    // Edit profile button
+    editProfileBtn.addEventListener('click', () => {
+      alert('Profile editing functionality will be added in a future update!');
+      // In a real implementation, this would open a modal with editable fields
     });
     
     // Helper function to show alerts
