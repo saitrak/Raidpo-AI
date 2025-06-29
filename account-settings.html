@@ -187,13 +187,13 @@
     }
     
     .info-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
     
     .info-card.editing {
       background-color: rgba(255, 111, 97, 0.1);
-      border-left: 4px solid var(--primary);
+      border: 1px solid var(--primary);
     }
     
     .info-card .info-label {
@@ -213,8 +213,8 @@
       width: 100%;
       padding: 10px;
       background-color: var(--dark-light);
-      border: 1px solid var(--light-gray);
-      border-radius: 6px;
+      border: 1px solid var(--primary);
+      border-radius: 4px;
       color: var(--text);
       font-family: 'Poppins', sans-serif;
       font-size: 1rem;
@@ -303,7 +303,6 @@
     .btn-primary:hover {
       background-color: var(--primary-light);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 111, 97, 0.3);
     }
     
     .btn-secondary {
@@ -313,7 +312,6 @@
     
     .btn-secondary:hover {
       background-color: var(--light-gray);
-      transform: translateY(-2px);
     }
     
     .btn-danger {
@@ -323,8 +321,6 @@
     
     .btn-danger:hover {
       background-color: #b71c1c;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
     }
     
     /* Alert Messages */
@@ -357,26 +353,27 @@
       color: white;
     }
     
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-secondary);
+    }
+    
     /* Login Activity */
     .login-activity-list {
-      max-height: 300px;
-      overflow-y: auto;
+      list-style: none;
     }
     
     .login-activity-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--light-gray);
       display: flex;
       justify-content: space-between;
-      padding: 15px;
-      border-bottom: 1px solid var(--light-gray);
-      animation: fadeIn 0.5s ease;
     }
     
     .login-activity-item:last-child {
       border-bottom: none;
-    }
-    
-    .login-activity-info {
-      flex: 1;
     }
     
     .login-activity-time {
@@ -386,64 +383,22 @@
     
     /* Delete Account Section */
     .delete-account-section {
-      border-left: 4px solid #d32f2f;
-      padding-left: 15px;
-      margin-bottom: 20px;
-    }
-    
-    .delete-account-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
+      background-color: rgba(211, 47, 47, 0.1);
+      border-left: 4px solid #d32f2f;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
     
     .delete-account-text {
       flex: 1;
-      min-width: 200px;
     }
     
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    .modal-content {
-      background-color: var(--dark-light);
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 500px;
-      width: 90%;
-      animation: slideUp 0.3s ease;
-    }
-    
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .modal-title {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: var(--primary);
-    }
-    
-    .modal-footer {
-      margin-top: 20px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+    .delete-account-text .info-label {
+      color: #d32f2f;
     }
     
     /* Responsive */
@@ -468,9 +423,14 @@
         padding: 20px;
       }
       
-      .delete-account-content {
+      .delete-account-section {
         flex-direction: column;
         align-items: flex-start;
+      }
+      
+      .delete-account-section .btn {
+        margin-top: 15px;
+        width: 100%;
       }
     }
   </style>
@@ -512,9 +472,10 @@
       
       <div class="info-card" id="displayNameCard">
         <span class="info-label">Username</span>
-        <span class="info-value" id="displayName">Not set</span>
-        <button class="edit-btn" data-field="displayName"><i class="fas fa-edit"></i></button>
-        <button class="copy-btn" data-target="displayName"><i class="fas fa-copy"></i></button>
+        <span class="info-value" id="displayNameText">Not set</span>
+        <input type="text" class="info-input" id="displayNameInput" style="display: none;">
+        <button class="edit-btn" id="editDisplayNameBtn"><i class="fas fa-edit"></i></button>
+        <button class="copy-btn" data-target="displayNameText"><i class="fas fa-copy"></i></button>
       </div>
       
       <div class="info-card">
@@ -533,29 +494,28 @@
       
       <div class="info-card" id="birthDateCard">
         <span class="info-label">Birth Date</span>
-        <span class="info-value" id="birthDate">Not set</span>
-        <button class="edit-btn" data-field="birthDate"><i class="fas fa-edit"></i></button>
+        <span class="info-value" id="birthDateText">Not set</span>
+        <input type="date" class="info-input" id="birthDateInput" style="display: none;">
+        <button class="edit-btn" id="editBirthDateBtn"><i class="fas fa-edit"></i></button>
       </div>
       
       <div class="info-card" id="locationCard">
         <span class="info-label">Location</span>
-        <span class="info-value" id="location">Not set</span>
-        <button class="edit-btn" data-field="location"><i class="fas fa-edit"></i></button>
+        <span class="info-value" id="locationText">Not set</span>
+        <input type="text" class="info-input" id="locationInput" style="display: none;">
+        <button class="edit-btn" id="editLocationBtn"><i class="fas fa-edit"></i></button>
       </div>
       
       <div class="info-card" id="bioCard">
         <span class="info-label">Bio</span>
-        <span class="info-value" id="bio">Not set</span>
-        <button class="edit-btn" data-field="bio"><i class="fas fa-edit"></i></button>
+        <span class="info-value" id="bioText">Not set</span>
+        <textarea class="info-input" id="bioInput" style="display: none;" rows="3"></textarea>
+        <button class="edit-btn" id="editBioBtn"><i class="fas fa-edit"></i></button>
       </div>
       
-      <div id="saveProfileChanges" style="display: none; margin-top: 20px;">
-        <button class="btn btn-primary" id="saveProfileBtn">
-          <i class="fas fa-save"></i> Save Changes
-        </button>
-        <button class="btn btn-secondary" id="cancelEditBtn" style="margin-left: 10px;">
-          <i class="fas fa-times"></i> Cancel
-        </button>
+      <div id="profileSaveSection" style="display: none; margin-top: 20px; text-align: right;">
+        <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
       </div>
     </div>
     
@@ -596,8 +556,11 @@
           <div class="info-card">
             <span class="info-label">Linked Accounts</span>
             <span class="info-value">No additional accounts linked</span>
-            <button class="btn btn-secondary" id="linkGoogleBtn" style="margin-top: 10px;">
+            <button class="btn btn-secondary" style="margin-top: 10px;">
               <i class="fab fa-google"></i> Link Google Account
+            </button>
+            <button class="btn btn-secondary" style="margin-top: 10px;">
+              <i class="fab fa-apple"></i> Link Apple Account
             </button>
           </div>
         </div>
@@ -616,10 +579,14 @@
       <h2 class="section-title" style="margin-top: 40px;">Recent Activity</h2>
       
       <div class="info-card">
-        <div class="login-activity-list" id="loginActivity">
+        <ul class="login-activity-list" id="loginActivity">
           <!-- Login activity items will be added here -->
-        </div>
+        </ul>
       </div>
+      
+      <button class="btn btn-secondary" style="margin-top: 20px;">
+        <i class="fas fa-sync-alt"></i> Refresh Activity
+      </button>
     </div>
     
     <!-- Advanced Tab -->
@@ -631,27 +598,21 @@
       </div>
       
       <div class="delete-account-section">
-        <div class="delete-account-content">
-          <div class="delete-account-text">
-            <span class="info-label">Delete Account</span>
-            <span class="info-value">Permanently delete your account and all associated data</span>
-          </div>
-          <button class="btn btn-danger" id="deleteAccountBtn">
-            <i class="fas fa-trash-alt"></i> Delete Account
-          </button>
+        <div class="delete-account-text">
+          <span class="info-label">Delete Account</span>
+          <span class="info-value">Permanently delete your account and all associated data</span>
         </div>
+        <button class="btn btn-danger" id="deleteAccountBtn">
+          <i class="fas fa-trash-alt"></i> Delete Account
+        </button>
       </div>
       
-      <div class="delete-account-section" style="margin-top: 20px; border-color: var(--primary);">
-        <div class="delete-account-content">
-          <div class="delete-account-text">
-            <span class="info-label">Sign Out Everywhere</span>
-            <span class="info-value">Sign out of all devices and revoke all sessions</span>
-          </div>
-          <button class="btn btn-secondary" id="signOutEverywhereBtn">
-            <i class="fas fa-sign-out-alt"></i> Sign Out Everywhere
-          </button>
-        </div>
+      <div class="info-card" style="border-left: 4px solid #d32f2f;">
+        <span class="info-label">Sign Out Everywhere</span>
+        <span class="info-value">Sign out of all devices and revoke all sessions</span>
+        <button class="btn btn-secondary" id="signOutEverywhereBtn" style="margin-top: 15px;">
+          <i class="fas fa-sign-out-alt"></i> Sign Out Everywhere
+        </button>
       </div>
       
       <button class="btn btn-secondary" id="signOutBtn" style="margin-top: 30px;">
@@ -707,7 +668,6 @@
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const copyBtns = document.querySelectorAll('.copy-btn');
-    const editBtns = document.querySelectorAll('.edit-btn');
     const profileAvatar = document.getElementById('profileAvatar');
     const avatarIcon = document.getElementById('avatarIcon');
     const avatarUpload = document.getElementById('avatarUpload');
@@ -717,21 +677,37 @@
     const signOutBtn = document.getElementById('signOutBtn');
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const signOutEverywhereBtn = document.getElementById('signOutEverywhereBtn');
-    const saveProfileBtn = document.getElementById('saveProfileBtn');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const saveProfileChanges = document.getElementById('saveProfileChanges');
     const deleteAccountModal = document.getElementById('deleteAccountModal');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const deleteAccountPasswordSection = document.getElementById('deleteAccountPasswordSection');
     const deleteAccountPassword = document.getElementById('deleteAccountPassword');
-    const linkGoogleBtn = document.getElementById('linkGoogleBtn');
-    const loginActivity = document.getElementById('loginActivity');
+    const loginActivityList = document.getElementById('loginActivity');
 
-    // State variables
-    let isEditing = false;
-    let editedFields = {};
-    let loginHistory = [];
+    // Profile editing elements
+    const displayNameCard = document.getElementById('displayNameCard');
+    const displayNameText = document.getElementById('displayNameText');
+    const displayNameInput = document.getElementById('displayNameInput');
+    const editDisplayNameBtn = document.getElementById('editDisplayNameBtn');
+    
+    const birthDateCard = document.getElementById('birthDateCard');
+    const birthDateText = document.getElementById('birthDateText');
+    const birthDateInput = document.getElementById('birthDateInput');
+    const editBirthDateBtn = document.getElementById('editBirthDateBtn');
+    
+    const locationCard = document.getElementById('locationCard');
+    const locationText = document.getElementById('locationText');
+    const locationInput = document.getElementById('locationInput');
+    const editLocationBtn = document.getElementById('editLocationBtn');
+    
+    const bioCard = document.getElementById('bioCard');
+    const bioText = document.getElementById('bioText');
+    const bioInput = document.getElementById('bioInput');
+    const editBioBtn = document.getElementById('editBioBtn');
+    
+    const profileSaveSection = document.getElementById('profileSaveSection');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
 
     // Tab Switching
     tabBtns.forEach(btn => {
@@ -765,91 +741,6 @@
           }, 2000);
         });
       });
-    });
-    
-    // Edit buttons
-    editBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const field = btn.getAttribute('data-field');
-        const card = document.getElementById(`${field}Card`);
-        const valueElement = document.getElementById(field);
-        const currentValue = valueElement.textContent;
-        
-        if (!isEditing) {
-          // Start editing
-          isEditing = true;
-          card.classList.add('editing');
-          
-          // Replace text with input field
-          valueElement.innerHTML = `<input type="text" class="info-input" id="edit-${field}" value="${currentValue === 'Not set' ? '' : currentValue}">`;
-          
-          // Show save/cancel buttons
-          saveProfileChanges.style.display = 'block';
-          
-          // Store original value
-          editedFields[field] = {
-            original: currentValue,
-            new: currentValue
-          };
-        }
-      });
-    });
-    
-    // Save profile changes
-    saveProfileBtn.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      
-      try {
-        const updates = {};
-        
-        // Collect all edited fields
-        for (const field in editedFields) {
-          const input = document.getElementById(`edit-${field}`);
-          if (input) {
-            updates[field] = input.value;
-          }
-        }
-        
-        // Update Firestore
-        await db.collection('users').doc(user.uid).set(updates, { merge: true });
-        
-        // Update UI
-        for (const field in updates) {
-          const valueElement = document.getElementById(field);
-          const card = document.getElementById(`${field}Card`);
-          
-          valueElement.textContent = updates[field] || 'Not set';
-          card.classList.remove('editing');
-        }
-        
-        // Reset editing state
-        isEditing = false;
-        editedFields = {};
-        saveProfileChanges.style.display = 'none';
-        
-        showAlert('Profile updated successfully!', 'success');
-      } catch (error) {
-        console.error('Error updating profile:', error);
-        showAlert('Failed to update profile. Please try again.', 'error');
-      }
-    });
-    
-    // Cancel editing
-    cancelEditBtn.addEventListener('click', () => {
-      // Restore original values
-      for (const field in editedFields) {
-        const valueElement = document.getElementById(field);
-        const card = document.getElementById(`${field}Card');
-        
-        valueElement.textContent = editedFields[field].original;
-        card.classList.remove('editing');
-      }
-      
-      // Reset editing state
-      isEditing = false;
-      editedFields = {};
-      saveProfileChanges.style.display = 'none';
     });
     
     // Avatar upload
@@ -923,53 +814,148 @@
       }
     });
     
-    // Generate fake login activity (in a real app, this would come from your backend)
+    // Edit profile fields
+    function setupEditField(card, textElement, inputElement, editButton) {
+      editButton.addEventListener('click', () => {
+        // Enter edit mode
+        textElement.style.display = 'none';
+        inputElement.style.display = 'block';
+        inputElement.value = textElement.textContent === 'Not set' ? '' : textElement.textContent;
+        card.classList.add('editing');
+        profileSaveSection.style.display = 'block';
+      });
+    }
+    
+    setupEditField(displayNameCard, displayNameText, displayNameInput, editDisplayNameBtn);
+    setupEditField(birthDateCard, birthDateText, birthDateInput, editBirthDateBtn);
+    setupEditField(locationCard, locationText, locationInput, editLocationBtn);
+    setupEditField(bioCard, bioText, bioInput, editBioBtn);
+    
+    // Cancel editing
+    cancelEditBtn.addEventListener('click', () => {
+      resetEditMode();
+    });
+    
+    // Save profile changes
+    saveProfileBtn.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      const updates = {};
+      
+      // Get updated values
+      if (displayNameInput.style.display === 'block') {
+        updates.displayName = displayNameInput.value.trim();
+      }
+      
+      if (birthDateInput.style.display === 'block') {
+        updates.birthDate = birthDateInput.value;
+      }
+      
+      if (locationInput.style.display === 'block') {
+        updates.location = locationInput.value.trim();
+      }
+      
+      if (bioInput.style.display === 'block') {
+        updates.bio = bioInput.value.trim();
+      }
+      
+      try {
+        // Update display name in auth if changed
+        if (updates.displayName !== undefined) {
+          await user.updateProfile({
+            displayName: updates.displayName
+          });
+          displayNameText.textContent = updates.displayName || 'Not set';
+        }
+        
+        // Update other fields in Firestore
+        await db.collection('users').doc(user.uid).set(updates, { merge: true });
+        
+        // Update UI
+        if (updates.birthDate !== undefined) {
+          birthDateText.textContent = updates.birthDate || 'Not set';
+        }
+        
+        if (updates.location !== undefined) {
+          locationText.textContent = updates.location || 'Not set';
+        }
+        
+        if (updates.bio !== undefined) {
+          bioText.textContent = updates.bio || 'Not set';
+        }
+        
+        resetEditMode();
+        showAlert('Profile updated successfully!', 'success');
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        showAlert('Error updating profile: ' + error.message, 'error');
+      }
+    });
+    
+    function resetEditMode() {
+      // Hide all inputs and show text
+      document.querySelectorAll('.info-input').forEach(input => {
+        input.style.display = 'none';
+      });
+      
+      document.querySelectorAll('.info-value').forEach(text => {
+        text.style.display = 'block';
+      });
+      
+      document.querySelectorAll('.info-card').forEach(card => {
+        card.classList.remove('editing');
+      });
+      
+      profileSaveSection.style.display = 'none';
+    }
+    
+    // Generate random login activity (simulated)
     function generateLoginActivity() {
       const now = new Date();
       const activities = [];
       
-      // Current session
-      activities.push({
-        time: now,
-        device: 'Windows PC',
-        browser: 'Chrome',
-        location: 'New York, US'
-      });
-      
-      // Previous sessions
-      for (let i = 1; i <= 5; i++) {
-        const daysAgo = i * 2;
-        const time = new Date(now);
-        time.setDate(time.getDate() - daysAgo);
+      // Generate 5 random login times in the past 30 days
+      for (let i = 0; i < 5; i++) {
+        const randomDays = Math.floor(Math.random() * 30);
+        const randomHours = Math.floor(Math.random() * 24);
+        const randomMinutes = Math.floor(Math.random() * 60);
         
-        activities.push({
-          time: time,
-          device: i % 2 === 0 ? 'iPhone' : 'MacBook Pro',
-          browser: i % 2 === 0 ? 'Safari' : 'Chrome',
-          location: i % 2 === 0 ? 'San Francisco, US' : 'London, UK'
-        });
+        const loginTime = new Date(now);
+        loginTime.setDate(now.getDate() - randomDays);
+        loginTime.setHours(now.getHours() - randomHours);
+        loginTime.setMinutes(now.getMinutes() - randomMinutes);
+        
+        activities.push(loginTime);
       }
+      
+      // Sort by most recent
+      activities.sort((a, b) => b - a);
       
       return activities;
     }
     
     // Display login activity
-    function displayLoginActivity(activities) {
-      loginActivity.innerHTML = '';
+    function displayLoginActivity() {
+      const activities = generateLoginActivity();
+      loginActivityList.innerHTML = '';
       
-      activities.forEach(activity => {
-        const timeString = activity.time.toLocaleString();
-        const item = document.createElement('div');
-        item.className = 'login-activity-item';
-        item.innerHTML = `
-          <div class="login-activity-info">
-            <div>Browser: ${activity.browser}</div>
-            <div>Device: ${activity.device}</div>
-            <div>Location: ${activity.location}</div>
-            <div class="login-activity-time">${timeString}</div>
-          </div>
-        `;
-        loginActivity.appendChild(item);
+      activities.forEach((time, index) => {
+        const li = document.createElement('li');
+        li.className = 'login-activity-item';
+        
+        const timeElement = document.createElement('span');
+        timeElement.className = 'login-activity-time';
+        timeElement.textContent = time.toLocaleString();
+        
+        // Highlight first item (most recent)
+        if (index === 0) {
+          timeElement.style.color = '#ff6f61';
+          timeElement.style.fontWeight = '500';
+        }
+        
+        li.appendChild(timeElement);
+        loginActivityList.appendChild(li);
       });
     }
     
@@ -986,9 +972,9 @@
       
       // Display name
       if (user.displayName) {
-        document.getElementById('displayName').textContent = user.displayName;
+        displayNameText.textContent = user.displayName;
       } else {
-        document.getElementById('displayName').textContent = "Not set";
+        displayNameText.textContent = "Not set";
       }
       
       // Account creation date
@@ -999,9 +985,8 @@
       const lastLoginAt = new Date(user.metadata.lastSignInTime);
       document.getElementById('lastLogin').textContent = lastLoginAt.toLocaleString();
       
-      // Generate and display login activity
-      loginHistory = generateLoginActivity();
-      displayLoginActivity(loginHistory);
+      // Display login activity
+      displayLoginActivity();
       
       // Provider info
       const providerData = user.providerData[0];
@@ -1051,21 +1036,21 @@
         const userData = doc.data();
         
         if (userData.birthDate) {
-          document.getElementById('birthDate').textContent = userData.birthDate;
+          birthDateText.textContent = userData.birthDate;
         } else {
-          document.getElementById('birthDate').textContent = "Not set";
+          birthDateText.textContent = "Not set";
         }
         
         if (userData.location) {
-          document.getElementById('location').textContent = userData.location;
+          locationText.textContent = userData.location;
         } else {
-          document.getElementById('location').textContent = "Not set";
+          locationText.textContent = "Not set";
         }
         
         if (userData.bio) {
-          document.getElementById('bio').textContent = userData.bio;
+          bioText.textContent = userData.bio;
         } else {
-          document.getElementById('bio').textContent = "Not set";
+          bioText.textContent = "Not set";
         }
       }
     });
@@ -1178,12 +1163,6 @@
           alert('Error: ' + error.message);
         }
       }
-    });
-    
-    // Link Google account
-    linkGoogleBtn.addEventListener('click', async () => {
-      alert('Account linking functionality will be added in a future update!');
-      // In a real implementation, this would initiate Google OAuth flow
     });
     
     // Helper function to show alerts
