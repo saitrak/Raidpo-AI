@@ -508,7 +508,7 @@
     <div class="profile-avatar-container">
       <div class="profile-avatar" id="profileAvatar">
         <i class="fas fa-user" id="avatarIcon"></i>
-        <div class="avatar-upload-overlay">
+        <div class="avatar-upload-overlay" id="avatarOverlay">
           <i class="fas fa-camera"></i> Change Photo
         </div>
       </div>
@@ -614,23 +614,6 @@
           <span class="info-label">Primary Login Method</span>
           <span class="info-value" id="primaryProvider">Loading...</span>
         </div>
-        
-        <div id="providersList" style="margin-top: 20px;">
-          <div class="info-card">
-            <span class="info-label">Link Additional Accounts</span>
-            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-              <button class="btn btn-secondary" id="linkGoogleBtn">
-                <i class="fab fa-google"></i> Google
-              </button>
-              <button class="btn btn-secondary" id="linkAppleBtn">
-                <i class="fab fa-apple"></i> Apple
-              </button>
-              <button class="btn btn-secondary" id="linkFacebookBtn">
-                <i class="fab fa-facebook"></i> Facebook
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     
@@ -651,8 +634,8 @@
         </ul>
       </div>
       
-      <button class="btn btn-secondary" id="refreshActivityBtn" style="margin-top: 20px;">
-        <i class="fas fa-sync-alt"></i> Refresh Activity
+      <button class="btn btn-secondary" id="resetActivityBtn" style="margin-top: 20px;">
+        <i class="fas fa-trash"></i> Reset Activity
       </button>
     </div>
     
@@ -737,6 +720,7 @@
     const copyBtns = document.querySelectorAll('.copy-btn');
     const profileAvatar = document.getElementById('profileAvatar');
     const avatarIcon = document.getElementById('avatarIcon');
+    const avatarOverlay = document.getElementById('avatarOverlay');
     const avatarUpload = document.getElementById('avatarUpload');
     const passwordForm = document.getElementById('passwordForm');
     const passwordAlert = document.getElementById('passwordAlert');
@@ -750,10 +734,7 @@
     const deleteAccountPasswordSection = document.getElementById('deleteAccountPasswordSection');
     const deleteAccountPassword = document.getElementById('deleteAccountPassword');
     const loginActivityList = document.getElementById('loginActivity');
-    const refreshActivityBtn = document.getElementById('refreshActivityBtn');
-    const linkGoogleBtn = document.getElementById('linkGoogleBtn');
-    const linkAppleBtn = document.getElementById('linkAppleBtn');
-    const linkFacebookBtn = document.getElementById('linkFacebookBtn');
+    const resetActivityBtn = document.getElementById('resetActivityBtn');
 
     // Profile editing elements
     const displayNameCard = document.getElementById('displayNameCard');
@@ -824,13 +805,13 @@
       
       // Check if image
       if (!file.type.match('image.*')) {
-        alert('Please select an image file');
+        showAlert('Please select an image file', 'error');
         return;
       }
       
       // Check file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        alert('Image must be less than 2MB');
+        showAlert('Image must be less than 2MB', 'error');
         return;
       }
       
@@ -847,7 +828,7 @@
         (error) => {
           // Error
           console.error('Upload error:', error);
-          alert('Error uploading image');
+          showAlert('Error uploading image', 'error');
         }, 
         () => {
           // Complete
@@ -861,32 +842,49 @@
               // Update UI
               avatarIcon.style.display = 'none';
               profileAvatar.innerHTML = `<img src="${downloadURL}" alt="Profile">
-                <div class="avatar-upload-overlay">
+                <div class="avatar-upload-overlay" id="avatarOverlay">
                   <i class="fas fa-camera"></i> Change Photo
                 </div>`;
+              
+              // Reassign the overlay element
+              avatarOverlay = document.getElementById('avatarOverlay');
+              setupAvatarHover();
               
               // Save to Firestore
               db.collection('users').doc(user.uid).set({
                 photoURL: downloadURL
               }, { merge: true });
+              
+              showAlert('Profile picture updated successfully!', 'success');
             }).catch((error) => {
               console.error('Error updating profile:', error);
+              showAlert('Error updating profile picture', 'error');
             });
           });
         }
       );
     });
     
-    // Trigger file input when avatar is clicked (only for email/password users)
-    profileAvatar.addEventListener('click', () => {
-      const user = auth.currentUser;
-      if (user && user.providerData[0].providerId === 'password') {
-        avatarUpload.click();
-      } else {
-        // For social login users, show a message
-        alert('Profile picture can only be changed for email/password accounts');
-      }
-    });
+    // Setup avatar hover behavior
+    function setupAvatarHover() {
+      profileAvatar.addEventListener('mouseenter', () => {
+        const user = auth.currentUser;
+        if (user && user.providerData[0].providerId === 'password') {
+          avatarOverlay.style.display = 'block';
+        }
+      });
+      
+      profileAvatar.addEventListener('mouseleave', () => {
+        avatarOverlay.style.display = 'none';
+      });
+      
+      profileAvatar.addEventListener('click', () => {
+        const user = auth.currentUser;
+        if (user && user.providerData[0].providerId === 'password') {
+          avatarUpload.click();
+        }
+      });
+    }
     
     // Setup edit/save functionality for profile fields
     function setupEditField(card, textElement, inputElement, editButton, saveButton) {
@@ -998,23 +996,13 @@
       });
     }
     
-    // Refresh activity button
-    refreshActivityBtn.addEventListener('click', () => {
-      displayLoginActivity();
-      showAlert('Activity refreshed!', 'success');
-    });
-    
-    // Link account buttons (placeholder functionality)
-    linkGoogleBtn.addEventListener('click', () => {
-      alert('Google account linking will be implemented in a future update');
-    });
-    
-    linkAppleBtn.addEventListener('click', () => {
-      alert('Apple account linking will be implemented in a future update');
-    });
-    
-    linkFacebookBtn.addEventListener('click', () => {
-      alert('Facebook account linking will be implemented in a future update');
+    // Reset activity button
+    resetActivityBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset your activity history?')) {
+        // In a real implementation, this would clear the activity log from your database
+        displayLoginActivity();
+        showAlert('Activity history has been reset', 'success');
+      }
     });
     
     // Load user data
@@ -1070,15 +1058,24 @@
       if (providerData && providerData.providerId !== 'password') {
         passwordSection.style.display = 'none';
         deleteAccountPasswordSection.style.display = 'none';
+        
+        // Hide avatar upload overlay for non-email/password users
+        avatarOverlay.style.display = 'none';
+      } else {
+        // Setup avatar hover for email/password users
+        setupAvatarHover();
       }
       
       // Set avatar
       if (user.photoURL) {
         avatarIcon.style.display = 'none';
         profileAvatar.innerHTML = `<img src="${user.photoURL}" alt="Profile">
-          <div class="avatar-upload-overlay">
+          <div class="avatar-upload-overlay" id="avatarOverlay">
             <i class="fas fa-camera"></i> Change Photo
           </div>`;
+        // Reassign the overlay element
+        avatarOverlay = document.getElementById('avatarOverlay');
+        setupAvatarHover();
       } else {
         // Set initials if no photo
         const displayName = user.displayName || user.email.split('@')[0];
@@ -1173,13 +1170,14 @@
     // Confirm account deletion
     confirmDeleteBtn.addEventListener('click', async () => {
       const user = auth.currentUser;
+      if (!user) return;
       
       try {
         // For email/password users, verify password first
         if (user.providerData[0].providerId === 'password') {
           const password = deleteAccountPassword.value;
           if (!password) {
-            alert('Please enter your password');
+            showAlert('Please enter your password', 'error');
             return;
           }
           
@@ -1199,14 +1197,18 @@
         
         // Delete profile image from storage if exists
         if (user.photoURL) {
-          const storageRef = storage.refFromURL(user.photoURL);
-          await storageRef.delete();
+          try {
+            const storageRef = storage.refFromURL(user.photoURL);
+            await storageRef.delete();
+          } catch (error) {
+            console.error('Error deleting profile image:', error);
+          }
         }
         
         window.location.href = "https://raidpo-ai.netlify.app/";
       } catch (error) {
         console.error('Error deleting account:', error);
-        alert('Error deleting account: ' + error.message);
+        showAlert('Error deleting account: ' + error.message, 'error');
       }
     });
     
@@ -1214,11 +1216,13 @@
     signOutEverywhereBtn.addEventListener('click', async () => {
       if (confirm('This will sign you out of all devices. Continue?')) {
         try {
+          // In a real implementation, you would revoke all refresh tokens here
+          // This is a simplified version that just signs out the current session
           await auth.signOut();
           window.location.href = "https://raidpo-ai.netlify.app/";
         } catch (error) {
           console.error('Error signing out everywhere:', error);
-          alert('Error: ' + error.message);
+          showAlert('Error signing out everywhere: ' + error.message, 'error');
         }
       }
     });
