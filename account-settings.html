@@ -761,6 +761,103 @@
     const editBioBtn = document.getElementById('editBioBtn');
     const saveBioBtn = document.getElementById('saveBioBtn');
 
+    // Store login activity in Firestore
+    async function logActivity() {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      const activityData = {
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        type: 'login'
+      };
+      
+      try {
+        await db.collection('users').doc(user.uid).collection('activity').add(activityData);
+      } catch (error) {
+        console.error('Error logging activity:', error);
+      }
+    }
+    
+    // Load login activity
+    async function loadLoginActivity() {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      try {
+        // Get last 7 activities
+        const snapshot = await db.collection('users')
+          .doc(user.uid)
+          .collection('activity')
+          .orderBy('timestamp', 'desc')
+          .limit(7)
+          .get();
+        
+        loginActivityList.innerHTML = '';
+        
+        if (snapshot.empty) {
+          loginActivityList.innerHTML = '<li class="empty-state">No activity found</li>';
+          return;
+        }
+        
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement('li');
+          li.className = 'login-activity-item';
+          
+          const timeElement = document.createElement('span');
+          timeElement.className = 'login-activity-time';
+          
+          if (data.timestamp) {
+            const timestamp = data.timestamp.toDate();
+            timeElement.textContent = timestamp.toLocaleString();
+          } else {
+            timeElement.textContent = 'Recent activity';
+          }
+          
+          li.appendChild(timeElement);
+          loginActivityList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error loading activity:', error);
+        loginActivityList.innerHTML = '<li class="empty-state">Error loading activity</li>';
+      }
+    }
+    
+    // Reset activity
+    async function resetActivity() {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      if (confirm('Are you sure you want to reset your activity history?')) {
+        try {
+          // Get all activity documents
+          const snapshot = await db.collection('users')
+            .doc(user.uid)
+            .collection('activity')
+            .get();
+          
+          // Delete each document
+          const batch = db.batch();
+          snapshot.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          await batch.commit();
+          
+          // Log a new activity
+          await logActivity();
+          
+          // Reload activity
+          await loadLoginActivity();
+          
+          showAlert('Activity history has been reset', 'success');
+        } catch (error) {
+          console.error('Error resetting activity:', error);
+          showAlert('Error resetting activity history', 'error');
+        }
+      }
+    }
+    
     // Tab Switching
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -947,63 +1044,8 @@
     setupEditField(locationCard, locationText, locationInput, editLocationBtn, saveLocationBtn);
     setupEditField(bioCard, bioText, bioInput, editBioBtn, saveBioBtn);
     
-    // Generate random login activity (simulated)
-    function generateLoginActivity() {
-      const now = new Date();
-      const activities = [];
-      
-      // Generate 5 random login times in the past 30 days
-      for (let i = 0; i < 5; i++) {
-        const randomDays = Math.floor(Math.random() * 30);
-        const randomHours = Math.floor(Math.random() * 24);
-        const randomMinutes = Math.floor(Math.random() * 60);
-        
-        const loginTime = new Date(now);
-        loginTime.setDate(now.getDate() - randomDays);
-        loginTime.setHours(now.getHours() - randomHours);
-        loginTime.setMinutes(now.getMinutes() - randomMinutes);
-        
-        activities.push(loginTime);
-      }
-      
-      // Sort by most recent
-      activities.sort((a, b) => b - a);
-      
-      return activities;
-    }
-    
-    // Display login activity
-    function displayLoginActivity() {
-      const activities = generateLoginActivity();
-      loginActivityList.innerHTML = '';
-      
-      activities.forEach((time, index) => {
-        const li = document.createElement('li');
-        li.className = 'login-activity-item';
-        
-        const timeElement = document.createElement('span');
-        timeElement.className = 'login-activity-time';
-        timeElement.textContent = time.toLocaleString();
-        
-        // Highlight first item (most recent)
-        if (index === 0) {
-          timeElement.style.color = '#ff6f61';
-          timeElement.style.fontWeight = '500';
-        }
-        
-        li.appendChild(timeElement);
-        loginActivityList.appendChild(li);
-      });
-    }
-    
     // Reset activity button
-    resetActivityBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to reset your activity history?')) {
-        // In a real implementation, this would clear the activity log from your database
-        displayLoginActivity();
-        showAlert('Activity history has been reset', 'success');
-      }
-    });
+    resetActivityBtn.addEventListener('click', resetActivity);
     
     // Load user data
     auth.onAuthStateChanged(async (user) => {
@@ -1011,6 +1053,9 @@
         window.location.href = "https://raidpo-ai.netlify.app/";
         return;
       }
+      
+      // Log this activity
+      await logActivity();
       
       // Basic info
       document.getElementById('userId').textContent = user.uid;
@@ -1031,8 +1076,8 @@
       const lastLoginAt = new Date(user.metadata.lastSignInTime);
       document.getElementById('lastLogin').textContent = lastLoginAt.toLocaleString();
       
-      // Display login activity
-      displayLoginActivity();
+      // Load login activity
+      await loadLoginActivity();
       
       // Provider info
       const providerData = user.providerData[0];
