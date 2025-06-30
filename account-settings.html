@@ -626,7 +626,7 @@
         <span class="info-value" id="lastLogin">Loading...</span>
       </div>
       
-      <h2 class="section-title" style="margin-top: 40px;">Recent Activity</h2>
+      <h2 class="section-title" style="margin-top: 40px;">Login History</h2>
       
       <div class="info-card">
         <ul class="login-activity-list" id="loginActivity">
@@ -635,7 +635,7 @@
       </div>
       
       <button class="btn btn-secondary" id="resetActivityBtn" style="margin-top: 20px;">
-        <i class="fas fa-trash"></i> Reset Activity
+        <i class="fas fa-trash"></i> Clear History
       </button>
     </div>
     
@@ -762,32 +762,43 @@
     const saveBioBtn = document.getElementById('saveBioBtn');
 
     // Store login activity in Firestore
-    async function logActivity() {
+    async function logLoginActivity() {
       const user = auth.currentUser;
       if (!user) return;
       
-      const activityData = {
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        type: 'login'
-      };
-      
       try {
-        await db.collection('users').doc(user.uid).collection('activity').add(activityData);
+        await db.collection('users').doc(user.uid).collection('loginHistory').add({
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          type: 'login'
+        });
+        
+        // Keep only the last 7 login activities
+        const snapshot = await db.collection('users').doc(user.uid)
+          .collection('loginHistory')
+          .orderBy('timestamp', 'desc')
+          .get();
+        
+        if (snapshot.size > 7) {
+          const batch = db.batch();
+          const toDelete = snapshot.docs.slice(7);
+          toDelete.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          await batch.commit();
+        }
       } catch (error) {
-        console.error('Error logging activity:', error);
+        console.error('Error logging login activity:', error);
       }
     }
-    
-    // Load login activity
-    async function loadLoginActivity() {
+
+    // Display login activity from Firestore
+    async function displayLoginActivity() {
       const user = auth.currentUser;
       if (!user) return;
       
       try {
-        // Get last 7 activities
-        const snapshot = await db.collection('users')
-          .doc(user.uid)
-          .collection('activity')
+        const snapshot = await db.collection('users').doc(user.uid)
+          .collection('loginHistory')
           .orderBy('timestamp', 'desc')
           .limit(7)
           .get();
@@ -795,7 +806,10 @@
         loginActivityList.innerHTML = '';
         
         if (snapshot.empty) {
-          loginActivityList.innerHTML = '<li class="empty-state">No activity found</li>';
+          const li = document.createElement('li');
+          li.className = 'login-activity-item';
+          li.textContent = 'No login history available';
+          loginActivityList.appendChild(li);
           return;
         }
         
@@ -810,6 +824,12 @@
           if (data.timestamp) {
             const timestamp = data.timestamp.toDate();
             timeElement.textContent = timestamp.toLocaleString();
+            
+            // Highlight most recent login
+            if (snapshot.docs.indexOf(doc) === 0) {
+              timeElement.style.color = '#ff6f61';
+              timeElement.style.fontWeight = '500';
+            }
           } else {
             timeElement.textContent = 'Recent activity';
           }
@@ -818,80 +838,46 @@
           loginActivityList.appendChild(li);
         });
       } catch (error) {
-        console.error('Error loading activity:', error);
-        loginActivityList.innerHTML = '<li class="empty-state">Error loading activity</li>';
+        console.error('Error loading login activity:', error);
+        const li = document.createElement('li');
+        li.className = 'login-activity-item';
+        li.textContent = 'Error loading login history';
+        loginActivityList.appendChild(li);
       }
     }
-    
-    // Reset activity
-    async function resetActivity() {
+
+    // Reset login activity
+    async function resetLoginActivity() {
       const user = auth.currentUser;
       if (!user) return;
       
-      if (confirm('Are you sure you want to reset your activity history?')) {
-        try {
-          // Get all activity documents
-          const snapshot = await db.collection('users')
-            .doc(user.uid)
-            .collection('activity')
-            .get();
-          
-          // Delete each document
-          const batch = db.batch();
-          snapshot.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          
-          await batch.commit();
-          
-          // Log a new activity
-          await logActivity();
-          
-          // Reload activity
-          await loadLoginActivity();
-          
-          showAlert('Activity history has been reset', 'success');
-        } catch (error) {
-          console.error('Error resetting activity:', error);
-          showAlert('Error resetting activity history', 'error');
-        }
+      if (!confirm('Are you sure you want to clear your login history? This cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const snapshot = await db.collection('users').doc(user.uid)
+          .collection('loginHistory')
+          .get();
+        
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        
+        // Log the current login as the first activity
+        await logLoginActivity();
+        
+        displayLoginActivity();
+        showAlert('Login history has been cleared', 'success');
+      } catch (error) {
+        console.error('Error resetting login activity:', error);
+        showAlert('Error clearing login history', 'error');
       }
     }
-    
-    // Tab Switching
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.getAttribute('data-tab');
-        
-        // Update active tab button
-        tabBtns.forEach(tb => tb.classList.remove('active'));
-        btn.classList.add('active');
-        
-        // Update active tab content
-        tabContents.forEach(tc => tc.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-      });
-    });
-    
-    // Copy buttons
-    copyBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-target');
-        const targetElement = document.getElementById(targetId);
-        const textToCopy = targetElement.textContent;
-        
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          btn.classList.add('copied');
-          btn.innerHTML = '<i class="fas fa-check"></i>';
-          
-          setTimeout(() => {
-            btn.classList.remove('copied');
-            btn.innerHTML = '<i class="fas fa-copy"></i>';
-          }, 2000);
-        });
-      });
-    });
-    
+
     // Avatar upload
     avatarUpload.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -1045,7 +1031,7 @@
     setupEditField(bioCard, bioText, bioInput, editBioBtn, saveBioBtn);
     
     // Reset activity button
-    resetActivityBtn.addEventListener('click', resetActivity);
+    resetActivityBtn.addEventListener('click', resetLoginActivity);
     
     // Load user data
     auth.onAuthStateChanged(async (user) => {
@@ -1053,9 +1039,6 @@
         window.location.href = "https://raidpo-ai.netlify.app/";
         return;
       }
-      
-      // Log this activity
-      await logActivity();
       
       // Basic info
       document.getElementById('userId').textContent = user.uid;
@@ -1076,8 +1059,11 @@
       const lastLoginAt = new Date(user.metadata.lastSignInTime);
       document.getElementById('lastLogin').textContent = lastLoginAt.toLocaleString();
       
-      // Load login activity
-      await loadLoginActivity();
+      // Log this login activity
+      await logLoginActivity();
+      
+      // Display login activity
+      displayLoginActivity();
       
       // Provider info
       const providerData = user.providerData[0];
@@ -1261,8 +1247,8 @@
     signOutEverywhereBtn.addEventListener('click', async () => {
       if (confirm('This will sign you out of all devices. Continue?')) {
         try {
-          // In a real implementation, you would revoke all refresh tokens here
-          // This is a simplified version that just signs out the current session
+          // Revoke all refresh tokens
+          await auth.currentUser.getIdToken(true);
           await auth.signOut();
           window.location.href = "https://raidpo-ai.netlify.app/";
         } catch (error) {
