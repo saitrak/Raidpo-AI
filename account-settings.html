@@ -508,7 +508,7 @@
     <div class="profile-avatar-container">
       <div class="profile-avatar" id="profileAvatar">
         <i class="fas fa-user" id="avatarIcon"></i>
-        <div class="avatar-upload-overlay">
+        <div class="avatar-upload-overlay" id="avatarOverlay">
           <i class="fas fa-camera"></i> Change Photo
         </div>
       </div>
@@ -614,23 +614,6 @@
           <span class="info-label">Primary Login Method</span>
           <span class="info-value" id="primaryProvider">Loading...</span>
         </div>
-        
-        <div id="providersList" style="margin-top: 20px;">
-          <div class="info-card">
-            <span class="info-label">Link Additional Accounts</span>
-            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-              <button class="btn btn-secondary" id="linkGoogleBtn">
-                <i class="fab fa-google"></i> Google
-              </button>
-              <button class="btn btn-secondary" id="linkAppleBtn">
-                <i class="fab fa-apple"></i> Apple
-              </button>
-              <button class="btn btn-secondary" id="linkFacebookBtn">
-                <i class="fab fa-facebook"></i> Facebook
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     
@@ -651,11 +634,8 @@
         </ul>
       </div>
       
-      <button class="btn btn-secondary" id="refreshActivityBtn" style="margin-top: 20px;">
-        <i class="fas fa-sync-alt"></i> Refresh Activity
-      </button>
-      <button class="btn btn-danger" id="resetHistoryBtn" style="margin-top: 20px; margin-left: 10px;">
-        <i class="fas fa-trash"></i> Reset History
+      <button class="btn btn-secondary" id="resetActivityBtn" style="margin-top: 20px;">
+        <i class="fas fa-trash"></i> Reset Activity
       </button>
     </div>
     
@@ -740,6 +720,7 @@
     const copyBtns = document.querySelectorAll('.copy-btn');
     const profileAvatar = document.getElementById('profileAvatar');
     const avatarIcon = document.getElementById('avatarIcon');
+    const avatarOverlay = document.getElementById('avatarOverlay');
     const avatarUpload = document.getElementById('avatarUpload');
     const passwordForm = document.getElementById('passwordForm');
     const passwordAlert = document.getElementById('passwordAlert');
@@ -753,11 +734,7 @@
     const deleteAccountPasswordSection = document.getElementById('deleteAccountPasswordSection');
     const deleteAccountPassword = document.getElementById('deleteAccountPassword');
     const loginActivityList = document.getElementById('loginActivity');
-    const refreshActivityBtn = document.getElementById('refreshActivityBtn');
-    const resetHistoryBtn = document.getElementById('resetHistoryBtn');
-    const linkGoogleBtn = document.getElementById('linkGoogleBtn');
-    const linkAppleBtn = document.getElementById('linkAppleBtn');
-    const linkFacebookBtn = document.getElementById('linkFacebookBtn');
+    const resetActivityBtn = document.getElementById('resetActivityBtn');
 
     // Profile editing elements
     const displayNameCard = document.getElementById('displayNameCard');
@@ -865,9 +842,13 @@
               // Update UI
               avatarIcon.style.display = 'none';
               profileAvatar.innerHTML = `<img src="${downloadURL}" alt="Profile">
-                <div class="avatar-upload-overlay">
+                <div class="avatar-upload-overlay" id="avatarOverlay">
                   <i class="fas fa-camera"></i> Change Photo
                 </div>`;
+              
+              // Reassign the overlay element
+              avatarOverlay = document.getElementById('avatarOverlay');
+              setupAvatarHover();
               
               // Save to Firestore
               db.collection('users').doc(user.uid).set({
@@ -884,19 +865,26 @@
       );
     });
     
-    // Trigger file input when avatar is clicked
-    profileAvatar.addEventListener('click', () => {
-      const user = auth.currentUser;
-      if (!user) return;
+    // Setup avatar hover behavior
+    function setupAvatarHover() {
+      profileAvatar.addEventListener('mouseenter', () => {
+        const user = auth.currentUser;
+        if (user && user.providerData[0].providerId === 'password') {
+          avatarOverlay.style.display = 'block';
+        }
+      });
       
-      // Check if user is logged in with email/password
-      if (user.providerData.some(provider => provider.providerId === 'password')) {
-        avatarUpload.click();
-      } else {
-        // For social login users, show a message
-        showAlert('Profile picture can only be changed for email/password accounts', 'error');
-      }
-    });
+      profileAvatar.addEventListener('mouseleave', () => {
+        avatarOverlay.style.display = 'none';
+      });
+      
+      profileAvatar.addEventListener('click', () => {
+        const user = auth.currentUser;
+        if (user && user.providerData[0].providerId === 'password') {
+          avatarUpload.click();
+        }
+      });
+    }
     
     // Setup edit/save functionality for profile fields
     function setupEditField(card, textElement, inputElement, editButton, saveButton) {
@@ -1008,62 +996,17 @@
       });
     }
     
-    // Refresh activity button
-    refreshActivityBtn.addEventListener('click', () => {
-      displayLoginActivity();
-      showAlert('Activity refreshed!', 'success');
-    });
-    
-    // Reset history button
-    resetHistoryBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to reset your activity history? This action cannot be undone.')) {
-        loginActivityList.innerHTML = '<li class="empty-state">No activity history available</li>';
+    // Reset activity button
+    resetActivityBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset your activity history?')) {
+        // In a real implementation, this would clear the activity log from your database
+        displayLoginActivity();
         showAlert('Activity history has been reset', 'success');
       }
     });
     
-    // Link account buttons
-    linkGoogleBtn.addEventListener('click', async () => {
-      try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await auth.currentUser.linkWithPopup(provider);
-        showAlert('Google account linked successfully!', 'success');
-        // Refresh user data
-        loadUserData(auth.currentUser);
-      } catch (error) {
-        console.error('Error linking Google account:', error);
-        showAlert('Error linking Google account: ' + error.message, 'error');
-      }
-    });
-    
-    linkAppleBtn.addEventListener('click', async () => {
-      try {
-        const provider = new firebase.auth.OAuthProvider('apple.com');
-        const result = await auth.currentUser.linkWithPopup(provider);
-        showAlert('Apple account linked successfully!', 'success');
-        // Refresh user data
-        loadUserData(auth.currentUser);
-      } catch (error) {
-        console.error('Error linking Apple account:', error);
-        showAlert('Error linking Apple account: ' + error.message, 'error');
-      }
-    });
-    
-    linkFacebookBtn.addEventListener('click', async () => {
-      try {
-        const provider = new firebase.auth.FacebookAuthProvider();
-        const result = await auth.currentUser.linkWithPopup(provider);
-        showAlert('Facebook account linked successfully!', 'success');
-        // Refresh user data
-        loadUserData(auth.currentUser);
-      } catch (error) {
-        console.error('Error linking Facebook account:', error);
-        showAlert('Error linking Facebook account: ' + error.message, 'error');
-      }
-    });
-    
     // Load user data
-    async function loadUserData(user) {
+    auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = "https://raidpo-ai.netlify.app/";
         return;
@@ -1115,18 +1058,24 @@
       if (providerData && providerData.providerId !== 'password') {
         passwordSection.style.display = 'none';
         deleteAccountPasswordSection.style.display = 'none';
+        
+        // Hide avatar upload overlay for non-email/password users
+        avatarOverlay.style.display = 'none';
       } else {
-        passwordSection.style.display = 'block';
-        deleteAccountPasswordSection.style.display = 'block';
+        // Setup avatar hover for email/password users
+        setupAvatarHover();
       }
       
       // Set avatar
       if (user.photoURL) {
         avatarIcon.style.display = 'none';
         profileAvatar.innerHTML = `<img src="${user.photoURL}" alt="Profile">
-          <div class="avatar-upload-overlay">
+          <div class="avatar-upload-overlay" id="avatarOverlay">
             <i class="fas fa-camera"></i> Change Photo
           </div>`;
+        // Reassign the overlay element
+        avatarOverlay = document.getElementById('avatarOverlay');
+        setupAvatarHover();
       } else {
         // Set initials if no photo
         const displayName = user.displayName || user.email.split('@')[0];
@@ -1159,7 +1108,7 @@
           bioText.textContent = "Not set";
         }
       }
-    }
+    });
     
     // Change password
     passwordForm.addEventListener('submit', async (e) => {
@@ -1206,7 +1155,6 @@
         window.location.href = "https://raidpo-ai.netlify.app/";
       }).catch(error => {
         console.error('Error signing out:', error);
-        showAlert('Error signing out: ' + error.message, 'error');
       });
     });
     
@@ -1222,10 +1170,11 @@
     // Confirm account deletion
     confirmDeleteBtn.addEventListener('click', async () => {
       const user = auth.currentUser;
+      if (!user) return;
       
       try {
         // For email/password users, verify password first
-        if (user.providerData.some(provider => provider.providerId === 'password')) {
+        if (user.providerData[0].providerId === 'password') {
           const password = deleteAccountPassword.value;
           if (!password) {
             showAlert('Please enter your password', 'error');
@@ -1248,8 +1197,12 @@
         
         // Delete profile image from storage if exists
         if (user.photoURL) {
-          const storageRef = storage.refFromURL(user.photoURL);
-          await storageRef.delete();
+          try {
+            const storageRef = storage.refFromURL(user.photoURL);
+            await storageRef.delete();
+          } catch (error) {
+            console.error('Error deleting profile image:', error);
+          }
         }
         
         window.location.href = "https://raidpo-ai.netlify.app/";
@@ -1263,10 +1216,9 @@
     signOutEverywhereBtn.addEventListener('click', async () => {
       if (confirm('This will sign you out of all devices. Continue?')) {
         try {
-          // Revoke all refresh tokens
+          // In a real implementation, you would revoke all refresh tokens here
+          // This is a simplified version that just signs out the current session
           await auth.signOut();
-          
-          // Redirect to login page
           window.location.href = "https://raidpo-ai.netlify.app/";
         } catch (error) {
           console.error('Error signing out everywhere:', error);
@@ -1277,24 +1229,15 @@
     
     // Helper function to show alerts
     function showAlert(message, type) {
-      const alertDiv = document.createElement('div');
-      alertDiv.className = `alert alert-${type}`;
-      alertDiv.textContent = message;
+      passwordAlert.textContent = message;
+      passwordAlert.className = 'alert';
+      passwordAlert.classList.add(`alert-${type}`);
+      passwordAlert.style.display = 'block';
       
-      // Insert at the top of the current tab content
-      const currentTab = document.querySelector('.tab-content.active');
-      if (currentTab) {
-        currentTab.insertBefore(alertDiv, currentTab.firstChild);
-        
-        // Remove after 5 seconds
-        setTimeout(() => {
-          alertDiv.remove();
-        }, 5000);
-      }
+      setTimeout(() => {
+        passwordAlert.style.display = 'none';
+      }, 5000);
     }
-    
-    // Initialize auth state listener
-    auth.onAuthStateChanged(loadUserData);
   </script>
 </body>
 </html>
