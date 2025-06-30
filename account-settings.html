@@ -79,6 +79,11 @@
       overflow: hidden;
       position: relative;
       cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .profile-avatar:hover {
+      transform: scale(1.05);
     }
     
     .profile-avatar img {
@@ -257,6 +262,23 @@
       color: var(--primary);
     }
     
+    .info-card .save-btn {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      background: transparent;
+      border: none;
+      color: #4CAF50;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 5px;
+      display: none;
+    }
+    
+    .info-card .save-btn:hover {
+      color: #2E7D32;
+    }
+    
     /* Form Elements */
     .form-group {
       margin-bottom: 20px;
@@ -401,6 +423,48 @@
       color: #d32f2f;
     }
     
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background-color: var(--dark-light);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      animation: modalFadeIn 0.3s ease;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+    
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
       .account-header {
@@ -475,6 +539,7 @@
         <span class="info-value" id="displayNameText">Not set</span>
         <input type="text" class="info-input" id="displayNameInput" style="display: none;">
         <button class="edit-btn" id="editDisplayNameBtn"><i class="fas fa-edit"></i></button>
+        <button class="save-btn" id="saveDisplayNameBtn"><i class="fas fa-check"></i></button>
         <button class="copy-btn" data-target="displayNameText"><i class="fas fa-copy"></i></button>
       </div>
       
@@ -497,6 +562,7 @@
         <span class="info-value" id="birthDateText">Not set</span>
         <input type="date" class="info-input" id="birthDateInput" style="display: none;">
         <button class="edit-btn" id="editBirthDateBtn"><i class="fas fa-edit"></i></button>
+        <button class="save-btn" id="saveBirthDateBtn"><i class="fas fa-check"></i></button>
       </div>
       
       <div class="info-card" id="locationCard">
@@ -504,6 +570,7 @@
         <span class="info-value" id="locationText">Not set</span>
         <input type="text" class="info-input" id="locationInput" style="display: none;">
         <button class="edit-btn" id="editLocationBtn"><i class="fas fa-edit"></i></button>
+        <button class="save-btn" id="saveLocationBtn"><i class="fas fa-check"></i></button>
       </div>
       
       <div class="info-card" id="bioCard">
@@ -511,11 +578,7 @@
         <span class="info-value" id="bioText">Not set</span>
         <textarea class="info-input" id="bioInput" style="display: none;" rows="3"></textarea>
         <button class="edit-btn" id="editBioBtn"><i class="fas fa-edit"></i></button>
-      </div>
-      
-      <div id="profileSaveSection" style="display: none; margin-top: 20px; text-align: right;">
-        <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
-        <button class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+        <button class="save-btn" id="saveBioBtn"><i class="fas fa-check"></i></button>
       </div>
     </div>
     
@@ -554,14 +617,18 @@
         
         <div id="providersList" style="margin-top: 20px;">
           <div class="info-card">
-            <span class="info-label">Linked Accounts</span>
-            <span class="info-value">No additional accounts linked</span>
-            <button class="btn btn-secondary" style="margin-top: 10px;">
-              <i class="fab fa-google"></i> Link Google Account
-            </button>
-            <button class="btn btn-secondary" style="margin-top: 10px;">
-              <i class="fab fa-apple"></i> Link Apple Account
-            </button>
+            <span class="info-label">Link Additional Accounts</span>
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="linkGoogleBtn">
+                <i class="fab fa-google"></i> Google
+              </button>
+              <button class="btn btn-secondary" id="linkAppleBtn">
+                <i class="fab fa-apple"></i> Apple
+              </button>
+              <button class="btn btn-secondary" id="linkFacebookBtn">
+                <i class="fab fa-facebook"></i> Facebook
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -584,7 +651,7 @@
         </ul>
       </div>
       
-      <button class="btn btn-secondary" style="margin-top: 20px;">
+      <button class="btn btn-secondary" id="refreshActivityBtn" style="margin-top: 20px;">
         <i class="fas fa-sync-alt"></i> Refresh Activity
       </button>
     </div>
@@ -683,31 +750,35 @@
     const deleteAccountPasswordSection = document.getElementById('deleteAccountPasswordSection');
     const deleteAccountPassword = document.getElementById('deleteAccountPassword');
     const loginActivityList = document.getElementById('loginActivity');
+    const refreshActivityBtn = document.getElementById('refreshActivityBtn');
+    const linkGoogleBtn = document.getElementById('linkGoogleBtn');
+    const linkAppleBtn = document.getElementById('linkAppleBtn');
+    const linkFacebookBtn = document.getElementById('linkFacebookBtn');
 
     // Profile editing elements
     const displayNameCard = document.getElementById('displayNameCard');
     const displayNameText = document.getElementById('displayNameText');
     const displayNameInput = document.getElementById('displayNameInput');
     const editDisplayNameBtn = document.getElementById('editDisplayNameBtn');
+    const saveDisplayNameBtn = document.getElementById('saveDisplayNameBtn');
     
     const birthDateCard = document.getElementById('birthDateCard');
     const birthDateText = document.getElementById('birthDateText');
     const birthDateInput = document.getElementById('birthDateInput');
     const editBirthDateBtn = document.getElementById('editBirthDateBtn');
+    const saveBirthDateBtn = document.getElementById('saveBirthDateBtn');
     
     const locationCard = document.getElementById('locationCard');
     const locationText = document.getElementById('locationText');
     const locationInput = document.getElementById('locationInput');
     const editLocationBtn = document.getElementById('editLocationBtn');
+    const saveLocationBtn = document.getElementById('saveLocationBtn');
     
     const bioCard = document.getElementById('bioCard');
     const bioText = document.getElementById('bioText');
     const bioInput = document.getElementById('bioInput');
     const editBioBtn = document.getElementById('editBioBtn');
-    
-    const profileSaveSection = document.getElementById('profileSaveSection');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const saveBioBtn = document.getElementById('saveBioBtn');
 
     // Tab Switching
     tabBtns.forEach(btn => {
@@ -806,109 +877,77 @@
       );
     });
     
-    // Trigger file input when avatar is clicked
+    // Trigger file input when avatar is clicked (only for email/password users)
     profileAvatar.addEventListener('click', () => {
       const user = auth.currentUser;
       if (user && user.providerData[0].providerId === 'password') {
         avatarUpload.click();
+      } else {
+        // For social login users, show a message
+        alert('Profile picture can only be changed for email/password accounts');
       }
     });
     
-    // Edit profile fields
-    function setupEditField(card, textElement, inputElement, editButton) {
+    // Setup edit/save functionality for profile fields
+    function setupEditField(card, textElement, inputElement, editButton, saveButton) {
       editButton.addEventListener('click', () => {
         // Enter edit mode
         textElement.style.display = 'none';
         inputElement.style.display = 'block';
         inputElement.value = textElement.textContent === 'Not set' ? '' : textElement.textContent;
         card.classList.add('editing');
-        profileSaveSection.style.display = 'block';
+        editButton.style.display = 'none';
+        saveButton.style.display = 'block';
+        
+        // Focus the input field
+        if (inputElement.tagName === 'INPUT' || inputElement.tagName === 'TEXTAREA') {
+          inputElement.focus();
+        }
+      });
+      
+      saveButton.addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        const newValue = inputElement.value.trim();
+        const fieldName = card.id.replace('Card', '').toLowerCase();
+        
+        try {
+          // Special handling for display name (needs auth update)
+          if (fieldName === 'displayname') {
+            await user.updateProfile({
+              displayName: newValue
+            });
+            textElement.textContent = newValue || 'Not set';
+          }
+          
+          // Update Firestore
+          const updateData = {};
+          updateData[fieldName] = newValue || null;
+          
+          await db.collection('users').doc(user.uid).set(updateData, { merge: true });
+          
+          // Update UI
+          textElement.textContent = newValue || 'Not set';
+          textElement.style.display = 'block';
+          inputElement.style.display = 'none';
+          card.classList.remove('editing');
+          editButton.style.display = 'block';
+          saveButton.style.display = 'none';
+          
+          showAlert('Changes saved successfully!', 'success');
+        } catch (error) {
+          console.error('Error saving changes:', error);
+          showAlert('Error saving changes: ' + error.message, 'error');
+        }
       });
     }
     
-    setupEditField(displayNameCard, displayNameText, displayNameInput, editDisplayNameBtn);
-    setupEditField(birthDateCard, birthDateText, birthDateInput, editBirthDateBtn);
-    setupEditField(locationCard, locationText, locationInput, editLocationBtn);
-    setupEditField(bioCard, bioText, bioInput, editBioBtn);
-    
-    // Cancel editing
-    cancelEditBtn.addEventListener('click', () => {
-      resetEditMode();
-    });
-    
-    // Save profile changes
-    saveProfileBtn.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      
-      const updates = {};
-      
-      // Get updated values
-      if (displayNameInput.style.display === 'block') {
-        updates.displayName = displayNameInput.value.trim();
-      }
-      
-      if (birthDateInput.style.display === 'block') {
-        updates.birthDate = birthDateInput.value;
-      }
-      
-      if (locationInput.style.display === 'block') {
-        updates.location = locationInput.value.trim();
-      }
-      
-      if (bioInput.style.display === 'block') {
-        updates.bio = bioInput.value.trim();
-      }
-      
-      try {
-        // Update display name in auth if changed
-        if (updates.displayName !== undefined) {
-          await user.updateProfile({
-            displayName: updates.displayName
-          });
-          displayNameText.textContent = updates.displayName || 'Not set';
-        }
-        
-        // Update other fields in Firestore
-        await db.collection('users').doc(user.uid).set(updates, { merge: true });
-        
-        // Update UI
-        if (updates.birthDate !== undefined) {
-          birthDateText.textContent = updates.birthDate || 'Not set';
-        }
-        
-        if (updates.location !== undefined) {
-          locationText.textContent = updates.location || 'Not set';
-        }
-        
-        if (updates.bio !== undefined) {
-          bioText.textContent = updates.bio || 'Not set';
-        }
-        
-        resetEditMode();
-        showAlert('Profile updated successfully!', 'success');
-      } catch (error) {
-        console.error('Error updating profile:', error);
-        showAlert('Error updating profile: ' + error.message, 'error');
-      }
-    });
-    
-    function resetEditMode() {
-      // Hide all inputs and show text
-      document.querySelectorAll('.info-input').forEach(input => {
-        input.style.display = 'none';
-      });
-      
-      document.querySelectorAll('.info-value').forEach(text => {
-        text.style.display = 'block';
-      });
-      
-      document.querySelectorAll('.info-card').forEach(card => {
-        card.classList.remove('editing');
-      });
-      
-      profileSaveSection.style.display = 'none';
-    }
+    // Initialize edit/save for all fields
+    setupEditField(displayNameCard, displayNameText, displayNameInput, editDisplayNameBtn, saveDisplayNameBtn);
+    setupEditField(birthDateCard, birthDateText, birthDateInput, editBirthDateBtn, saveBirthDateBtn);
+    setupEditField(locationCard, locationText, locationInput, editLocationBtn, saveLocationBtn);
+    setupEditField(bioCard, bioText, bioInput, editBioBtn, saveBioBtn);
     
     // Generate random login activity (simulated)
     function generateLoginActivity() {
@@ -958,6 +997,25 @@
         loginActivityList.appendChild(li);
       });
     }
+    
+    // Refresh activity button
+    refreshActivityBtn.addEventListener('click', () => {
+      displayLoginActivity();
+      showAlert('Activity refreshed!', 'success');
+    });
+    
+    // Link account buttons (placeholder functionality)
+    linkGoogleBtn.addEventListener('click', () => {
+      alert('Google account linking will be implemented in a future update');
+    });
+    
+    linkAppleBtn.addEventListener('click', () => {
+      alert('Apple account linking will be implemented in a future update');
+    });
+    
+    linkFacebookBtn.addEventListener('click', () => {
+      alert('Facebook account linking will be implemented in a future update');
+    });
     
     // Load user data
     auth.onAuthStateChanged(async (user) => {
