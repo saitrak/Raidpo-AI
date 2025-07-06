@@ -226,24 +226,22 @@
       justify-content: center;
     }
 
-    /* Requirements List */
-    .requirements-list {
+    /* Password requirements (hidden by default) */
+    .password-requirements {
+      display: none;
       margin-top: 0.5rem;
       font-size: 0.8rem;
       color: #ccc;
-      padding-left: 1.5rem;
     }
 
     .requirement {
       display: flex;
       align-items: center;
       margin-bottom: 0.3rem;
-      position: relative;
     }
 
     .requirement i {
-      position: absolute;
-      left: -1.5rem;
+      margin-right: 0.5rem;
       font-size: 0.8rem;
     }
 
@@ -253,6 +251,24 @@
 
     .requirement.invalid i {
       color: #ff6f61;
+    }
+
+    /* Terms checkbox */
+    .terms-checkbox {
+      display: flex;
+      align-items: center;
+      margin: 1rem 0;
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+
+    .terms-checkbox input {
+      margin-right: 0.5rem;
+    }
+
+    .terms-checkbox a {
+      color: #ff6f61;
+      text-decoration: underline;
     }
 
     /* Verification Message */
@@ -332,19 +348,15 @@
           <i class="fas fa-eye password-toggle" id="toggleLoginPassword"></i>
         </div>
         
-        <!-- Requirements list for login -->
-        <div class="requirements-list" id="loginRequirements">
+        <!-- Hidden requirements for login (server-side validation) -->
+        <div class="password-requirements" id="loginRequirements" style="display: none;">
           <div class="requirement" id="loginAccountValid">
             <i class="fas fa-times"></i>
-            <span>Valid account exists</span>
+            <span>Account exists</span>
           </div>
           <div class="requirement" id="loginPasswordValid">
             <i class="fas fa-times"></i>
             <span>Correct password</span>
-          </div>
-          <div class="requirement" id="loginRecaptchaValid">
-            <i class="fas fa-times"></i>
-            <span>reCAPTCHA completed</span>
           </div>
         </div>
         
@@ -382,6 +394,20 @@
           <label for="signupPassword">Password</label>
           <input type="password" id="signupPassword" placeholder="Create a password" required>
           <i class="fas fa-eye password-toggle" id="toggleSignupPassword"></i>
+          <div class="password-requirements" id="signupPasswordRequirements">
+            <div class="requirement" id="req-length">
+              <i class="fas fa-times"></i>
+              <span>At least 5 characters</span>
+            </div>
+            <div class="requirement" id="req-uppercase">
+              <i class="fas fa-times"></i>
+              <span>At least 1 uppercase letter</span>
+            </div>
+            <div class="requirement" id="req-lowercase">
+              <i class="fas fa-times"></i>
+              <span>At least 1 lowercase letter</span>
+            </div>
+          </div>
         </div>
         
         <div class="form-group">
@@ -391,27 +417,21 @@
           <div id="passwordMatchError" class="auth-error" style="display: none;">Passwords do not match</div>
         </div>
         
-        <!-- Requirements list for signup -->
-        <div class="requirements-list" id="signupRequirements">
+        <!-- Terms and conditions checkbox -->
+        <div class="terms-checkbox">
+          <input type="checkbox" id="acceptTerms" required>
+          <label for="acceptTerms">I agree to the <a href="/terms-and-conditions.html">Terms and Conditions</a> and <a href="/privacy-policy.html">Privacy Policy</a></label>
+        </div>
+        
+        <!-- Hidden requirements for signup (server-side validation) -->
+        <div class="password-requirements" id="signupRequirements" style="display: none;">
           <div class="requirement" id="signupUsernameValid">
             <i class="fas fa-times"></i>
-            <span>Valid username</span>
+            <span>Username available</span>
           </div>
           <div class="requirement" id="signupEmailValid">
             <i class="fas fa-times"></i>
-            <span>Valid email</span>
-          </div>
-          <div class="requirement" id="signupPasswordValid">
-            <i class="fas fa-times"></i>
-            <span>Password meets requirements</span>
-          </div>
-          <div class="requirement" id="signupPasswordMatch">
-            <i class="fas fa-times"></i>
-            <span>Passwords match</span>
-          </div>
-          <div class="requirement" id="signupRecaptchaValid">
-            <i class="fas fa-times"></i>
-            <span>reCAPTCHA completed</span>
+            <span>Email available</span>
           </div>
         </div>
         
@@ -492,16 +512,19 @@
     const signupRecaptcha = document.getElementById('signupRecaptcha');
     const recaptchaLoginError = document.getElementById('recaptchaLoginError');
     const recaptchaSignupError = document.getElementById('recaptchaSignupError');
+    const acceptTerms = document.getElementById('acceptTerms');
+    const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
 
-    // Requirements elements
+    // Password requirement elements
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+
+    // Server-side validation elements (hidden)
     const loginAccountValid = document.getElementById('loginAccountValid');
     const loginPasswordValid = document.getElementById('loginPasswordValid');
-    const loginRecaptchaValid = document.getElementById('loginRecaptchaValid');
     const signupUsernameValid = document.getElementById('signupUsernameValid');
     const signupEmailValid = document.getElementById('signupEmailValid');
-    const signupPasswordValid = document.getElementById('signupPasswordValid');
-    const signupPasswordMatch = document.getElementById('signupPasswordMatch');
-    const signupRecaptchaValid = document.getElementById('signupRecaptchaValid');
 
     // Validation states
     const validationStates = {
@@ -515,7 +538,8 @@
         email: false,
         password: false,
         passwordMatch: false,
-        recaptcha: false
+        recaptcha: false,
+        termsAccepted: false
       }
     };
 
@@ -538,7 +562,16 @@
 
     // Check password validity
     function isValidPassword(password) {
-      return password.length >= 5 && /[A-Z]/.test(password) && /[a-z]/.test(password);
+      const hasLength = password.length >= 5;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      
+      // Update password requirements visibility
+      updateRequirement(reqLength, hasLength);
+      updateRequirement(reqUppercase, hasUppercase);
+      updateRequirement(reqLowercase, hasLowercase);
+      
+      return hasLength && hasUppercase && hasLowercase;
     }
 
     // Check if passwords match
@@ -549,7 +582,6 @@
       if (password && confirmPassword) {
         const isMatch = password === confirmPassword;
         validationStates.signup.passwordMatch = isMatch;
-        updateRequirement(signupPasswordMatch, isMatch);
         
         if (!isMatch) {
           passwordMatchError.style.display = 'block';
@@ -571,13 +603,10 @@
     // Track reCAPTCHA completion
     function onRecaptchaComplete(type) {
       recaptchaCompleted[type] = true;
+      validationStates[type].recaptcha = true;
       if (type === 'login') {
-        validationStates.login.recaptcha = true;
-        updateRequirement(loginRecaptchaValid, true);
         recaptchaLoginError.style.display = 'none';
       } else {
-        validationStates.signup.recaptcha = true;
-        updateRequirement(signupRecaptchaValid, true);
         recaptchaSignupError.style.display = 'none';
       }
     }
@@ -585,14 +614,11 @@
     // Track reCAPTCHA expiration
     function onRecaptchaExpired(type) {
       recaptchaCompleted[type] = false;
+      validationStates[type].recaptcha = false;
       if (type === 'login') {
-        validationStates.login.recaptcha = false;
-        updateRequirement(loginRecaptchaValid, false);
         recaptchaLoginError.textContent = 'reCAPTCHA expired - please complete again';
         recaptchaLoginError.style.display = 'block';
       } else {
-        validationStates.signup.recaptcha = false;
-        updateRequirement(signupRecaptchaValid, false);
         recaptchaSignupError.textContent = 'reCAPTCHA expired - please complete again';
         recaptchaSignupError.style.display = 'block';
       }
@@ -623,6 +649,18 @@
       inputElement.setAttribute('type', type);
       toggleElement.classList.toggle('fa-eye-slash');
     }
+
+    // Show password requirements when password field is focused
+    signupPassword.addEventListener('focus', () => {
+      signupPasswordRequirements.style.display = 'block';
+    });
+
+    // Hide password requirements when password field is blurred (if not empty)
+    signupPassword.addEventListener('blur', () => {
+      if (signupPassword.value === '') {
+        signupPasswordRequirements.style.display = 'none';
+      }
+    });
 
     // Setup password toggles
     toggleLoginPassword.addEventListener('click', () => {
@@ -670,22 +708,21 @@
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
+    // Terms checkbox change
+    acceptTerms.addEventListener('change', () => {
+      validationStates.signup.termsAccepted = acceptTerms.checked;
+    });
+
     // Validate login inputs
     function validateLoginInputs() {
       const emailOrUsername = loginEmail.value;
       const password = loginPassword.value;
       
-      // Check if account exists (simplified - actual check happens on server)
-      const hasAccount = emailOrUsername.length > 0;
-      validationStates.login.account = hasAccount;
-      updateRequirement(loginAccountValid, hasAccount);
-      
-      // Check password
+      // Basic validation
+      const hasInput = emailOrUsername.length > 0;
       const hasPassword = password.length > 0;
-      validationStates.login.password = hasPassword;
-      updateRequirement(loginPasswordValid, hasPassword);
       
-      return hasAccount && hasPassword;
+      return hasInput && hasPassword;
     }
 
     // Validate signup inputs
@@ -697,22 +734,24 @@
       // Check username
       const isUsernameValid = isValidUsername(username);
       validationStates.signup.username = isUsernameValid;
-      updateRequirement(signupUsernameValid, isUsernameValid);
       
       // Check email
       const isEmailValid = isValidEmail(email);
       validationStates.signup.email = isEmailValid;
-      updateRequirement(signupEmailValid, isEmailValid);
       
       // Check password
       const isPasswordValid = isValidPassword(password);
       validationStates.signup.password = isPasswordValid;
-      updateRequirement(signupPasswordValid, isPasswordValid);
       
       // Check password match
       checkPasswordMatch();
       
-      return isUsernameValid && isEmailValid && isPasswordValid && validationStates.signup.passwordMatch;
+      // Check terms accepted
+      validationStates.signup.termsAccepted = acceptTerms.checked;
+      
+      return isUsernameValid && isEmailValid && isPasswordValid && 
+             validationStates.signup.passwordMatch && 
+             validationStates.signup.termsAccepted;
     }
 
     // Input event listeners for login
@@ -759,7 +798,7 @@
       
       // Validate inputs
       if (!validateLoginInputs()) {
-        loginError.textContent = 'Please complete all requirements';
+        loginError.textContent = 'Please fill in all fields';
         loginError.style.display = 'block';
         return;
       }
@@ -781,7 +820,6 @@
               grecaptcha.reset(loginRecaptcha);
               recaptchaCompleted.login = false;
               validationStates.login.recaptcha = false;
-              updateRequirement(loginRecaptchaValid, false);
             }
           })
           .catch(error => {
@@ -789,16 +827,13 @@
               grecaptcha.reset(loginRecaptcha);
               recaptchaCompleted.login = false;
               validationStates.login.recaptcha = false;
-              updateRequirement(loginRecaptchaValid, false);
             }
             
-            // Update requirements based on error
+            // Update server-side validation indicators
             if (error.code === 'auth/user-not-found') {
-              validationStates.login.account = false;
               updateRequirement(loginAccountValid, false);
               loginError.textContent = 'No account found with this email';
             } else if (error.code === 'auth/wrong-password') {
-              validationStates.login.password = false;
               updateRequirement(loginPasswordValid, false);
               loginError.textContent = 'Incorrect password';
             } else {
@@ -837,6 +872,13 @@
         return;
       }
       
+      // Check terms accepted
+      if (!acceptTerms.checked) {
+        signupError.textContent = 'You must accept the terms and conditions';
+        signupError.style.display = 'block';
+        return;
+      }
+      
       // First check if email exists
       auth.fetchSignInMethodsForEmail(email)
         .then((signInMethods) => {
@@ -846,10 +888,8 @@
               grecaptcha.reset(signupRecaptcha);
               recaptchaCompleted.signup = false;
               validationStates.signup.recaptcha = false;
-              updateRequirement(signupRecaptchaValid, false);
             }
             
-            validationStates.signup.email = false;
             updateRequirement(signupEmailValid, false);
             signupError.textContent = 'This email is already in use';
             signupError.style.display = 'block';
@@ -872,23 +912,21 @@
                   grecaptcha.reset(signupRecaptcha);
                   recaptchaCompleted.signup = false;
                   validationStates.signup.recaptcha = false;
-                  updateRequirement(signupRecaptchaValid, false);
                 }
                 // Show verification message
                 verificationMessage.style.display = 'block';
                 signupForm.reset();
+                signupPasswordRequirements.style.display = 'none';
                 
                 // Reset all validation states
                 Object.keys(validationStates.signup).forEach(key => {
                   validationStates.signup[key] = false;
                 });
                 
-                // Update all requirement indicators
-                updateRequirement(signupUsernameValid, false);
-                updateRequirement(signupEmailValid, false);
-                updateRequirement(signupPasswordValid, false);
-                updateRequirement(signupPasswordMatch, false);
-                updateRequirement(signupRecaptchaValid, false);
+                // Reset password requirements
+                updateRequirement(reqLength, false);
+                updateRequirement(reqUppercase, false);
+                updateRequirement(reqLowercase, false);
               });
           }
         })
@@ -897,7 +935,6 @@
             grecaptcha.reset(signupRecaptcha);
             recaptchaCompleted.signup = false;
             validationStates.signup.recaptcha = false;
-            updateRequirement(signupRecaptchaValid, false);
           }
           signupError.textContent = error.message;
           signupError.style.display = 'block';
