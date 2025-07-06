@@ -66,9 +66,47 @@
       }
     }
 
+    /* Security Challenge Screen */
+    .security-challenge {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .challenge-container {
+      background-color: #1a1a1a;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .challenge-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .challenge-description {
+      color: #ccc;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
     /* Auth Page */
     .auth-page {
-      display: flex;
+      display: none;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
@@ -332,13 +370,6 @@
       transition: width 3s linear;
     }
 
-    /* reCAPTCHA container */
-    .g-recaptcha {
-      margin: 1.5rem 0;
-      display: flex;
-      justify-content: center;
-    }
-
     /* Password requirements (hidden by default) */
     .password-requirements {
       display: none;
@@ -440,11 +471,11 @@
 
     /* Responsive Adjustments */
     @media (max-width: 480px) {
-      .auth-container {
+      .auth-container, .challenge-container {
         padding: 1.5rem;
       }
       
-      .auth-header h1 {
+      .auth-header h1, .challenge-title {
         margin-bottom: 0.3rem;
       }
       
@@ -466,7 +497,7 @@
     }
 
     @media (max-width: 360px) {
-      .auth-container {
+      .auth-container, .challenge-container {
         padding: 1.2rem;
       }
       
@@ -482,8 +513,17 @@
     <div class="loading-spinner"></div>
   </div>
 
+  <!-- Security Challenge Screen -->
+  <div class="security-challenge" id="securityChallenge">
+    <div class="challenge-container">
+      <h2 class="challenge-title">Security Challenge</h2>
+      <p class="challenge-description">Complete the challenge to prove you're human</p>
+      <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="securityRecaptcha"></div>
+    </div>
+  </div>
+
   <!-- Auth Page -->
-  <div class="auth-page" id="authPage" style="display: none;">
+  <div class="auth-page" id="authPage">
     <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
     
     <div class="auth-container">
@@ -508,9 +548,6 @@
           <input type="password" id="loginPassword" placeholder="Enter your password" required>
           <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
         </div>
-        
-        <!-- reCAPTCHA for login -->
-        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="loginRecaptcha"></div>
         
         <button id="loginBtn" class="auth-btn">Login</button>
         <button id="googleLoginBtn" class="google-btn">
@@ -568,9 +605,6 @@
           <label for="acceptTerms">I agree to the <a href="/terms-and-conditions.html">Terms and Conditions</a> and <a href="/privacy-policy.html">Privacy Policy</a></label>
         </div>
         
-        <!-- reCAPTCHA for signup -->
-        <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="signupRecaptcha"></div>
-        
         <button id="signupBtn" class="auth-btn">Sign Up</button>
         <button id="googleSignupBtn" class="google-btn">
           <i class="fab fa-google"></i> Continue with Google
@@ -626,6 +660,7 @@
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
+    const securityChallenge = document.getElementById('securityChallenge');
     const authPage = document.getElementById('authPage');
     const closeButton = document.getElementById('closeButton');
     const loginForm = document.getElementById('loginForm');
@@ -650,8 +685,7 @@
     const switchToLogin = document.getElementById('switchToLogin');
     const verificationMessage = document.getElementById('verificationMessage');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
-    const loginRecaptcha = document.getElementById('loginRecaptcha');
-    const signupRecaptcha = document.getElementById('signupRecaptcha');
+    const securityRecaptcha = document.getElementById('securityRecaptcha');
     const acceptTerms = document.getElementById('acceptTerms');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
     const requirementsOverlay = document.getElementById('requirementsOverlay');
@@ -668,7 +702,6 @@
       login: {
         emailOrUsername: false,
         password: false,
-        recaptcha: false,
         accountExists: false,
         passwordCorrect: false
       },
@@ -677,19 +710,13 @@
         email: false,
         password: false,
         passwordMatch: false,
-        recaptcha: false,
         termsAccepted: false,
-        emailAvailable: true // Assume available until proven otherwise
+        emailAvailable: true
       }
     };
 
     // reCAPTCHA state
-    let recaptchaCompleted = {
-      login: false,
-      signup: false
-    };
-
-    // Countdown timer for requirements menu
+    let recaptchaCompleted = false;
     let countdownTimer;
 
     // Show loading screen for 3 seconds and check auth state
@@ -701,8 +728,9 @@
           // User is signed in, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          // User is not signed in, show auth page
-          authPage.style.display = 'flex';
+          // User is not signed in, show security challenge first
+          securityChallenge.style.display = 'flex';
+          authPage.style.display = 'none';
         }
       });
     }, 3000);
@@ -735,7 +763,6 @@
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
-      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
@@ -758,15 +785,10 @@
     }
 
     // Track reCAPTCHA completion
-    function onRecaptchaComplete(type) {
-      recaptchaCompleted[type] = true;
-      validationStates[type].recaptcha = true;
-    }
-
-    // Track reCAPTCHA expiration
-    function onRecaptchaExpired(type) {
-      recaptchaCompleted[type] = false;
-      validationStates[type].recaptcha = false;
+    function onSecurityRecaptchaComplete() {
+      recaptchaCompleted = true;
+      securityChallenge.style.display = 'none';
+      authPage.style.display = 'flex';
     }
 
     // Show requirements menu
@@ -788,7 +810,7 @@
       // Show overlay and menu
       requirementsOverlay.classList.add('active');
       
-      // Start countdown animation
+      // Reset and start countdown animation
       countdownProgress.style.width = '0%';
       setTimeout(() => {
         countdownProgress.style.width = '100%';
@@ -815,9 +837,6 @@
       if (!validationStates.login.password) {
         requirements.push('Enter your password');
       }
-      if (!validationStates.login.recaptcha) {
-        requirements.push('Complete the reCAPTCHA');
-      }
       
       return requirements;
     }
@@ -837,9 +856,6 @@
       }
       if (!validationStates.signup.passwordMatch) {
         requirements.push('Passwords must match');
-      }
-      if (!validationStates.signup.recaptcha) {
-        requirements.push('Complete the reCAPTCHA');
       }
       if (!validationStates.signup.termsAccepted) {
         requirements.push('Accept terms and conditions');
@@ -896,7 +912,6 @@
           signupForm.classList.add('active');
         }
         
-        // Hide requirements menu when switching tabs
         hideRequirementsMenu();
       });
     });
@@ -928,7 +943,6 @@
       const emailOrUsername = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
-      // Basic validation
       validationStates.login.emailOrUsername = emailOrUsername.length > 0;
       validationStates.login.password = password.length > 0;
       
@@ -942,60 +956,28 @@
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
       
-      // Check username
       const isUsernameValid = isValidUsername(username);
       validationStates.signup.username = isUsernameValid;
       
-      // Check email
       const isEmailValid = isValidEmail(email);
       validationStates.signup.email = isEmailValid;
       
-      // Check password
       const isPasswordValid = isValidPassword(password);
       validationStates.signup.password = isPasswordValid;
       
-      // Check password match
       const isPasswordMatch = checkPasswordMatch();
       validationStates.signup.passwordMatch = isPasswordMatch;
       
       return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
     }
 
-    // Input event listeners for login
-    loginEmail.addEventListener('input', () => {
-      validateLoginInputs();
-    });
-
-    loginPassword.addEventListener('input', () => {
-      validateLoginInputs();
-    });
-
-    // Input event listeners for signup
-    signupUsername.addEventListener('input', () => {
-      validateSignupInputs();
-    });
-
-    signupEmail.addEventListener('input', () => {
-      validateSignupInputs();
-    });
-
-    signupPassword.addEventListener('input', () => {
-      validateSignupInputs();
-    });
-
-    signupConfirmPassword.addEventListener('input', () => {
-      validateSignupInputs();
-    });
-
     // Email Login
     loginBtn.addEventListener('click', async () => {
       const emailOrUsername = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
-      // Validate inputs
       validateLoginInputs();
       
-      // Check requirements
       const requirements = checkLoginRequirements();
       
       if (requirements.length > 0) {
@@ -1003,42 +985,23 @@
         return;
       }
       
-      // Determine if input is email or username
       const isEmail = emailOrUsername.includes('@');
       
       if (isEmail) {
-        // First check if email exists
         try {
           const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
           
           if (signInMethods.length === 0) {
-            // Email doesn't exist
             showRequirementsMenu(['Account does not exist']);
             return;
           }
           
-          // Email exists, proceed with login
           validationStates.login.accountExists = true;
           
-          // Attempt to sign in
           try {
             await auth.signInWithEmailAndPassword(emailOrUsername, password);
-            
-            // Login successful, handled by auth state change
             validationStates.login.passwordCorrect = true;
-            
-            if (typeof grecaptcha !== 'undefined') {
-              grecaptcha.reset(loginRecaptcha);
-              recaptchaCompleted.login = false;
-              validationStates.login.recaptcha = false;
-            }
           } catch (error) {
-            if (typeof grecaptcha !== 'undefined') {
-              grecaptcha.reset(loginRecaptcha);
-              recaptchaCompleted.login = false;
-              validationStates.login.recaptcha = false;
-            }
-            
             if (error.code === 'auth/wrong-password') {
               showRequirementsMenu(['Incorrect password']);
             } else {
@@ -1046,15 +1009,9 @@
             }
           }
         } catch (error) {
-          if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset(loginRecaptcha);
-            recaptchaCompleted.login = false;
-            validationStates.login.recaptcha = false;
-          }
           showRequirementsMenu([`Error: ${error.message}`]);
         }
       } else {
-        // For username login, we'd need to look up the email first
         showRequirementsMenu(['Username login not yet implemented - please use email']);
       }
     });
@@ -1066,10 +1023,8 @@
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
       
-      // Validate inputs
       validateSignupInputs();
       
-      // Check requirements
       const requirements = checkSignupRequirements();
       
       if (requirements.length > 0) {
@@ -1078,65 +1033,39 @@
       }
       
       try {
-        // First check if email exists
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
         
         if (signInMethods.length > 0) {
-          // Email already exists
-          if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset(signupRecaptcha);
-            recaptchaCompleted.signup = false;
-            validationStates.signup.recaptcha = false;
-          }
-          
           showRequirementsMenu(['Email is already registered']);
           return;
         }
         
-        // Email doesn't exist, proceed with signup
         validationStates.signup.emailAvailable = true;
         
-        // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         
-        // Update display name
         await userCredential.user.updateProfile({
           displayName: username
         });
         
-        // Send email verification
         await userCredential.user.sendEmailVerification({
           url: window.location.origin,
           handleCodeInApp: true
         });
         
-        if (typeof grecaptcha !== 'undefined') {
-          grecaptcha.reset(signupRecaptcha);
-          recaptchaCompleted.signup = false;
-          validationStates.signup.recaptcha = false;
-        }
-        
-        // Show verification message
         verificationMessage.style.display = 'block';
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
-        // Reset all validation states
         Object.keys(validationStates.signup).forEach(key => {
           validationStates.signup[key] = false;
         });
         
-        // Reset password requirements
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
         
       } catch (error) {
-        if (typeof grecaptcha !== 'undefined') {
-          grecaptcha.reset(signupRecaptcha);
-          recaptchaCompleted.signup = false;
-          validationStates.signup.recaptcha = false;
-        }
         showRequirementsMenu([`Error: ${error.message}`]);
       }
     });
@@ -1145,7 +1074,7 @@
     function signInWithGoogle() {
       auth.signInWithPopup(googleProvider)
         .then((result) => {
-          // Google auth successful, handled by auth state change
+          // Google auth successful
         })
         .catch(error => {
           showRequirementsMenu([`Error: ${error.message}`]);
@@ -1156,7 +1085,7 @@
     function signInWithApple() {
       auth.signInWithPopup(appleProvider)
         .then((result) => {
-          // Apple auth successful, handled by auth state change
+          // Apple auth successful
         })
         .catch(error => {
           showRequirementsMenu([`Error: ${error.message}`]);
@@ -1168,31 +1097,15 @@
     appleLoginBtn.addEventListener('click', signInWithApple);
     appleSignupBtn.addEventListener('click', signInWithApple);
 
-    // Initialize reCAPTCHA callback functions
-    window.onLoginRecaptchaComplete = function() {
-      onRecaptchaComplete('login');
+    // Initialize reCAPTCHA callback function
+    window.onSecurityRecaptchaComplete = function() {
+      onSecurityRecaptchaComplete();
     };
 
-    window.onSignupRecaptchaComplete = function() {
-      onRecaptchaComplete('signup');
-    };
-
-    window.onLoginRecaptchaExpired = function() {
-      onRecaptchaExpired('login');
-    };
-
-    window.onSignupRecaptchaExpired = function() {
-      onRecaptchaExpired('signup');
-    };
-
-    // Update reCAPTCHA elements to use callbacks
+    // Update reCAPTCHA element to use callback
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof grecaptcha !== 'undefined') {
-        // Update reCAPTCHA elements to use callbacks
-        loginRecaptcha.setAttribute('data-callback', 'onLoginRecaptchaComplete');
-        loginRecaptcha.setAttribute('data-expired-callback', 'onLoginRecaptchaExpired');
-        signupRecaptcha.setAttribute('data-callback', 'onSignupRecaptchaComplete');
-        signupRecaptcha.setAttribute('data-expired-callback', 'onSignupRecaptchaExpired');
+        securityRecaptcha.setAttribute('data-callback', 'onSecurityRecaptchaComplete');
       }
     });
   </script>
