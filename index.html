@@ -3,26 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raidpo-AI | Raidpo-Ultimate AI Tools Suite | Free Online AI Tools Platform</title>
-  <meta name="description" content="Raidpo-AI offers Raidpo-Ultimate collection of free AI tools including image processing, code generation, text-to-speech, QR tools, and more. Boost productivity with Raidpo's AI-powered suite.">
-  <meta name="keywords" content="Raidpo-AI, Raidpo-Ultimate, AI tools, free AI tools, online AI tools, image processing, guerlada, QR code generator, text to speech, code generator, age calculator, URL shortener, image compressor, AI image enhancer, Raidpo tools">
+  <title>Raidpo AI - Ultimate AI Tools for Every Need | Free Online AI Tools</title>
+  <meta name="description" content="Raidpo AI offers powerful, free AI tools including image processing, code generation, text-to-speech, QR code tools, and more. Enhance your productivity with our AI-powered suite.">
+  <meta name="keywords" content="Raidpo AI, AI tools, free AI tools, online AI tools, image processing, background remover, QR code generator, text to speech, code generator, age calculator, URL shortener, image compressor, AI image enhancer">
   <meta name="author" content="Raidpo AI">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="Raidpo-AI | Raidpo-Ultimate AI Tools Suite">
-  <meta property="og:description" content="Free, powerful Raidpo-Ultimate collection of AI tools for image processing, code generation, text conversion and more.">
+  <meta property="og:title" content="Raidpo AI - Ultimate AI Tools for Every Need">
+  <meta property="og:description" content="Free, powerful AI tools for image processing, code generation, text conversion and more.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://raidpo-ai.netlify.app">
   <meta property="og:image" content="https://raidpo-ai.netlify.app/images/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Raidpo-AI | Raidpo-Ultimate AI Tools Suite">
-  <meta name="twitter:description" content="Free, powerful Raidpo-Ultimate collection of AI tools for image processing, code generation, text conversion and more.">
+  <meta name="twitter:title" content="Raidpo AI - Ultimate AI Tools for Every Need">
+  <meta name="twitter:description" content="Free, powerful AI tools for image processing, code generation, text conversion and more.">
   <link rel="canonical" href="https://raidpo-ai.netlify.app">
-  <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751796028/clbhmjq9kzv0g3itasrg.png" type="image/png">
+  <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <style>
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #080808; /* Darker background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loading-screen img {
+      width: 150px;
+      height: 150px;
+    }
+
     /* General Styles */
     body {
       font-family: 'Poppins', sans-serif;
@@ -528,6 +547,11 @@
   </style>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <img src="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829273/bp0dgjflsjg5j0kt7k53.gif" alt="Loading">
+  </div>
+
   <!-- Homepage (hidden initially) -->
   <div class="homepage" id="homepage">
     <!-- User Profile -->
@@ -549,20 +573,19 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
-        <h1>Raidpo-AI</h1>
-        <p>Raidpo-Ultimate AI Tools - Free, Fast, and Powerful</p>
+        <h1>Raidpo AI</h1>
+        <p>Ultimate AI Tools - Free, Fast, and Powerful</p>
         <a href="#tools" class="cta-button">Explore Tools</a>
       </div>
     </section>
 
     <!-- Tool Categories -->
     <section id="tools" class="tool-categories">
-      <h2>Raidpo-Ultimate AI Tools Collection</h2>
       <div class="tool-grid">
         <!-- CodeCraft Pro -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-code"></i></div>
-          <h3>Raidpo CodeCraft Pro</h3>
+          <h3>CodeCraft Pro</h3>
           <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p>
           <a href='/codecraft-pro'>Use Tool</a>
         </div>
@@ -570,7 +593,7 @@
         <!-- Book Library -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-book"></i></div>
-          <h3>Raidpo Book Library</h3>
+          <h3>Book Library</h3>
           <p>Search and read legal books directly in the app.</p>
           <a href='/book-library'>Use Tool</a>
         </div>
@@ -578,7 +601,7 @@
         <!-- Age Calculator -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-calculator"></i></div>
-          <h3>Raidpo Age Calculator</h3>
+          <h3>Age Calculator</h3>
           <p>Calculate your age in years, months, and days.</p>
           <a href='/age-calculator'>Use Tool</a>
         </div>
@@ -586,7 +609,7 @@
         <!-- QR Code to Link -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
-          <h3>Raidpo QR Code to Link</h3>
+          <h3>QR Code to Link</h3>
           <p>Extract links or text from QR codes.</p>
           <a href='/qr-code-to-link'>Use Tool</a>
         </div>
@@ -594,7 +617,7 @@
         <!-- QR Code Generator -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
-          <h3>Raidpo QR Code Generator</h3>
+          <h3>QR Code Generator</h3>
           <p>Generate QR codes for URLs or text.</p>
           <a href='/qr-code-generator'>Use Tool</a>
         </div>
@@ -602,7 +625,7 @@
         <!-- URL Shortener -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-link"></i></div>
-          <h3>Raidpo URL Shortener</h3>
+          <h3>URL Shortener</h3>
           <p>Shorten your URLs with ease.</p>
           <a href='/url-shortener'>Use Tool</a>
         </div>
@@ -610,7 +633,7 @@
         <!-- Image to Prompt -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-image"></i></div>
-          <h3>Raidpo Image to Prompt</h3>
+          <h3>Image to Prompt</h3>
           <p>Generate accurate prompts from any image.</p>
           <a href='/image-to-prompt'>Use Tool</a>
         </div>
@@ -618,7 +641,7 @@
         <!-- Image Compressor -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-file-image"></i></div>
-          <h3>Raidpo Image Compressor</h3>
+          <h3>Image Compressor</h3>
           <p>Reduce image size without losing quality.</p>
           <a href='/img-compressor'>Use Tool</a>
         </div>
@@ -626,7 +649,7 @@
         <!-- Background Remover -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-eraser"></i></div>
-          <h3>Raidpo Background Remover</h3>
+          <h3>Background Remover</h3>
           <p>Remove backgrounds from images instantly with AI.</p>
           <a href='/bg-remover'>Use Tool</a>
         </div>
@@ -634,7 +657,7 @@
         <!-- Image Resizer -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-expand"></i></div>
-          <h3>Raidpo Image Resizer</h3>
+          <h3>Image Resizer</h3>
           <p>Resize images to any dimension while maintaining quality.</p>
           <a href='/img-resizer'>Use Tool</a>
         </div>
@@ -642,7 +665,7 @@
         <!-- Image Enhancer -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-magic"></i></div>
-          <h3>Raidpo Image Enhancer</h3>
+          <h3>Image Enhancer</h3>
           <p>Enhance image quality with AI-powered tools.</p>
           <a href='/img-enhance'>Use Tool</a>
         </div>
@@ -650,7 +673,7 @@
         <!-- Text-to-Image Generator -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-paint-brush"></i></div>
-          <h3>Raidpo Text-to-Image Generator</h3>
+          <h3>Text-to-Image Generator</h3>
           <p>Transform text into stunning images with AI.</p>
           <a href='/text-to-image'>Use Tool</a>
         </div>
@@ -658,7 +681,7 @@
         <!-- All Language Translator -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-language"></i></div>
-          <h3>Raidpo All Language Translator</h3>
+          <h3>All Language Translator</h3>
           <p>Translate text from any language to any language instantly.</p>
           <a href='/translator'>Use Tool</a>
         </div>
@@ -666,7 +689,7 @@
         <!-- Text to Speech -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-comment-dots"></i></div>
-          <h3>Raidpo Text to Speech</h3>
+          <h3>Text to Speech</h3>
           <p>Convert text to speech and download the audio file.</p>
           <a href='/text-to-speech'>Use Tool</a>
         </div>
@@ -674,7 +697,7 @@
         <!-- Knowledge Nexus -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-book"></i></div>
-          <h3>Raidpo Knowledge Nexus</h3>
+          <h3>Knowledge Nexus</h3>
           <p>Explore knowledge, images, and more with AI.</p>
           <a href='/knowledge-nexus'>Use Tool</a>
         </div>
@@ -682,7 +705,7 @@
         <!-- Currency Converter -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div>
-          <h3>Raidpo Currency Converter</h3>
+          <h3>Currency Converter</h3>
           <p>Convert currencies in real-time with the latest exchange rates.</p>
           <a href='/currency-converter'>Use Tool</a>
         </div>
@@ -690,7 +713,7 @@
         <!-- YouTube Thumbnail Downloader -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-image"></i></div>
-          <h3>Raidpo YouTube Thumbnail Downloader</h3>
+          <h3>YouTube Thumbnail Downloader</h3>
           <p>Download high-quality thumbnails from YouTube videos.</p>
           <a href='/youtube-thumbnail-downloader'>Use Tool</a>
         </div>
@@ -698,7 +721,7 @@
         <!-- ImageFlow -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-          <h3>Raidpo ImageFlow</h3>
+          <h3>ImageFlow</h3>
           <p>Upload and manage images with ease.</p>
           <a href='/imageflow'>Use Tool</a>
         </div>
@@ -706,7 +729,7 @@
         <!-- Hangman Game -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-gamepad"></i></div>
-          <h3>Raidpo Hangman Game</h3>
+          <h3>Hangman Game</h3>
           <p>Play the classic Hangman game with AI-generated words.</p>
           <a href="/Hangman-Game.html">Play Now</a>
         </div>
@@ -714,7 +737,7 @@
         <!-- Weather App -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div>
-          <h3>Raidpo Weather App</h3>
+          <h3>Weather App</h3>
           <p>Get real-time weather updates for any city.</p>
           <a href='/weather-app'>Use Tool</a>
         </div>
@@ -722,7 +745,7 @@
         <!-- Interactive Story Generator -->
         <div class="tool-card">
           <div class="tool-icon"><i class="fas fa-pen"></i></div>
-          <h3>Raidpo Interactive Story Generator</h3>
+          <h3>Interactive Story Generator</h3>
           <p>Create unique stories with AI-powered storytelling.</p>
           <a href='/interactive-story-generator'>Use Tool</a>
         </div>
@@ -743,7 +766,7 @@
           <a href="#"><i class="fab fa-twitter"></i></a>
           <a href="#"><i class="fab fa-instagram"></i></a>
         </div>
-        <p>© 2025 Raidpo-AI | Raidpo-Ultimate Free AI Tools</p>
+        <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
       </div>
     </footer>
   </div>
@@ -831,6 +854,7 @@
     const auth = firebase.auth();
 
     // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
     const homepage = document.getElementById('homepage');
     const settingsPage = document.getElementById('settingsPage');
     const profilePage = document.getElementById('profilePage');
@@ -989,27 +1013,18 @@
 
     // Check Auth State
     auth.onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in
+      updateUserProfile(user);
+      
+      // After auth check, wait for the full 3 seconds before hiding loading screen
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
         homepage.style.display = 'block';
-        settingsPage.style.display = 'none';
-        profilePage.style.display = 'none';
-        
-        // Show user profile
-        updateUserProfile(user);
-      } else {
-        // User is signed out
-        homepage.style.display = 'block';
-        settingsPage.style.display = 'none';
-        profilePage.style.display = 'none';
-        updateUserProfile(null);
-      }
+      }, 3000);
     });
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-      // Show homepage by default
-      homepage.style.display = 'block';
+      // Loading screen will be hidden after auth check + 3 seconds
     });
   </script>
 </body>
