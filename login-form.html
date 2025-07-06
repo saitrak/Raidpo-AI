@@ -529,9 +529,11 @@
     // Validation states
     const validationStates = {
       login: {
-        account: false,
+        emailOrUsername: false,
         password: false,
-        recaptcha: false
+        recaptcha: false,
+        accountExists: false,
+        passwordCorrect: false
       },
       signup: {
         username: false,
@@ -539,7 +541,9 @@
         password: false,
         passwordMatch: false,
         recaptcha: false,
-        termsAccepted: false
+        termsAccepted: false,
+        usernameAvailable: false,
+        emailAvailable: false
       }
     };
 
@@ -571,7 +575,8 @@
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
       
-      return hasLength && hasUppercase && hasLowercase;
+      validationStates.signup.password = hasLength && hasUppercase && hasLowercase;
+      return validationStates.signup.password;
     }
 
     // Check if passwords match
@@ -715,21 +720,22 @@
 
     // Validate login inputs
     function validateLoginInputs() {
-      const emailOrUsername = loginEmail.value;
-      const password = loginPassword.value;
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
       
       // Basic validation
-      const hasInput = emailOrUsername.length > 0;
-      const hasPassword = password.length > 0;
+      validationStates.login.emailOrUsername = emailOrUsername.length > 0;
+      validationStates.login.password = password.length > 0;
       
-      return hasInput && hasPassword;
+      return validationStates.login.emailOrUsername && validationStates.login.password;
     }
 
     // Validate signup inputs
     function validateSignupInputs() {
-      const username = signupUsername.value;
-      const email = signupEmail.value;
-      const password = signupPassword.value;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
       
       // Check username
       const isUsernameValid = isValidUsername(username);
@@ -744,14 +750,122 @@
       validationStates.signup.password = isPasswordValid;
       
       // Check password match
-      checkPasswordMatch();
+      const isPasswordMatch = checkPasswordMatch();
+      validationStates.signup.passwordMatch = isPasswordMatch;
       
       // Check terms accepted
       validationStates.signup.termsAccepted = acceptTerms.checked;
       
       return isUsernameValid && isEmailValid && isPasswordValid && 
-             validationStates.signup.passwordMatch && 
+             isPasswordMatch && 
              validationStates.signup.termsAccepted;
+    }
+
+    // Check if all login requirements are met
+    function checkLoginRequirements() {
+      // Show requirements section
+      loginRequirements.style.display = 'block';
+      
+      // Check all validation states
+      const allValid = Object.values(validationStates.login).every(state => state === true);
+      
+      if (!allValid) {
+        // Show which requirements are not met
+        if (!validationStates.login.emailOrUsername) {
+          loginError.textContent = 'Please enter your email or username';
+          loginError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.login.password) {
+          loginError.textContent = 'Please enter your password';
+          loginError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.login.recaptcha) {
+          recaptchaLoginError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.login.accountExists) {
+          updateRequirement(loginAccountValid, false);
+          loginError.textContent = 'Account not found';
+          loginError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.login.passwordCorrect) {
+          updateRequirement(loginPasswordValid, false);
+          loginError.textContent = 'Incorrect password';
+          loginError.style.display = 'block';
+          return false;
+        }
+      }
+      
+      return allValid;
+    }
+
+    // Check if all signup requirements are met
+    function checkSignupRequirements() {
+      // Show requirements section
+      signupRequirements.style.display = 'block';
+      
+      // Check all validation states
+      const allValid = Object.values(validationStates.signup).every(state => state === true);
+      
+      if (!allValid) {
+        // Show which requirements are not met
+        if (!validationStates.signup.username) {
+          signupError.textContent = 'Username must be at least 3 characters and contain only letters, numbers, and underscores';
+          signupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.email) {
+          signupError.textContent = 'Please enter a valid email address';
+          signupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.password) {
+          signupError.textContent = 'Password does not meet requirements';
+          signupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.passwordMatch) {
+          passwordMatchError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.recaptcha) {
+          recaptchaSignupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.termsAccepted) {
+          signupError.textContent = 'You must accept the terms and conditions';
+          signupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.usernameAvailable) {
+          updateRequirement(signupUsernameValid, false);
+          signupError.textContent = 'Username is already taken';
+          signupError.style.display = 'block';
+          return false;
+        }
+        
+        if (!validationStates.signup.emailAvailable) {
+          updateRequirement(signupEmailValid, false);
+          signupError.textContent = 'Email is already registered';
+          signupError.style.display = 'block';
+          return false;
+        }
+      }
+      
+      return allValid;
     }
 
     // Input event listeners for login
@@ -789,12 +903,13 @@
     });
 
     // Email Login
-    loginBtn.addEventListener('click', () => {
-      const emailOrUsername = loginEmail.value;
-      const password = loginPassword.value;
+    loginBtn.addEventListener('click', async () => {
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
       
       // Clear previous errors
       loginError.style.display = 'none';
+      recaptchaLoginError.style.display = 'none';
       
       // Validate inputs
       if (!validateLoginInputs()) {
@@ -812,35 +927,61 @@
       const isEmail = emailOrUsername.includes('@');
       
       if (isEmail) {
-        // Login with email
-        auth.signInWithEmailAndPassword(emailOrUsername, password)
-          .then(() => {
+        // First check if email exists
+        try {
+          const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
+          
+          if (signInMethods.length === 0) {
+            // Email doesn't exist
+            validationStates.login.accountExists = false;
+            updateRequirement(loginAccountValid, false);
+            loginError.textContent = 'No account found with this email';
+            loginError.style.display = 'block';
+            return;
+          }
+          
+          // Email exists, proceed with login
+          validationStates.login.accountExists = true;
+          updateRequirement(loginAccountValid, true);
+          
+          // Attempt to sign in
+          try {
+            await auth.signInWithEmailAndPassword(emailOrUsername, password);
+            
             // Login successful, handled by auth state change
+            validationStates.login.passwordCorrect = true;
+            updateRequirement(loginPasswordValid, true);
+            
             if (typeof grecaptcha !== 'undefined') {
               grecaptcha.reset(loginRecaptcha);
               recaptchaCompleted.login = false;
               validationStates.login.recaptcha = false;
             }
-          })
-          .catch(error => {
+          } catch (error) {
             if (typeof grecaptcha !== 'undefined') {
               grecaptcha.reset(loginRecaptcha);
               recaptchaCompleted.login = false;
               validationStates.login.recaptcha = false;
             }
             
-            // Update server-side validation indicators
-            if (error.code === 'auth/user-not-found') {
-              updateRequirement(loginAccountValid, false);
-              loginError.textContent = 'No account found with this email';
-            } else if (error.code === 'auth/wrong-password') {
+            if (error.code === 'auth/wrong-password') {
+              validationStates.login.passwordCorrect = false;
               updateRequirement(loginPasswordValid, false);
               loginError.textContent = 'Incorrect password';
             } else {
               loginError.textContent = error.message;
             }
             loginError.style.display = 'block';
-          });
+          }
+        } catch (error) {
+          if (typeof grecaptcha !== 'undefined') {
+            grecaptcha.reset(loginRecaptcha);
+            recaptchaCompleted.login = false;
+            validationStates.login.recaptcha = false;
+          }
+          loginError.textContent = error.message;
+          loginError.style.display = 'block';
+        }
       } else {
         // For username login, we'd need to look up the email first
         // This is a simplified version - in a real app you'd need a backend service
@@ -850,15 +991,16 @@
     });
 
     // Email Sign Up
-    signupBtn.addEventListener('click', () => {
-      const username = signupUsername.value;
-      const email = signupEmail.value;
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
+    signupBtn.addEventListener('click', async () => {
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
       
       // Clear previous errors
       signupError.style.display = 'none';
       passwordMatchError.style.display = 'none';
+      recaptchaSignupError.style.display = 'none';
       
       // Validate inputs
       if (!validateSignupInputs()) {
@@ -879,66 +1021,78 @@
         return;
       }
       
-      // First check if email exists
-      auth.fetchSignInMethodsForEmail(email)
-        .then((signInMethods) => {
-          if (signInMethods.length > 0) {
-            // Email already exists
-            if (typeof grecaptcha !== 'undefined') {
-              grecaptcha.reset(signupRecaptcha);
-              recaptchaCompleted.signup = false;
-              validationStates.signup.recaptcha = false;
-            }
-            
-            updateRequirement(signupEmailValid, false);
-            signupError.textContent = 'This email is already in use';
-            signupError.style.display = 'block';
-          } else {
-            // Email doesn't exist, proceed with signup
-            return auth.createUserWithEmailAndPassword(email, password)
-              .then((userCredential) => {
-                return userCredential.user.updateProfile({
-                  displayName: username
-                }).then(() => {
-                  // Send email verification
-                  return userCredential.user.sendEmailVerification({
-                    url: window.location.origin,
-                    handleCodeInApp: true
-                  });
-                });
-              })
-              .then(() => {
-                if (typeof grecaptcha !== 'undefined') {
-                  grecaptcha.reset(signupRecaptcha);
-                  recaptchaCompleted.signup = false;
-                  validationStates.signup.recaptcha = false;
-                }
-                // Show verification message
-                verificationMessage.style.display = 'block';
-                signupForm.reset();
-                signupPasswordRequirements.style.display = 'none';
-                
-                // Reset all validation states
-                Object.keys(validationStates.signup).forEach(key => {
-                  validationStates.signup[key] = false;
-                });
-                
-                // Reset password requirements
-                updateRequirement(reqLength, false);
-                updateRequirement(reqUppercase, false);
-                updateRequirement(reqLowercase, false);
-              });
-          }
-        })
-        .catch(error => {
+      try {
+        // First check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods.length > 0) {
+          // Email already exists
           if (typeof grecaptcha !== 'undefined') {
             grecaptcha.reset(signupRecaptcha);
             recaptchaCompleted.signup = false;
             validationStates.signup.recaptcha = false;
           }
-          signupError.textContent = error.message;
+          
+          validationStates.signup.emailAvailable = false;
+          updateRequirement(signupEmailValid, false);
+          signupError.textContent = 'This email is already in use';
           signupError.style.display = 'block';
+          return;
+        }
+        
+        // Email doesn't exist, proceed with signup
+        validationStates.signup.emailAvailable = true;
+        updateRequirement(signupEmailValid, true);
+        
+        // For username availability, in a real app you'd check against a database
+        // Here we'll assume it's available
+        validationStates.signup.usernameAvailable = true;
+        updateRequirement(signupUsernameValid, true);
+        
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        // Update display name
+        await userCredential.user.updateProfile({
+          displayName: username
         });
+        
+        // Send email verification
+        await userCredential.user.sendEmailVerification({
+          url: window.location.origin,
+          handleCodeInApp: true
+        });
+        
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.reset(signupRecaptcha);
+          recaptchaCompleted.signup = false;
+          validationStates.signup.recaptcha = false;
+        }
+        
+        // Show verification message
+        verificationMessage.style.display = 'block';
+        signupForm.reset();
+        signupPasswordRequirements.style.display = 'none';
+        
+        // Reset all validation states
+        Object.keys(validationStates.signup).forEach(key => {
+          validationStates.signup[key] = false;
+        });
+        
+        // Reset password requirements
+        updateRequirement(reqLength, false);
+        updateRequirement(reqUppercase, false);
+        updateRequirement(reqLowercase, false);
+        
+      } catch (error) {
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.reset(signupRecaptcha);
+          recaptchaCompleted.signup = false;
+          validationStates.signup.recaptcha = false;
+        }
+        signupError.textContent = error.message;
+        signupError.style.display = 'block';
+      }
     });
 
     // Google Login/Signup
