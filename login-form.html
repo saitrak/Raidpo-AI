@@ -29,6 +29,7 @@
 
     h1, h2, h3 {
       font-weight: bold;
+      margin: 0;
     }
 
     a {
@@ -111,70 +112,63 @@
       display: none;
     }
 
-    /* Auth Page */
-    .auth-page {
+    /* Method Selector Page */
+    .method-selector-page {
       display: none;
       min-height: 100vh;
-      background: #0f0f0f;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
       position: relative;
     }
 
-    .auth-container {
+    .method-container {
       display: flex;
-      height: 100vh;
+      min-height: 100vh;
     }
 
-    .auth-left {
+    .method-left {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
       background-size: cover;
     }
 
-    .auth-right {
+    .method-right {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       padding: 2rem;
-      max-width: 500px;
-      margin: 0 auto;
+      background-color: #1a1a1a;
     }
 
-    .auth-header {
+    .method-header {
       text-align: center;
       margin-bottom: 2rem;
     }
 
-    .auth-header h1 {
-      font-size: 2rem;
+    .method-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
       margin-bottom: 0.5rem;
     }
 
-    .auth-header p {
+    .method-header p {
       color: #ccc;
-      font-size: 1rem;
-      margin-bottom: 2rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
-    .auth-providers {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .provider-btn {
+    .method-btn {
       width: 100%;
       padding: 1rem;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .google-btn {
@@ -192,52 +186,119 @@
       color: #fff;
     }
 
-    .divider {
+    .email-btn {
+      background-color: #ff6f61;
+      color: #fff;
+    }
+
+    .or-divider {
       display: flex;
       align-items: center;
       margin: 1.5rem 0;
       color: #ccc;
     }
 
-    .divider::before, .divider::after {
+    .or-divider::before,
+    .or-divider::after {
       content: "";
       flex: 1;
       border-bottom: 1px solid #333;
     }
 
-    .divider-text {
-      padding: 0 1rem;
+    .or-divider::before {
+      margin-right: 1rem;
     }
 
-    .email-btn {
-      width: 100%;
-      padding: 1rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 1.5rem;
+    .or-divider::after {
+      margin-left: 1rem;
     }
 
-    .auth-footer {
+    .method-footer {
       text-align: center;
+      margin-top: 1.5rem;
       color: #ccc;
-      font-size: 0.8rem;
-      margin-top: 1rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
     }
 
-    .auth-footer a {
+    .method-footer a {
       color: #ff6f61;
       text-decoration: underline;
     }
 
-    /* Auth Forms */
+    /* Auth Page */
+    .auth-page {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      position: relative;
+    }
+
+    .auth-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .auth-left {
+      flex: 1;
+      background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
+      background-size: cover;
+    }
+
+    .auth-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem;
+      background-color: #1a1a1a;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+      color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      cursor: pointer;
+      position: relative;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .auth-tab.active {
+      color: #ff6f61;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #ff6f61;
+    }
+
     .auth-form {
       display: none;
-      width: 100%;
     }
 
     .auth-form.active {
@@ -252,7 +313,7 @@
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
       color: #ccc;
     }
 
@@ -263,7 +324,7 @@
       border-radius: 5px;
       background-color: #333;
       color: #fff;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .form-group input:focus {
@@ -282,32 +343,27 @@
       padding: 5px;
     }
 
-    .auth-submit-btn {
+    .auth-btn {
       width: 100%;
       padding: 1rem;
       background-color: #ff6f61;
       color: #fff;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
-      margin-top: 1rem;
+      transition: background-color 0.3s;
     }
 
-    .back-to-providers {
-      display: block;
-      text-align: center;
-      margin-top: 1rem;
-      color: #ff6f61;
-      cursor: pointer;
+    .auth-btn:hover {
+      background-color: #ff3b2f;
     }
 
-    /* Password requirements (hidden by default) */
     .password-requirements {
       display: none;
       margin-top: 0.5rem;
-      font-size: 0.8rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
       color: #ccc;
     }
 
@@ -330,6 +386,107 @@
       color: #ff6f61;
     }
 
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
+    .auth-footer a {
+      color: #ff6f61;
+      text-decoration: underline;
+    }
+
+    /* Requirements Overlay */
+    .requirements-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .requirements-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .requirements-menu {
+      background-color: #1a1a1a;
+      border: 1px solid #ff6f61;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .requirements-overlay.active .requirements-menu {
+      transform: translateY(0);
+    }
+
+    .requirements-title {
+      font-weight: bold;
+      color: #ff6f61;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+    }
+
+    .requirements-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0 0 15px 0;
+    }
+
+    .requirement-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
+    .requirement-item i {
+      margin-right: 10px;
+      font-size: 0.9rem;
+      min-width: 16px;
+    }
+
+    .requirement-item.valid i {
+      color: #4CAF50;
+    }
+
+    .requirement-item.invalid i {
+      color: #ff6f61;
+    }
+
+    .countdown-bar {
+      height: 4px;
+      background-color: #333;
+      border-radius: 2px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .countdown-progress {
+      height: 100%;
+      background-color: #ff6f61;
+      width: 0%;
+      transition: width 3s linear;
+    }
+
     /* Verification Message */
     .verification-message {
       position: fixed;
@@ -350,13 +507,13 @@
     .verification-message h2 {
       margin-bottom: 1rem;
       color: #ff6f61;
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
     }
 
     .verification-message p {
       margin-bottom: 1.5rem;
       color: #ccc;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .verification-message button {
@@ -367,7 +524,7 @@
       border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     /* Close Button */
@@ -386,32 +543,52 @@
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
-      .auth-container {
+      .method-container, .auth-container {
         flex-direction: column;
       }
       
-      .auth-left {
+      .method-left, .auth-left {
         display: none;
       }
       
-      .auth-right {
+      .method-right, .auth-right {
         padding: 1.5rem;
-        max-width: 100%;
       }
     }
 
     @media (max-width: 480px) {
-      .auth-header h1 {
-        font-size: 1.8rem;
+      .challenge-container, .method-right, .auth-right {
+        padding: 1.5rem;
       }
       
-      .auth-header p {
-        font-size: 0.9rem;
+      .method-header h1, .auth-header h1, .challenge-title {
+        margin-bottom: 0.3rem;
       }
       
-      .provider-btn, .email-btn {
+      .auth-tab {
         padding: 0.8rem;
-        font-size: 0.9rem;
+      }
+      
+      .form-group input {
+        padding: 0.7rem;
+      }
+      
+      .auth-btn, .method-btn {
+        padding: 0.8rem;
+      }
+      
+      .requirements-menu {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .challenge-container, .method-right, .auth-right {
+        padding: 1.2rem;
+      }
+      
+      .auth-tab {
+        padding: 0.6rem;
       }
     }
   </style>
@@ -432,46 +609,63 @@
     </div>
   </div>
 
+  <!-- Method Selector Page -->
+  <div class="method-selector-page" id="methodSelectorPage">
+    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
+    
+    <div class="method-container">
+      <div class="method-left"></div>
+      
+      <div class="method-right">
+        <div class="method-header">
+          <h1>Log in or Register</h1>
+          <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
+        </div>
+        
+        <button id="googleMethodBtn" class="method-btn google-btn">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+        
+        <button id="yahooMethodBtn" class="method-btn yahoo-btn">
+          <i class="fab fa-yahoo"></i> Continue with Yahoo
+        </button>
+        
+        <button id="githubMethodBtn" class="method-btn github-btn">
+          <i class="fab fa-github"></i> Continue with GitHub
+        </button>
+        
+        <div class="or-divider">or</div>
+        
+        <button id="emailMethodBtn" class="method-btn email-btn">
+          <i class="fas fa-envelope"></i> Continue with Email
+        </button>
+        
+        <div class="method-footer">
+          By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Auth Page -->
   <div class="auth-page" id="authPage">
-    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
+    <button class="close-button" id="authCloseButton"><i class="fas fa-times"></i></button>
     
     <div class="auth-container">
       <div class="auth-left"></div>
       
       <div class="auth-right">
         <div class="auth-header">
-          <h1 id="authTitle">Log in</h1>
-          <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
+          <h1>Raidpo AI</h1>
+          <p>Access powerful AI tools with your account</p>
         </div>
         
-        <!-- Provider Selection -->
-        <div id="providerSelection">
-          <div class="auth-providers">
-            <button id="googleLoginBtn" class="provider-btn google-btn">
-              <i class="fab fa-google"></i> Continue with Google
-            </button>
-            <button id="yahooLoginBtn" class="provider-btn yahoo-btn">
-              <i class="fab fa-yahoo"></i> Continue with Yahoo
-            </button>
-            <button id="githubLoginBtn" class="provider-btn github-btn">
-              <i class="fab fa-github"></i> Continue with GitHub
-            </button>
-          </div>
-          
-          <div class="divider">
-            <span class="divider-text">or</span>
-          </div>
-          
-          <button id="emailLoginBtn" class="email-btn">Continue with Email</button>
-          
-          <div class="auth-footer">
-            By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Use</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
-          </div>
+        <div class="auth-tabs">
+          <div class="auth-tab active" data-tab="login">Login</div>
+          <div class="auth-tab" data-tab="signup">Sign Up</div>
         </div>
         
-        <!-- Login Form -->
-        <div id="loginForm" class="auth-form">
+        <div id="loginForm" class="auth-form active">
           <div class="form-group">
             <label for="loginEmail">Email or Username</label>
             <input type="text" id="loginEmail" placeholder="Enter your email or username" required>
@@ -483,27 +677,29 @@
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
           </div>
           
-          <button id="loginBtn" class="auth-submit-btn">Log in</button>
-          <a class="back-to-providers" id="backToProvidersFromLogin">← Back to login options</a>
+          <button id="loginBtn" class="auth-btn">Login</button>
+          
+          <div class="auth-footer">
+            Don't have an account? <a href="#" id="switchToSignup">Register</a>
+          </div>
         </div>
         
-        <!-- Register Form -->
-        <div id="registerForm" class="auth-form">
+        <div id="signupForm" class="auth-form">
           <div class="form-group">
-            <label for="registerUsername">Username</label>
-            <input type="text" id="registerUsername" placeholder="Choose a username" required>
+            <label for="signupUsername">Username</label>
+            <input type="text" id="signupUsername" placeholder="Choose a username" required>
           </div>
           
           <div class="form-group">
-            <label for="registerEmail">Email</label>
-            <input type="email" id="registerEmail" placeholder="Enter your email" required>
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" placeholder="Enter your email" required>
           </div>
           
           <div class="form-group">
-            <label for="registerPassword">Password</label>
-            <input type="password" id="registerPassword" placeholder="Create a password" required>
-            <button class="password-toggle" id="toggleRegisterPassword"><i class="fas fa-eye"></i></button>
-            <div class="password-requirements" id="registerPasswordRequirements">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="Create a password" required>
+            <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="password-requirements" id="signupPasswordRequirements">
               <div class="requirement" id="req-length">
                 <i class="fas fa-times"></i>
                 <span>At least 6 characters</span>
@@ -520,14 +716,30 @@
           </div>
           
           <div class="form-group">
-            <label for="registerConfirmPassword">Confirm Password</label>
-            <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+            <label for="signupConfirmPassword">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
             <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
           </div>
           
-          <button id="registerBtn" class="auth-submit-btn">Register</button>
-          <a class="back-to-providers" id="backToProvidersFromRegister">← Back to login options</a>
+          <button id="signupBtn" class="auth-btn">Sign Up</button>
+          
+          <div class="auth-footer">
+            Already have an account? <a href="#" id="switchToLogin">Sign in</a>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Requirements Overlay -->
+  <div class="requirements-overlay" id="requirementsOverlay">
+    <div class="requirements-menu">
+      <div class="requirements-title">Complete these requirements</div>
+      <ul class="requirements-list" id="requirementsList">
+        <!-- Will be populated dynamically -->
+      </ul>
+      <div class="countdown-bar">
+        <div class="countdown-progress" id="countdownProgress"></div>
       </div>
     </div>
   </div>
@@ -545,7 +757,7 @@
       apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
       authDomain: "raidpo-ai-3c84b.firebaseapp.com",
       projectId: "raidpo-ai-3c84b",
-      storageBucket: "raidpo-ai-3c84b.appspot.com",
+      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
       messagingSenderId: "41213161184",
       appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
       measurementId: "G-7MBZHVFCZR"
@@ -561,34 +773,38 @@
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
     const securityChallenge = document.getElementById('securityChallenge');
+    const methodSelectorPage = document.getElementById('methodSelectorPage');
     const authPage = document.getElementById('authPage');
     const closeButton = document.getElementById('closeButton');
-    const authTitle = document.getElementById('authTitle');
-    const providerSelection = document.getElementById('providerSelection');
+    const authCloseButton = document.getElementById('authCloseButton');
+    const googleMethodBtn = document.getElementById('googleMethodBtn');
+    const yahooMethodBtn = document.getElementById('yahooMethodBtn');
+    const githubMethodBtn = document.getElementById('githubMethodBtn');
+    const emailMethodBtn = document.getElementById('emailMethodBtn');
     const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
+    const signupForm = document.getElementById('signupForm');
     const loginBtn = document.getElementById('loginBtn');
-    const registerBtn = document.getElementById('registerBtn');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const yahooLoginBtn = document.getElementById('yahooLoginBtn');
-    const githubLoginBtn = document.getElementById('githubLoginBtn');
-    const emailLoginBtn = document.getElementById('emailLoginBtn');
+    const signupBtn = document.getElementById('signupBtn');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
     const toggleLoginPassword = document.getElementById('toggleLoginPassword');
-    const registerUsername = document.getElementById('registerUsername');
-    const registerEmail = document.getElementById('registerEmail');
-    const registerPassword = document.getElementById('registerPassword');
-    const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
-    const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+    const signupUsername = document.getElementById('signupUsername');
+    const signupEmail = document.getElementById('signupEmail');
+    const signupPassword = document.getElementById('signupPassword');
+    const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+    const signupConfirmPassword = document.getElementById('signupConfirmPassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const switchToSignup = document.getElementById('switchToSignup');
+    const switchToLogin = document.getElementById('switchToLogin');
     const verificationMessage = document.getElementById('verificationMessage');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
     const challengeComplete = document.getElementById('challengeComplete');
-    const registerPasswordRequirements = document.getElementById('registerPasswordRequirements');
-    const backToProvidersFromLogin = document.getElementById('backToProvidersFromLogin');
-    const backToProvidersFromRegister = document.getElementById('backToProvidersFromRegister');
+    const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
+    const requirementsOverlay = document.getElementById('requirementsOverlay');
+    const requirementsList = document.getElementById('requirementsList');
+    const countdownProgress = document.getElementById('countdownProgress');
 
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
@@ -603,20 +819,23 @@
         accountExists: false,
         passwordCorrect: false
       },
-      register: {
+      signup: {
         username: false,
         email: false,
         password: false,
-        passwordMatch: false
+        passwordMatch: false,
+        emailAvailable: true
       }
     };
 
-    // reCAPTCHA widget ID
+    // Countdown timer for requirements menu
+    let countdownTimer;
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
 
     // Custom error messages mapping
     const errorMessages = {
+      // Common errors
       'auth/invalid-email': 'Invalid email address',
       'auth/user-disabled': 'This account has been disabled',
       'auth/user-not-found': 'Account not found',
@@ -626,11 +845,17 @@
       'auth/weak-password': 'Password is too weak',
       'auth/too-many-requests': 'Too many requests. Please try again later.',
       'auth/requires-recent-login': 'This operation requires recent authentication. Please log in again.',
+      
+      // Sign-up specific
       'auth/invalid-verification-code': 'Invalid verification code',
       'auth/invalid-verification-id': 'Invalid verification ID',
       'auth/missing-verification-code': 'Missing verification code',
       'auth/missing-verification-id': 'Missing verification ID',
+      
+      // Network errors
       'auth/network-request-failed': 'Network error. Please check your connection.',
+      
+      // Default
       'default': 'An error occurred. Please try again.'
     };
 
@@ -640,111 +865,9 @@
       return errorMessages[code] || error.message || errorMessages['default'];
     }
 
-    // Show form with animation
-    function showForm(form) {
-      providerSelection.style.display = 'none';
-      form.style.display = 'block';
-      setTimeout(() => {
-        form.style.opacity = '1';
-      }, 10);
-    }
-
-    // Hide form with animation
-    function hideForm(form) {
-      form.style.opacity = '0';
-      setTimeout(() => {
-        form.style.display = 'none';
-        providerSelection.style.display = 'block';
-      }, 300);
-    }
-
-    // Update requirement status
-    function updateRequirement(element, isValid) {
-      element.classList.toggle('valid', isValid);
-      element.classList.toggle('invalid', !isValid);
-      const icon = element.querySelector('i');
-      if (icon) {
-        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
-      }
-    }
-
-    // Check email validity
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    // Check username validity
-    function isValidUsername(username) {
-      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-    }
-
-    // Check password validity
-    function isValidPassword(password) {
-      const hasLength = password.length >= 6;
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      
-      updateRequirement(reqLength, hasLength);
-      updateRequirement(reqUppercase, hasUppercase);
-      updateRequirement(reqLowercase, hasLowercase);
-      
-      validationStates.register.password = hasLength && hasUppercase && hasLowercase;
-      return validationStates.register.password;
-    }
-
-    // Check if passwords match
-    function checkPasswordMatch() {
-      const password = registerPassword.value;
-      const confirmPassword = registerConfirmPassword.value;
-      
-      if (password && confirmPassword) {
-        const isMatch = password === confirmPassword;
-        validationStates.register.passwordMatch = isMatch;
-        return isMatch;
-      }
-      return false;
-    }
-
-    // Validate login inputs
-    function validateLoginInputs() {
-      const emailOrUsername = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
-      validationStates.login.emailOrUsername = emailOrUsername.length > 0;
-      validationStates.login.password = password.length > 0;
-      
-      return validationStates.login.emailOrUsername && validationStates.login.password;
-    }
-
-    // Validate register inputs
-    function validateRegisterInputs() {
-      const username = registerUsername.value.trim();
-      const email = registerEmail.value.trim();
-      const password = registerPassword.value.trim();
-      const confirmPassword = registerConfirmPassword.value.trim();
-      
-      const isUsernameValid = isValidUsername(username);
-      validationStates.register.username = isUsernameValid;
-      
-      const isEmailValid = isValidEmail(email);
-      validationStates.register.email = isEmailValid;
-      
-      const isPasswordValid = isValidPassword(password);
-      validationStates.register.password = isPasswordValid;
-      
-      const isPasswordMatch = checkPasswordMatch();
-      validationStates.register.passwordMatch = isPasswordMatch;
-      
-      return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
-    }
-
-    // Show error message
-    function showError(message) {
-      alert(message); // In a real app, you'd want a prettier error display
-    }
-
     // reCAPTCHA load callback
     function onRecaptchaLoad() {
+      // Initialize reCAPTCHA when the API is loaded
       recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
         sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
         callback: onSecurityRecaptchaComplete,
@@ -758,9 +881,10 @@
       recaptchaCompleted = true;
       challengeComplete.style.display = 'block';
       
+      // After completing reCAPTCHA, show method selector page after short delay
       setTimeout(() => {
         securityChallenge.style.display = 'none';
-        authPage.style.display = 'flex';
+        methodSelectorPage.style.display = 'block';
       }, 1000);
     }
 
@@ -788,10 +912,13 @@
         loadingScreen.style.display = 'none';
         
         if (user) {
+          // User is signed in, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
+          // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
           
+          // Initialize reCAPTCHA if not already loaded
           if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
             onRecaptchaLoad();
           }
@@ -804,6 +931,173 @@
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
+    authCloseButton.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
+
+    // Method selector buttons
+    emailMethodBtn.addEventListener('click', () => {
+      methodSelectorPage.style.display = 'none';
+      authPage.style.display = 'block';
+    });
+
+    googleMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider)
+        .then((result) => {
+          // Google auth successful, handled by auth state change
+        })
+        .catch(error => {
+          showRequirementsMenu([getErrorMessage(error)]);
+        });
+    });
+
+    yahooMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(yahooProvider)
+        .then((result) => {
+          // Yahoo auth successful, handled by auth state change
+        })
+        .catch(error => {
+          showRequirementsMenu([getErrorMessage(error)]);
+        });
+    });
+
+    githubMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(githubProvider)
+        .then((result) => {
+          // GitHub auth successful, handled by auth state change
+        })
+        .catch(error => {
+          showRequirementsMenu([getErrorMessage(error)]);
+        });
+    });
+
+    // Update requirement status
+    function updateRequirement(element, isValid) {
+      element.classList.toggle('valid', isValid);
+      element.classList.toggle('invalid', !isValid);
+      const icon = element.querySelector('i');
+      if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      }
+    }
+
+    // Check email validity
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Check username validity
+    function isValidUsername(username) {
+      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check password validity
+    function isValidPassword(password) {
+      const hasLength = password.length >= 6;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      
+      // Update password requirements visibility
+      updateRequirement(reqLength, hasLength);
+      updateRequirement(reqUppercase, hasUppercase);
+      updateRequirement(reqLowercase, hasLowercase);
+      
+      validationStates.signup.password = hasLength && hasUppercase && hasLowercase;
+      return validationStates.signup.password;
+    }
+
+    // Check if passwords match
+    function checkPasswordMatch() {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      
+      if (password && confirmPassword) {
+        const isMatch = password === confirmPassword;
+        validationStates.signup.passwordMatch = isMatch;
+        return isMatch;
+      }
+      return false;
+    }
+
+    // Show requirements menu
+    function showRequirementsMenu(requirements) {
+      // Clear any existing timer
+      if (countdownTimer) {
+        clearTimeout(countdownTimer);
+      }
+      
+      // Reset animation
+      countdownProgress.style.transition = 'none';
+      countdownProgress.style.width = '0%';
+      
+      // Force reflow to reset animation
+      void countdownProgress.offsetWidth;
+      
+      // Re-enable transition
+      countdownProgress.style.transition = 'width 3s linear';
+      
+      // Populate requirements list
+      requirementsList.innerHTML = '';
+      requirements.forEach(req => {
+        const li = document.createElement('li');
+        li.className = 'requirement-item invalid';
+        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
+        requirementsList.appendChild(li);
+      });
+      
+      // Show overlay and menu
+      requirementsOverlay.classList.add('active');
+      
+      // Start countdown animation
+      setTimeout(() => {
+        countdownProgress.style.width = '100%';
+      }, 10);
+      
+      // Set timer to hide after 3 seconds
+      countdownTimer = setTimeout(() => {
+        hideRequirementsMenu();
+      }, 3000);
+    }
+
+    // Hide requirements menu
+    function hideRequirementsMenu() {
+      requirementsOverlay.classList.remove('active');
+    }
+
+    // Check if all requirements are met for login
+    function checkLoginRequirements() {
+      const requirements = [];
+      
+      if (!validationStates.login.emailOrUsername) {
+        requirements.push('Enter your email or username');
+      }
+      if (!validationStates.login.password) {
+        requirements.push('Enter your password');
+      }
+      
+      return requirements;
+    }
+
+    // Check if all requirements are met for signup
+    function checkSignupRequirements() {
+      const requirements = [];
+      
+      if (!validationStates.signup.username) {
+        requirements.push('Username must be at least 3 characters (letters, numbers, underscores)');
+      }
+      if (!validationStates.signup.email) {
+        requirements.push('Enter a valid email address');
+      }
+      if (!validationStates.signup.password) {
+        requirements.push('Password must meet all requirements');
+      }
+      if (!validationStates.signup.passwordMatch) {
+        requirements.push('Passwords must match');
+      }
+      
+      return requirements;
+    }
+
     // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
       const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -814,14 +1108,14 @@
     }
 
     // Show password requirements when password field is focused
-    registerPassword.addEventListener('focus', () => {
-      registerPasswordRequirements.style.display = 'block';
+    signupPassword.addEventListener('focus', () => {
+      signupPasswordRequirements.style.display = 'block';
     });
 
     // Hide password requirements when password field is blurred (if not empty)
-    registerPassword.addEventListener('blur', () => {
-      if (registerPassword.value === '') {
-        registerPasswordRequirements.style.display = 'none';
+    signupPassword.addEventListener('blur', () => {
+      if (signupPassword.value === '') {
+        signupPasswordRequirements.style.display = 'none';
       }
     });
 
@@ -830,143 +1124,42 @@
       togglePasswordVisibility(loginPassword, toggleLoginPassword);
     });
 
-    toggleRegisterPassword.addEventListener('click', () => {
-      togglePasswordVisibility(registerPassword, toggleRegisterPassword);
+    toggleSignupPassword.addEventListener('click', () => {
+      togglePasswordVisibility(signupPassword, toggleSignupPassword);
     });
 
     toggleConfirmPassword.addEventListener('click', () => {
-      togglePasswordVisibility(registerConfirmPassword, toggleConfirmPassword);
+      togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword);
     });
 
-    // Back to providers buttons
-    backToProvidersFromLogin.addEventListener('click', () => {
-      hideForm(loginForm);
-    });
-
-    backToProvidersFromRegister.addEventListener('click', () => {
-      hideForm(registerForm);
-    });
-
-    // Email login button
-    emailLoginBtn.addEventListener('click', () => {
-      authTitle.textContent = 'Log in';
-      showForm(loginForm);
-    });
-
-    // Google Login
-    googleLoginBtn.addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider)
-        .then((result) => {
-          // Handled by auth state change
-        })
-        .catch(error => {
-          showError(getErrorMessage(error));
-        });
-    });
-
-    // Yahoo Login
-    yahooLoginBtn.addEventListener('click', () => {
-      auth.signInWithPopup(yahooProvider)
-        .then((result) => {
-          // Handled by auth state change
-        })
-        .catch(error => {
-          showError(getErrorMessage(error));
-        });
-    });
-
-    // GitHub Login
-    githubLoginBtn.addEventListener('click', () => {
-      auth.signInWithPopup(githubProvider)
-        .then((result) => {
-          // Handled by auth state change
-        })
-        .catch(error => {
-          showError(getErrorMessage(error));
-        });
-    });
-
-    // Email Login
-    loginBtn.addEventListener('click', async () => {
-      const emailOrUsername = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
-      if (!validateLoginInputs()) {
-        showError('Please fill in all fields');
-        return;
-      }
-      
-      // Determine if input is email or username
-      const isEmail = emailOrUsername.includes('@');
-      
-      if (isEmail) {
-        try {
-          const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
-          
-          if (signInMethods.length === 0) {
-            showError('Account does not exist');
-            return;
-          }
-          
-          try {
-            await auth.signInWithEmailAndPassword(emailOrUsername, password);
-          } catch (error) {
-            showError(getErrorMessage(error));
-          }
-        } catch (error) {
-          showError(getErrorMessage(error));
-        }
-      } else {
-        showError('Please use your email address to login');
-      }
-    });
-
-    // Register with Email
-    registerBtn.addEventListener('click', async () => {
-      const username = registerUsername.value.trim();
-      const email = registerEmail.value.trim();
-      const password = registerPassword.value.trim();
-      const confirmPassword = registerConfirmPassword.value.trim();
-      
-      if (!validateRegisterInputs()) {
-        showError('Please fix the errors in the form');
-        return;
-      }
-      
-      try {
-        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+    // Auth Tab Switching
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
         
-        if (signInMethods.length > 0) {
-          showError('Email is already registered');
-          return;
+        if (tab.dataset.tab === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          signupForm.classList.add('active');
         }
         
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        
-        await userCredential.user.updateProfile({
-          displayName: username
-        });
-        
-        await userCredential.user.sendEmailVerification({
-          url: window.location.origin,
-          handleCodeInApp: true
-        });
-        
-        verificationMessage.style.display = 'block';
-        registerForm.reset();
-        registerPasswordRequirements.style.display = 'none';
-        
-        Object.keys(validationStates.register).forEach(key => {
-          validationStates.register[key] = false;
-        });
-        
-        updateRequirement(reqLength, false);
-        updateRequirement(reqUppercase, false);
-        updateRequirement(reqLowercase, false);
-        
-      } catch (error) {
-        showError(getErrorMessage(error));
-      }
+        // Hide requirements menu when switching tabs
+        hideRequirementsMenu();
+      });
+    });
+
+    // Switch between login and signup
+    switchToSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[1].click();
+    });
+
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[0].click();
     });
 
     // Close verification message
@@ -975,20 +1168,174 @@
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
+    // Validate login inputs
+    function validateLoginInputs() {
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      // Basic validation
+      validationStates.login.emailOrUsername = emailOrUsername.length > 0;
+      validationStates.login.password = password.length > 0;
+      
+      return validationStates.login.emailOrUsername && validationStates.login.password;
+    }
+
+    // Validate signup inputs
+    function validateSignupInputs() {
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      
+      // Check username
+      const isUsernameValid = isValidUsername(username);
+      validationStates.signup.username = isUsernameValid;
+      
+      // Check email
+      const isEmailValid = isValidEmail(email);
+      validationStates.signup.email = isEmailValid;
+      
+      // Check password
+      const isPasswordValid = isValidPassword(password);
+      validationStates.signup.password = isPasswordValid;
+      
+      // Check password match
+      const isPasswordMatch = checkPasswordMatch();
+      validationStates.signup.passwordMatch = isPasswordMatch;
+      
+      return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
+    }
+
+    // Email Login
+    loginBtn.addEventListener('click', async () => {
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      // Validate inputs
+      validateLoginInputs();
+      
+      // Check requirements
+      const requirements = checkLoginRequirements();
+      
+      if (requirements.length > 0) {
+        showRequirementsMenu(requirements);
+        return;
+      }
+      
+      // Determine if input is email or username
+      const isEmail = emailOrUsername.includes('@');
+      
+      if (isEmail) {
+        // First check if email exists
+        try {
+          const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
+          
+          if (signInMethods.length === 0) {
+            // Email doesn't exist
+            showRequirementsMenu(['Account does not exist']);
+            return;
+          }
+          
+          // Email exists, proceed with login
+          validationStates.login.accountExists = true;
+          
+          // Attempt to sign in
+          try {
+            await auth.signInWithEmailAndPassword(emailOrUsername, password);
+            
+            // Login successful, handled by auth state change
+            validationStates.login.passwordCorrect = true;
+          } catch (error) {
+            showRequirementsMenu([getErrorMessage(error)]);
+          }
+        } catch (error) {
+          showRequirementsMenu([getErrorMessage(error)]);
+        }
+      } else {
+        // For username login, we'd need to look up the email first
+        showRequirementsMenu(['Username login not yet implemented - please use email']);
+      }
+    });
+
+    // Email Sign Up
+    signupBtn.addEventListener('click', async () => {
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      
+      // Validate inputs
+      validateSignupInputs();
+      
+      // Check requirements
+      const requirements = checkSignupRequirements();
+      
+      if (requirements.length > 0) {
+        showRequirementsMenu(requirements);
+        return;
+      }
+      
+      try {
+        // First check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods.length > 0) {
+          // Email already exists
+          showRequirementsMenu(['Email is already registered']);
+          return;
+        }
+        
+        // Email doesn't exist, proceed with signup
+        validationStates.signup.emailAvailable = true;
+        
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        // Update display name
+        await userCredential.user.updateProfile({
+          displayName: username
+        });
+        
+        // Send email verification
+        await userCredential.user.sendEmailVerification({
+          url: window.location.origin,
+          handleCodeInApp: true
+        });
+        
+        // Show verification message
+        verificationMessage.style.display = 'block';
+        signupForm.reset();
+        signupPasswordRequirements.style.display = 'none';
+        
+        // Reset all validation states
+        Object.keys(validationStates.signup).forEach(key => {
+          validationStates.signup[key] = false;
+        });
+        
+        // Reset password requirements
+        updateRequirement(reqLength, false);
+        updateRequirement(reqUppercase, false);
+        updateRequirement(reqLowercase, false);
+        
+      } catch (error) {
+        showRequirementsMenu([getErrorMessage(error)]);
+      }
+    });
+
     // Input validation listeners
-    registerUsername.addEventListener('input', () => {
-      validationStates.register.username = isValidUsername(registerUsername.value.trim());
+    signupUsername.addEventListener('input', () => {
+      validationStates.signup.username = isValidUsername(signupUsername.value.trim());
     });
 
-    registerEmail.addEventListener('input', () => {
-      validationStates.register.email = isValidEmail(registerEmail.value.trim());
+    signupEmail.addEventListener('input', () => {
+      validationStates.signup.email = isValidEmail(signupEmail.value.trim());
     });
 
-    registerPassword.addEventListener('input', () => {
-      isValidPassword(registerPassword.value);
+    signupPassword.addEventListener('input', () => {
+      isValidPassword(signupPassword.value);
     });
 
-    registerConfirmPassword.addEventListener('input', () => {
+    signupConfirmPassword.addEventListener('input', () => {
       checkPasswordMatch();
     });
 
