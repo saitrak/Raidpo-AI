@@ -80,6 +80,7 @@
       flex-direction: column;
       padding: 20px;
       z-index: 1000;
+      display: none;
     }
 
     .challenge-container {
@@ -102,6 +103,13 @@
       color: #ccc;
       margin-bottom: 1.5rem;
       font-size: 1rem;
+    }
+
+    .challenge-complete {
+      color: #4CAF50;
+      font-weight: bold;
+      margin-top: 1rem;
+      display: none;
     }
 
     /* Auth Page */
@@ -517,8 +525,9 @@
   <div class="security-challenge" id="securityChallenge">
     <div class="challenge-container">
       <h2 class="challenge-title">Security Challenge</h2>
-      <p class="challenge-description">Complete the challenge to prove you're human</p>
+      <p class="challenge-description">Please complete the security challenge to prove you're human</p>
       <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="securityRecaptcha"></div>
+      <p class="challenge-complete" id="challengeComplete">Challenge completed! Redirecting...</p>
     </div>
   </div>
 
@@ -686,6 +695,7 @@
     const verificationMessage = document.getElementById('verificationMessage');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
+    const challengeComplete = document.getElementById('challengeComplete');
     const acceptTerms = document.getElementById('acceptTerms');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
     const requirementsOverlay = document.getElementById('requirementsOverlay');
@@ -715,9 +725,9 @@
       }
     };
 
-    // reCAPTCHA state
-    let recaptchaCompleted = false;
+    // Countdown timer for requirements menu
     let countdownTimer;
+    let recaptchaCompleted = false;
 
     // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
@@ -728,9 +738,8 @@
           // User is signed in, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          // User is not signed in, show security challenge first
+          // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
-          authPage.style.display = 'none';
         }
       });
     }, 3000);
@@ -763,6 +772,7 @@
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
+      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
@@ -784,13 +794,6 @@
       return false;
     }
 
-    // Track reCAPTCHA completion
-    function onSecurityRecaptchaComplete() {
-      recaptchaCompleted = true;
-      securityChallenge.style.display = 'none';
-      authPage.style.display = 'flex';
-    }
-
     // Show requirements menu
     function showRequirementsMenu(requirements) {
       // Clear any existing timer
@@ -810,7 +813,7 @@
       // Show overlay and menu
       requirementsOverlay.classList.add('active');
       
-      // Reset and start countdown animation
+      // Start countdown animation
       countdownProgress.style.width = '0%';
       setTimeout(() => {
         countdownProgress.style.width = '100%';
@@ -912,6 +915,7 @@
           signupForm.classList.add('active');
         }
         
+        // Hide requirements menu when switching tabs
         hideRequirementsMenu();
       });
     });
@@ -943,6 +947,7 @@
       const emailOrUsername = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
+      // Basic validation
       validationStates.login.emailOrUsername = emailOrUsername.length > 0;
       validationStates.login.password = password.length > 0;
       
@@ -956,28 +961,46 @@
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
       
+      // Check username
       const isUsernameValid = isValidUsername(username);
       validationStates.signup.username = isUsernameValid;
       
+      // Check email
       const isEmailValid = isValidEmail(email);
       validationStates.signup.email = isEmailValid;
       
+      // Check password
       const isPasswordValid = isValidPassword(password);
       validationStates.signup.password = isPasswordValid;
       
+      // Check password match
       const isPasswordMatch = checkPasswordMatch();
       validationStates.signup.passwordMatch = isPasswordMatch;
       
       return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
     }
 
+    // reCAPTCHA callback for security challenge
+    window.onSecurityRecaptchaComplete = function() {
+      recaptchaCompleted = true;
+      challengeComplete.style.display = 'block';
+      
+      // After completing reCAPTCHA, show auth page after short delay
+      setTimeout(() => {
+        securityChallenge.style.display = 'none';
+        authPage.style.display = 'flex';
+      }, 1000);
+    };
+
     // Email Login
     loginBtn.addEventListener('click', async () => {
       const emailOrUsername = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
+      // Validate inputs
       validateLoginInputs();
       
+      // Check requirements
       const requirements = checkLoginRequirements();
       
       if (requirements.length > 0) {
@@ -985,21 +1008,28 @@
         return;
       }
       
+      // Determine if input is email or username
       const isEmail = emailOrUsername.includes('@');
       
       if (isEmail) {
+        // First check if email exists
         try {
           const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
           
           if (signInMethods.length === 0) {
+            // Email doesn't exist
             showRequirementsMenu(['Account does not exist']);
             return;
           }
           
+          // Email exists, proceed with login
           validationStates.login.accountExists = true;
           
+          // Attempt to sign in
           try {
             await auth.signInWithEmailAndPassword(emailOrUsername, password);
+            
+            // Login successful, handled by auth state change
             validationStates.login.passwordCorrect = true;
           } catch (error) {
             if (error.code === 'auth/wrong-password') {
@@ -1012,6 +1042,7 @@
           showRequirementsMenu([`Error: ${error.message}`]);
         }
       } else {
+        // For username login, we'd need to look up the email first
         showRequirementsMenu(['Username login not yet implemented - please use email']);
       }
     });
@@ -1023,8 +1054,10 @@
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
       
+      // Validate inputs
       validateSignupInputs();
       
+      // Check requirements
       const requirements = checkSignupRequirements();
       
       if (requirements.length > 0) {
@@ -1033,34 +1066,43 @@
       }
       
       try {
+        // First check if email exists
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
         
         if (signInMethods.length > 0) {
+          // Email already exists
           showRequirementsMenu(['Email is already registered']);
           return;
         }
         
+        // Email doesn't exist, proceed with signup
         validationStates.signup.emailAvailable = true;
         
+        // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         
+        // Update display name
         await userCredential.user.updateProfile({
           displayName: username
         });
         
+        // Send email verification
         await userCredential.user.sendEmailVerification({
           url: window.location.origin,
           handleCodeInApp: true
         });
         
+        // Show verification message
         verificationMessage.style.display = 'block';
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
+        // Reset all validation states
         Object.keys(validationStates.signup).forEach(key => {
           validationStates.signup[key] = false;
         });
         
+        // Reset password requirements
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
@@ -1074,7 +1116,7 @@
     function signInWithGoogle() {
       auth.signInWithPopup(googleProvider)
         .then((result) => {
-          // Google auth successful
+          // Google auth successful, handled by auth state change
         })
         .catch(error => {
           showRequirementsMenu([`Error: ${error.message}`]);
@@ -1085,7 +1127,7 @@
     function signInWithApple() {
       auth.signInWithPopup(appleProvider)
         .then((result) => {
-          // Apple auth successful
+          // Apple auth successful, handled by auth state change
         })
         .catch(error => {
           showRequirementsMenu([`Error: ${error.message}`]);
@@ -1097,12 +1139,7 @@
     appleLoginBtn.addEventListener('click', signInWithApple);
     appleSignupBtn.addEventListener('click', signInWithApple);
 
-    // Initialize reCAPTCHA callback function
-    window.onSecurityRecaptchaComplete = function() {
-      onSecurityRecaptchaComplete();
-    };
-
-    // Update reCAPTCHA element to use callback
+    // Initialize reCAPTCHA callback function for security challenge
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof grecaptcha !== 'undefined') {
         securityRecaptcha.setAttribute('data-callback', 'onSecurityRecaptchaComplete');
