@@ -329,7 +329,7 @@
       height: 100%;
       background-color: #ff6f61;
       width: 0%;
-      transition: width 2s linear;
+      transition: width 3s linear;
     }
 
     /* reCAPTCHA container */
@@ -741,7 +741,6 @@
       updateRequirement(reqLowercase, hasLowercase);
       
       validationStates.signup.password = hasLength && hasUppercase && hasLowercase;
-      showRequirementsMenuIfNeeded();
       return validationStates.signup.password;
     }
 
@@ -753,7 +752,6 @@
       if (password && confirmPassword) {
         const isMatch = password === confirmPassword;
         validationStates.signup.passwordMatch = isMatch;
-        showRequirementsMenuIfNeeded();
         return isMatch;
       }
       return false;
@@ -763,66 +761,12 @@
     function onRecaptchaComplete(type) {
       recaptchaCompleted[type] = true;
       validationStates[type].recaptcha = true;
-      showRequirementsMenuIfNeeded();
     }
 
     // Track reCAPTCHA expiration
     function onRecaptchaExpired(type) {
       recaptchaCompleted[type] = false;
       validationStates[type].recaptcha = false;
-      showRequirementsMenuIfNeeded();
-    }
-
-    // Show requirements menu if there are unmet requirements
-    function showRequirementsMenuIfNeeded() {
-      const isLogin = loginForm.classList.contains('active');
-      const requirements = [];
-      
-      if (isLogin) {
-        // Login requirements
-        if (!validationStates.login.emailOrUsername) {
-          requirements.push('Enter your email or username');
-        }
-        if (!validationStates.login.password) {
-          requirements.push('Enter your password');
-        }
-        if (!validationStates.login.recaptcha) {
-          requirements.push('Complete the reCAPTCHA');
-        }
-        if (validationStates.login.emailOrUsername && !validationStates.login.accountExists) {
-          requirements.push('Account does not exist');
-        }
-        if (validationStates.login.password && !validationStates.login.passwordCorrect) {
-          requirements.push('Incorrect password');
-        }
-      } else {
-        // Signup requirements
-        if (!validationStates.signup.username) {
-          requirements.push('Username must be at least 3 characters (letters, numbers, underscores)');
-        }
-        if (!validationStates.signup.email) {
-          requirements.push('Enter a valid email address');
-        }
-        if (!validationStates.signup.password) {
-          requirements.push('Password must meet all requirements');
-        }
-        if (!validationStates.signup.passwordMatch) {
-          requirements.push('Passwords must match');
-        }
-        if (!validationStates.signup.recaptcha) {
-          requirements.push('Complete the reCAPTCHA');
-        }
-        if (!validationStates.signup.termsAccepted) {
-          requirements.push('Accept terms and conditions');
-        }
-        if (!validationStates.signup.emailAvailable) {
-          requirements.push('Email is already registered');
-        }
-      }
-      
-      if (requirements.length > 0) {
-        showRequirementsMenu(requirements);
-      }
     }
 
     // Show requirements menu
@@ -850,15 +794,58 @@
         countdownProgress.style.width = '100%';
       }, 10);
       
-      // Set timer to hide after 2 seconds
+      // Set timer to hide after 3 seconds
       countdownTimer = setTimeout(() => {
         hideRequirementsMenu();
-      }, 2000);
+      }, 3000);
     }
 
     // Hide requirements menu
     function hideRequirementsMenu() {
       requirementsOverlay.classList.remove('active');
+    }
+
+    // Check if all requirements are met for login
+    function checkLoginRequirements() {
+      const requirements = [];
+      
+      if (!validationStates.login.emailOrUsername) {
+        requirements.push('Enter your email or username');
+      }
+      if (!validationStates.login.password) {
+        requirements.push('Enter your password');
+      }
+      if (!validationStates.login.recaptcha) {
+        requirements.push('Complete the reCAPTCHA');
+      }
+      
+      return requirements;
+    }
+
+    // Check if all requirements are met for signup
+    function checkSignupRequirements() {
+      const requirements = [];
+      
+      if (!validationStates.signup.username) {
+        requirements.push('Username must be at least 3 characters (letters, numbers, underscores)');
+      }
+      if (!validationStates.signup.email) {
+        requirements.push('Enter a valid email address');
+      }
+      if (!validationStates.signup.password) {
+        requirements.push('Password must meet all requirements');
+      }
+      if (!validationStates.signup.passwordMatch) {
+        requirements.push('Passwords must match');
+      }
+      if (!validationStates.signup.recaptcha) {
+        requirements.push('Complete the reCAPTCHA');
+      }
+      if (!validationStates.signup.termsAccepted) {
+        requirements.push('Accept terms and conditions');
+      }
+      
+      return requirements;
     }
 
     // Toggle password visibility
@@ -934,7 +921,6 @@
     // Terms checkbox change
     acceptTerms.addEventListener('change', () => {
       validationStates.signup.termsAccepted = acceptTerms.checked;
-      showRequirementsMenuIfNeeded();
     });
 
     // Validate login inputs
@@ -946,7 +932,6 @@
       validationStates.login.emailOrUsername = emailOrUsername.length > 0;
       validationStates.login.password = password.length > 0;
       
-      showRequirementsMenuIfNeeded();
       return validationStates.login.emailOrUsername && validationStates.login.password;
     }
 
@@ -973,32 +958,7 @@
       const isPasswordMatch = checkPasswordMatch();
       validationStates.signup.passwordMatch = isPasswordMatch;
       
-      showRequirementsMenuIfNeeded();
       return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
-    }
-
-    // Check if all login requirements are met
-    function allLoginRequirementsMet() {
-      return (
-        validationStates.login.emailOrUsername &&
-        validationStates.login.password &&
-        validationStates.login.recaptcha &&
-        validationStates.login.accountExists &&
-        validationStates.login.passwordCorrect
-      );
-    }
-
-    // Check if all signup requirements are met
-    function allSignupRequirementsMet() {
-      return (
-        validationStates.signup.username &&
-        validationStates.signup.email &&
-        validationStates.signup.password &&
-        validationStates.signup.passwordMatch &&
-        validationStates.signup.recaptcha &&
-        validationStates.signup.termsAccepted &&
-        validationStates.signup.emailAvailable
-      );
     }
 
     // Input event listeners for login
@@ -1033,13 +993,13 @@
       const password = loginPassword.value.trim();
       
       // Validate inputs
-      if (!validateLoginInputs()) {
-        return;
-      }
+      validateLoginInputs();
       
-      // Check if reCAPTCHA is completed
-      if (!validationStates.login.recaptcha) {
-        showRequirementsMenuIfNeeded();
+      // Check requirements
+      const requirements = checkLoginRequirements();
+      
+      if (requirements.length > 0) {
+        showRequirementsMenu(requirements);
         return;
       }
       
@@ -1053,7 +1013,6 @@
           
           if (signInMethods.length === 0) {
             // Email doesn't exist
-            validationStates.login.accountExists = false;
             showRequirementsMenu(['Account does not exist']);
             return;
           }
@@ -1081,7 +1040,6 @@
             }
             
             if (error.code === 'auth/wrong-password') {
-              validationStates.login.passwordCorrect = false;
               showRequirementsMenu(['Incorrect password']);
             } else {
               showRequirementsMenu([`Error: ${error.message}`]);
@@ -1109,19 +1067,13 @@
       const confirmPassword = signupConfirmPassword.value.trim();
       
       // Validate inputs
-      if (!validateSignupInputs()) {
-        return;
-      }
+      validateSignupInputs();
       
-      // Check if reCAPTCHA is completed
-      if (!validationStates.signup.recaptcha) {
-        showRequirementsMenuIfNeeded();
-        return;
-      }
+      // Check requirements
+      const requirements = checkSignupRequirements();
       
-      // Check terms accepted
-      if (!validationStates.signup.termsAccepted) {
-        showRequirementsMenuIfNeeded();
+      if (requirements.length > 0) {
+        showRequirementsMenu(requirements);
         return;
       }
       
@@ -1137,7 +1089,6 @@
             validationStates.signup.recaptcha = false;
           }
           
-          validationStates.signup.emailAvailable = false;
           showRequirementsMenu(['Email is already registered']);
           return;
         }
