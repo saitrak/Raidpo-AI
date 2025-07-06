@@ -283,16 +283,10 @@
       display: none;
       width: 250px;
       z-index: 101;
-      transition: opacity 0.3s ease;
     }
 
     .user-profile-info.active {
       display: block;
-      opacity: 1;
-    }
-
-    .user-profile-info.fade-out {
-      opacity: 0;
     }
 
     .user-profile-name {
@@ -899,33 +893,15 @@
 
     // Track tools used
     let toolsUsedCount = 0;
-    let profileMenuTimeout;
 
-    // Show profile info on hover/click
-    userAvatar.addEventListener('mouseenter', showProfileMenu);
-    userAvatar.addEventListener('click', showProfileMenu);
-
-    // Hide profile info when mouse leaves or clicks outside
-    document.addEventListener('click', (e) => {
-      if (!userProfile.contains(e.target)) {
-        hideProfileMenu();
-      }
+    // Show profile info on hover
+    userAvatar.addEventListener('mouseenter', () => {
+      userProfileInfo.classList.add('active');
     });
 
-    userProfile.addEventListener('mouseleave', hideProfileMenu);
-
-    function showProfileMenu() {
-      clearTimeout(profileMenuTimeout);
-      userProfileInfo.classList.add('active');
-      userProfileInfo.classList.remove('fade-out');
-    }
-
-    function hideProfileMenu() {
-      userProfileInfo.classList.add('fade-out');
-      profileMenuTimeout = setTimeout(() => {
-        userProfileInfo.classList.remove('active');
-      }, 1500);
-    }
+    userProfile.addEventListener('mouseleave', () => {
+      userProfileInfo.classList.remove('active');
+    });
 
     // Update user profile with photo if available
     function updateUserProfile(user) {
@@ -981,7 +957,7 @@
       homepage.style.display = 'none';
       settingsPage.style.display = 'none';
       profilePage.style.display = 'block';
-      hideProfileMenu();
+      userProfileInfo.classList.remove('active');
     });
 
     settingsBtn?.addEventListener('click', (e) => {
@@ -989,7 +965,7 @@
       homepage.style.display = 'none';
       profilePage.style.display = 'none';
       settingsPage.style.display = 'block';
-      hideProfileMenu();
+      userProfileInfo.classList.remove('active');
     });
 
     settingsBackBtn.addEventListener('click', (e) => {
@@ -1030,48 +1006,20 @@
       }
     });
 
-    // Track tool usage
-    toolLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        if (auth.currentUser) {
-          toolsUsedCount++;
-          toolsUsed.textContent = toolsUsedCount;
-        }
-      });
-    });
-
-    // Smarter loading duration function
-    function handleLoading() {
-      let authChecked = false;
-      let minLoadingTimePassed = false;
-      const minLoadingTime = 1000; // Minimum 1 second loading time
+    // Check Auth State
+    auth.onAuthStateChanged(user => {
+      updateUserProfile(user);
       
-      const minLoadingTimer = setTimeout(() => {
-        minLoadingTimePassed = true;
-        if (authChecked) {
-          finishLoading();
-        }
-      }, minLoadingTime);
-      
-      // Check auth state
-      auth.onAuthStateChanged(user => {
-        updateUserProfile(user);
-        authChecked = true;
-        if (minLoadingTimePassed) {
-          finishLoading();
-        }
-      });
-      
-      function finishLoading() {
-        clearTimeout(minLoadingTimer);
+      // After auth check, wait for the full 3 seconds before hiding loading screen
+      setTimeout(() => {
         loadingScreen.style.display = 'none';
         homepage.style.display = 'block';
-      }
-    }
+      }, 3000);
+    });
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-      handleLoading();
+      // Loading screen will be hidden after auth check + 3 seconds
     });
   </script>
 </body>
