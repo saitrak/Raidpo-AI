@@ -30,16 +30,24 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #080808; /* Darker background */
+      background-color: #0f0f0f;
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 9999;
     }
     
-    .loading-screen img {
-      width: 150px;
-      height: 150px;
+    .loading-animation {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ff6f61;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
     }
 
     /* General Styles */
@@ -549,7 +557,7 @@
 <body>
   <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
-    <img src="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829273/bp0dgjflsjg5j0kt7k53.gif" alt="Loading">
+    <div class="loading-animation"></div>
   </div>
 
   <!-- Homepage (hidden initially) -->
@@ -996,19 +1004,6 @@
       } else {
         alert('Please enter your full name');
       }
-    });
-
-    // Track tool usage
-    toolLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        if (!auth.currentUser) {
-          e.preventDefault();
-          window.location.href = 'https://raidpo-ai.netlify.app/login-form';
-        } else {
-          toolsUsedCount++;
-          toolsUsed.textContent = toolsUsedCount;
-        }
-      });
     });
 
     // Check Auth State
