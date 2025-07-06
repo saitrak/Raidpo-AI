@@ -115,7 +115,7 @@
     .auth-page {
       display: none;
       min-height: 100vh;
-      background-color: #0f0f0f;
+      background: #0f0f0f;
       position: relative;
     }
 
@@ -124,15 +124,13 @@
       height: 100vh;
     }
 
-    .auth-image {
+    .auth-left {
       flex: 1;
-      background-image: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg');
+      background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
       background-size: cover;
-      background-position: center;
-      display: none;
     }
 
-    .auth-form-container {
+    .auth-right {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -150,7 +148,6 @@
     .auth-header h1 {
       font-size: 2rem;
       margin-bottom: 0.5rem;
-      color: #fff;
     }
 
     .auth-header p {
@@ -159,14 +156,14 @@
       margin-bottom: 2rem;
     }
 
-    .auth-options {
+    .auth-providers {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
 
-    .auth-btn {
+    .provider-btn {
       width: 100%;
       padding: 1rem;
       border: none;
@@ -174,7 +171,6 @@
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -196,11 +192,6 @@
       color: #fff;
     }
 
-    .email-btn {
-      background-color: #ff6f61;
-      color: #fff;
-    }
-
     .divider {
       display: flex;
       align-items: center;
@@ -208,9 +199,8 @@
       color: #ccc;
     }
 
-    .divider::before,
-    .divider::after {
-      content: '';
+    .divider::before, .divider::after {
+      content: "";
       flex: 1;
       border-bottom: 1px solid #333;
     }
@@ -219,11 +209,24 @@
       padding: 0 1rem;
     }
 
+    .email-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+    }
+
     .auth-footer {
       text-align: center;
-      margin-top: 1.5rem;
       color: #ccc;
       font-size: 0.8rem;
+      margin-top: 1rem;
     }
 
     .auth-footer a {
@@ -231,10 +234,14 @@
       text-decoration: underline;
     }
 
-    /* Email Form */
-    .email-form {
+    /* Auth Forms */
+    .auth-form {
       display: none;
-      margin-top: 1.5rem;
+      width: 100%;
+    }
+
+    .auth-form.active {
+      display: block;
     }
 
     .form-group {
@@ -275,7 +282,7 @@
       padding: 5px;
     }
 
-    .submit-btn {
+    .auth-submit-btn {
       width: 100%;
       padding: 1rem;
       background-color: #ff6f61;
@@ -285,111 +292,42 @@
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
+      margin-top: 1rem;
     }
 
-    .submit-btn:hover {
-      background-color: #ff3b2f;
-    }
-
-    .back-btn {
-      background: none;
-      border: none;
+    .back-to-providers {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
       color: #ff6f61;
       cursor: pointer;
-      margin-top: 1rem;
+    }
+
+    /* Password requirements (hidden by default) */
+    .password-requirements {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+
+    .requirement {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      margin-bottom: 0.3rem;
     }
 
-    /* Requirements Menu */
-    .requirements-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+    .requirement i {
+      margin-right: 0.5rem;
+      font-size: 0.8rem;
     }
 
-    .requirements-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .requirements-menu {
-      background-color: #1a1a1a;
-      border: 1px solid #ff6f61;
-      border-radius: 10px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      position: relative;
-      transform: translateY(20px);
-      transition: transform 0.3s ease;
-    }
-
-    .requirements-overlay.active .requirements-menu {
-      transform: translateY(0);
-    }
-
-    .requirements-title {
-      font-weight: bold;
-      color: #ff6f61;
-      margin-bottom: 15px;
-      text-align: center;
-      font-size: 1.2rem;
-    }
-
-    .requirements-list {
-      list-style-type: none;
-      padding: 0;
-      margin: 0 0 15px 0;
-    }
-
-    .requirement-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    .requirement-item i {
-      margin-right: 10px;
-      font-size: 0.9rem;
-      min-width: 16px;
-    }
-
-    .requirement-item.valid i {
+    .requirement.valid i {
       color: #4CAF50;
     }
 
-    .requirement-item.invalid i {
+    .requirement.invalid i {
       color: #ff6f61;
-    }
-
-    .countdown-bar {
-      height: 4px;
-      background-color: #333;
-      border-radius: 2px;
-      overflow: hidden;
-      width: 100%;
-    }
-
-    .countdown-progress {
-      height: 100%;
-      background-color: #ff6f61;
-      width: 0%;
-      transition: width 3s linear;
     }
 
     /* Verification Message */
@@ -432,28 +370,48 @@
       font-size: 1rem;
     }
 
+    /* Close Button */
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
     /* Responsive Adjustments */
-    @media (min-width: 768px) {
-      .auth-image {
-        display: block;
+    @media (max-width: 768px) {
+      .auth-container {
+        flex-direction: column;
       }
       
-      .auth-form-container {
-        padding: 3rem;
+      .auth-left {
+        display: none;
+      }
+      
+      .auth-right {
+        padding: 1.5rem;
+        max-width: 100%;
       }
     }
 
     @media (max-width: 480px) {
-      .auth-form-container {
-        padding: 1.5rem;
-      }
-      
       .auth-header h1 {
         font-size: 1.8rem;
       }
       
-      .auth-btn {
+      .auth-header p {
+        font-size: 0.9rem;
+      }
+      
+      .provider-btn, .email-btn {
         padding: 0.8rem;
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -476,25 +434,27 @@
 
   <!-- Auth Page -->
   <div class="auth-page" id="authPage">
+    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
+    
     <div class="auth-container">
-      <div class="auth-image"></div>
+      <div class="auth-left"></div>
       
-      <div class="auth-form-container">
-        <!-- Main Auth Options -->
-        <div id="mainAuthOptions">
-          <div class="auth-header">
-            <h1 id="authTitle">Log in</h1>
-            <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
-          </div>
-          
-          <div class="auth-options">
-            <button id="googleAuthBtn" class="auth-btn google-btn">
+      <div class="auth-right">
+        <div class="auth-header">
+          <h1 id="authTitle">Log in</h1>
+          <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
+        </div>
+        
+        <!-- Provider Selection -->
+        <div id="providerSelection">
+          <div class="auth-providers">
+            <button id="googleLoginBtn" class="provider-btn google-btn">
               <i class="fab fa-google"></i> Continue with Google
             </button>
-            <button id="yahooAuthBtn" class="auth-btn yahoo-btn">
+            <button id="yahooLoginBtn" class="provider-btn yahoo-btn">
               <i class="fab fa-yahoo"></i> Continue with Yahoo
             </button>
-            <button id="githubAuthBtn" class="auth-btn github-btn">
+            <button id="githubLoginBtn" class="provider-btn github-btn">
               <i class="fab fa-github"></i> Continue with GitHub
             </button>
           </div>
@@ -503,24 +463,18 @@
             <span class="divider-text">or</span>
           </div>
           
-          <button id="emailAuthBtn" class="auth-btn email-btn">
-            <i class="fas fa-envelope"></i> Continue with Email
-          </button>
+          <button id="emailLoginBtn" class="email-btn">Continue with Email</button>
           
           <div class="auth-footer">
             By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Use</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
           </div>
         </div>
         
-        <!-- Email Login Form -->
-        <div id="emailLoginForm" class="email-form">
-          <div class="auth-header">
-            <h1>Log in with Email</h1>
-          </div>
-          
+        <!-- Login Form -->
+        <div id="loginForm" class="auth-form">
           <div class="form-group">
-            <label for="loginEmail">Email</label>
-            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            <label for="loginEmail">Email or Username</label>
+            <input type="text" id="loginEmail" placeholder="Enter your email or username" required>
           </div>
           
           <div class="form-group">
@@ -529,47 +483,51 @@
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
           </div>
           
-          <button id="loginBtn" class="submit-btn">Log in</button>
-          <button id="backToMainFromLogin" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to all options
-          </button>
+          <button id="loginBtn" class="auth-submit-btn">Log in</button>
+          <a class="back-to-providers" id="backToProvidersFromLogin">← Back to login options</a>
         </div>
         
-        <!-- Email Register Form -->
-        <div id="emailRegisterForm" class="email-form">
-          <div class="auth-header">
-            <h1>Register with Email</h1>
+        <!-- Register Form -->
+        <div id="registerForm" class="auth-form">
+          <div class="form-group">
+            <label for="registerUsername">Username</label>
+            <input type="text" id="registerUsername" placeholder="Choose a username" required>
           </div>
           
           <div class="form-group">
-            <label for="signupEmail">Email</label>
-            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" placeholder="Enter your email" required>
           </div>
           
           <div class="form-group">
-            <label for="signupPassword">Password</label>
-            <input type="password" id="signupPassword" placeholder="Create a password" required>
-            <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+            <button class="password-toggle" id="toggleRegisterPassword"><i class="fas fa-eye"></i></button>
+            <div class="password-requirements" id="registerPasswordRequirements">
+              <div class="requirement" id="req-length">
+                <i class="fas fa-times"></i>
+                <span>At least 6 characters</span>
+              </div>
+              <div class="requirement" id="req-uppercase">
+                <i class="fas fa-times"></i>
+                <span>At least 1 uppercase letter</span>
+              </div>
+              <div class="requirement" id="req-lowercase">
+                <i class="fas fa-times"></i>
+                <span>At least 1 lowercase letter</span>
+              </div>
+            </div>
           </div>
           
-          <button id="signupBtn" class="submit-btn">Register</button>
-          <button id="backToMainFromRegister" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to all options
-          </button>
+          <div class="form-group">
+            <label for="registerConfirmPassword">Confirm Password</label>
+            <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required>
+            <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+          </div>
+          
+          <button id="registerBtn" class="auth-submit-btn">Register</button>
+          <a class="back-to-providers" id="backToProvidersFromRegister">← Back to login options</a>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Requirements Overlay -->
-  <div class="requirements-overlay" id="requirementsOverlay">
-    <div class="requirements-menu">
-      <div class="requirements-title">Complete these requirements</div>
-      <ul class="requirements-list" id="requirementsList">
-        <!-- Will be populated dynamically -->
-      </ul>
-      <div class="countdown-bar">
-        <div class="countdown-progress" id="countdownProgress"></div>
       </div>
     </div>
   </div>
@@ -604,37 +562,58 @@
     const loadingScreen = document.getElementById('loadingScreen');
     const securityChallenge = document.getElementById('securityChallenge');
     const authPage = document.getElementById('authPage');
-    const mainAuthOptions = document.getElementById('mainAuthOptions');
-    const emailLoginForm = document.getElementById('emailLoginForm');
-    const emailRegisterForm = document.getElementById('emailRegisterForm');
+    const closeButton = document.getElementById('closeButton');
     const authTitle = document.getElementById('authTitle');
-    const googleAuthBtn = document.getElementById('googleAuthBtn');
-    const yahooAuthBtn = document.getElementById('yahooAuthBtn');
-    const githubAuthBtn = document.getElementById('githubAuthBtn');
-    const emailAuthBtn = document.getElementById('emailAuthBtn');
+    const providerSelection = document.getElementById('providerSelection');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
     const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const backToMainFromLogin = document.getElementById('backToMainFromLogin');
-    const backToMainFromRegister = document.getElementById('backToMainFromRegister');
+    const registerBtn = document.getElementById('registerBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const yahooLoginBtn = document.getElementById('yahooLoginBtn');
+    const githubLoginBtn = document.getElementById('githubLoginBtn');
+    const emailLoginBtn = document.getElementById('emailLoginBtn');
     const loginEmail = document.getElementById('loginEmail');
     const loginPassword = document.getElementById('loginPassword');
     const toggleLoginPassword = document.getElementById('toggleLoginPassword');
-    const signupEmail = document.getElementById('signupEmail');
-    const signupPassword = document.getElementById('signupPassword');
-    const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+    const registerUsername = document.getElementById('registerUsername');
+    const registerEmail = document.getElementById('registerEmail');
+    const registerPassword = document.getElementById('registerPassword');
+    const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+    const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const verificationMessage = document.getElementById('verificationMessage');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
     const challengeComplete = document.getElementById('challengeComplete');
-    const requirementsOverlay = document.getElementById('requirementsOverlay');
-    const requirementsList = document.getElementById('requirementsList');
-    const countdownProgress = document.getElementById('countdownProgress');
+    const registerPasswordRequirements = document.getElementById('registerPasswordRequirements');
+    const backToProvidersFromLogin = document.getElementById('backToProvidersFromLogin');
+    const backToProvidersFromRegister = document.getElementById('backToProvidersFromRegister');
 
-    // State management
-    let currentAuthMode = 'login'; // 'login' or 'register'
+    // Password requirement elements
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+
+    // Validation states
+    const validationStates = {
+      login: {
+        emailOrUsername: false,
+        password: false,
+        accountExists: false,
+        passwordCorrect: false
+      },
+      register: {
+        username: false,
+        email: false,
+        password: false,
+        passwordMatch: false
+      }
+    };
+
+    // reCAPTCHA widget ID
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
-    let countdownTimer;
 
     // Custom error messages mapping
     const errorMessages = {
@@ -644,8 +623,13 @@
       'auth/wrong-password': 'Incorrect password',
       'auth/email-already-in-use': 'Email is already registered',
       'auth/operation-not-allowed': 'This operation is not allowed',
-      'auth/weak-password': 'Password must be at least 6 characters',
+      'auth/weak-password': 'Password is too weak',
       'auth/too-many-requests': 'Too many requests. Please try again later.',
+      'auth/requires-recent-login': 'This operation requires recent authentication. Please log in again.',
+      'auth/invalid-verification-code': 'Invalid verification code',
+      'auth/invalid-verification-id': 'Invalid verification ID',
+      'auth/missing-verification-code': 'Missing verification code',
+      'auth/missing-verification-id': 'Missing verification ID',
       'auth/network-request-failed': 'Network error. Please check your connection.',
       'default': 'An error occurred. Please try again.'
     };
@@ -654,6 +638,148 @@
     function getErrorMessage(error) {
       const code = error.code || '';
       return errorMessages[code] || error.message || errorMessages['default'];
+    }
+
+    // Show form with animation
+    function showForm(form) {
+      providerSelection.style.display = 'none';
+      form.style.display = 'block';
+      setTimeout(() => {
+        form.style.opacity = '1';
+      }, 10);
+    }
+
+    // Hide form with animation
+    function hideForm(form) {
+      form.style.opacity = '0';
+      setTimeout(() => {
+        form.style.display = 'none';
+        providerSelection.style.display = 'block';
+      }, 300);
+    }
+
+    // Update requirement status
+    function updateRequirement(element, isValid) {
+      element.classList.toggle('valid', isValid);
+      element.classList.toggle('invalid', !isValid);
+      const icon = element.querySelector('i');
+      if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      }
+    }
+
+    // Check email validity
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Check username validity
+    function isValidUsername(username) {
+      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check password validity
+    function isValidPassword(password) {
+      const hasLength = password.length >= 6;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      
+      updateRequirement(reqLength, hasLength);
+      updateRequirement(reqUppercase, hasUppercase);
+      updateRequirement(reqLowercase, hasLowercase);
+      
+      validationStates.register.password = hasLength && hasUppercase && hasLowercase;
+      return validationStates.register.password;
+    }
+
+    // Check if passwords match
+    function checkPasswordMatch() {
+      const password = registerPassword.value;
+      const confirmPassword = registerConfirmPassword.value;
+      
+      if (password && confirmPassword) {
+        const isMatch = password === confirmPassword;
+        validationStates.register.passwordMatch = isMatch;
+        return isMatch;
+      }
+      return false;
+    }
+
+    // Validate login inputs
+    function validateLoginInputs() {
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      validationStates.login.emailOrUsername = emailOrUsername.length > 0;
+      validationStates.login.password = password.length > 0;
+      
+      return validationStates.login.emailOrUsername && validationStates.login.password;
+    }
+
+    // Validate register inputs
+    function validateRegisterInputs() {
+      const username = registerUsername.value.trim();
+      const email = registerEmail.value.trim();
+      const password = registerPassword.value.trim();
+      const confirmPassword = registerConfirmPassword.value.trim();
+      
+      const isUsernameValid = isValidUsername(username);
+      validationStates.register.username = isUsernameValid;
+      
+      const isEmailValid = isValidEmail(email);
+      validationStates.register.email = isEmailValid;
+      
+      const isPasswordValid = isValidPassword(password);
+      validationStates.register.password = isPasswordValid;
+      
+      const isPasswordMatch = checkPasswordMatch();
+      validationStates.register.passwordMatch = isPasswordMatch;
+      
+      return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
+    }
+
+    // Show error message
+    function showError(message) {
+      alert(message); // In a real app, you'd want a prettier error display
+    }
+
+    // reCAPTCHA load callback
+    function onRecaptchaLoad() {
+      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+        callback: onSecurityRecaptchaComplete,
+        'expired-callback': onRecaptchaExpired,
+        'error-callback': onRecaptchaError
+      });
+    }
+
+    // reCAPTCHA completion callback
+    function onSecurityRecaptchaComplete(token) {
+      recaptchaCompleted = true;
+      challengeComplete.style.display = 'block';
+      
+      setTimeout(() => {
+        securityChallenge.style.display = 'none';
+        authPage.style.display = 'flex';
+      }, 1000);
+    }
+
+    // reCAPTCHA expired callback
+    function onRecaptchaExpired() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
+
+    // reCAPTCHA error callback
+    function onRecaptchaError() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
     }
 
     // Show loading screen for 3 seconds and check auth state
@@ -665,6 +791,7 @@
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           securityChallenge.style.display = 'flex';
+          
           if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
             onRecaptchaLoad();
           }
@@ -672,37 +799,10 @@
       });
     }, 3000);
 
-    // reCAPTCHA callbacks
-    function onRecaptchaLoad() {
-      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-        callback: onSecurityRecaptchaComplete,
-        'expired-callback': onRecaptchaExpired,
-        'error-callback': onRecaptchaError
-      });
-    }
-
-    function onSecurityRecaptchaComplete(token) {
-      recaptchaCompleted = true;
-      challengeComplete.style.display = 'block';
-      
-      setTimeout(() => {
-        securityChallenge.style.display = 'none';
-        authPage.style.display = 'block';
-      }, 1000);
-    }
-
-    function onRecaptchaExpired() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) grecaptcha.reset(recaptchaWidgetId);
-    }
-
-    function onRecaptchaError() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) grecaptcha.reset(recaptchaWidgetId);
-    }
+    // Close button functionality
+    closeButton.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
 
     // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
@@ -713,143 +813,192 @@
       icon.classList.toggle('fa-eye-slash');
     }
 
-    // Show requirements menu
-    function showRequirementsMenu(requirements) {
-      if (countdownTimer) clearTimeout(countdownTimer);
-      
-      countdownProgress.style.transition = 'none';
-      countdownProgress.style.width = '0%';
-      void countdownProgress.offsetWidth;
-      countdownProgress.style.transition = 'width 3s linear';
-      
-      requirementsList.innerHTML = '';
-      requirements.forEach(req => {
-        const li = document.createElement('li');
-        li.className = 'requirement-item invalid';
-        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-        requirementsList.appendChild(li);
-      });
-      
-      requirementsOverlay.classList.add('active');
-      setTimeout(() => countdownProgress.style.width = '100%', 10);
-      countdownTimer = setTimeout(hideRequirementsMenu, 3000);
-    }
-
-    function hideRequirementsMenu() {
-      requirementsOverlay.classList.remove('active');
-    }
-
-    // Switch between auth forms
-    function showMainOptions() {
-      mainAuthOptions.style.display = 'block';
-      emailLoginForm.style.display = 'none';
-      emailRegisterForm.style.display = 'none';
-    }
-
-    function showEmailLogin() {
-      currentAuthMode = 'login';
-      authTitle.textContent = 'Log in';
-      mainAuthOptions.style.display = 'none';
-      emailLoginForm.style.display = 'block';
-      emailRegisterForm.style.display = 'none';
-    }
-
-    function showEmailRegister() {
-      currentAuthMode = 'register';
-      authTitle.textContent = 'Register';
-      mainAuthOptions.style.display = 'none';
-      emailLoginForm.style.display = 'none';
-      emailRegisterForm.style.display = 'block';
-    }
-
-    // Event listeners
-    emailAuthBtn.addEventListener('click', () => {
-      if (currentAuthMode === 'login') showEmailLogin();
-      else showEmailRegister();
+    // Show password requirements when password field is focused
+    registerPassword.addEventListener('focus', () => {
+      registerPasswordRequirements.style.display = 'block';
     });
 
-    backToMainFromLogin.addEventListener('click', showMainOptions);
-    backToMainFromRegister.addEventListener('click', showMainOptions);
+    // Hide password requirements when password field is blurred (if not empty)
+    registerPassword.addEventListener('blur', () => {
+      if (registerPassword.value === '') {
+        registerPasswordRequirements.style.display = 'none';
+      }
+    });
 
+    // Setup password toggles
     toggleLoginPassword.addEventListener('click', () => {
       togglePasswordVisibility(loginPassword, toggleLoginPassword);
     });
 
-    toggleSignupPassword.addEventListener('click', () => {
-      togglePasswordVisibility(signupPassword, toggleSignupPassword);
+    toggleRegisterPassword.addEventListener('click', () => {
+      togglePasswordVisibility(registerPassword, toggleRegisterPassword);
     });
 
+    toggleConfirmPassword.addEventListener('click', () => {
+      togglePasswordVisibility(registerConfirmPassword, toggleConfirmPassword);
+    });
+
+    // Back to providers buttons
+    backToProvidersFromLogin.addEventListener('click', () => {
+      hideForm(loginForm);
+    });
+
+    backToProvidersFromRegister.addEventListener('click', () => {
+      hideForm(registerForm);
+    });
+
+    // Email login button
+    emailLoginBtn.addEventListener('click', () => {
+      authTitle.textContent = 'Log in';
+      showForm(loginForm);
+    });
+
+    // Google Login
+    googleLoginBtn.addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider)
+        .then((result) => {
+          // Handled by auth state change
+        })
+        .catch(error => {
+          showError(getErrorMessage(error));
+        });
+    });
+
+    // Yahoo Login
+    yahooLoginBtn.addEventListener('click', () => {
+      auth.signInWithPopup(yahooProvider)
+        .then((result) => {
+          // Handled by auth state change
+        })
+        .catch(error => {
+          showError(getErrorMessage(error));
+        });
+    });
+
+    // GitHub Login
+    githubLoginBtn.addEventListener('click', () => {
+      auth.signInWithPopup(githubProvider)
+        .then((result) => {
+          // Handled by auth state change
+        })
+        .catch(error => {
+          showError(getErrorMessage(error));
+        });
+    });
+
+    // Email Login
+    loginBtn.addEventListener('click', async () => {
+      const emailOrUsername = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      if (!validateLoginInputs()) {
+        showError('Please fill in all fields');
+        return;
+      }
+      
+      // Determine if input is email or username
+      const isEmail = emailOrUsername.includes('@');
+      
+      if (isEmail) {
+        try {
+          const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
+          
+          if (signInMethods.length === 0) {
+            showError('Account does not exist');
+            return;
+          }
+          
+          try {
+            await auth.signInWithEmailAndPassword(emailOrUsername, password);
+          } catch (error) {
+            showError(getErrorMessage(error));
+          }
+        } catch (error) {
+          showError(getErrorMessage(error));
+        }
+      } else {
+        showError('Please use your email address to login');
+      }
+    });
+
+    // Register with Email
+    registerBtn.addEventListener('click', async () => {
+      const username = registerUsername.value.trim();
+      const email = registerEmail.value.trim();
+      const password = registerPassword.value.trim();
+      const confirmPassword = registerConfirmPassword.value.trim();
+      
+      if (!validateRegisterInputs()) {
+        showError('Please fix the errors in the form');
+        return;
+      }
+      
+      try {
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods.length > 0) {
+          showError('Email is already registered');
+          return;
+        }
+        
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        await userCredential.user.updateProfile({
+          displayName: username
+        });
+        
+        await userCredential.user.sendEmailVerification({
+          url: window.location.origin,
+          handleCodeInApp: true
+        });
+        
+        verificationMessage.style.display = 'block';
+        registerForm.reset();
+        registerPasswordRequirements.style.display = 'none';
+        
+        Object.keys(validationStates.register).forEach(key => {
+          validationStates.register[key] = false;
+        });
+        
+        updateRequirement(reqLength, false);
+        updateRequirement(reqUppercase, false);
+        updateRequirement(reqLowercase, false);
+        
+      } catch (error) {
+        showError(getErrorMessage(error));
+      }
+    });
+
+    // Close verification message
     verificationCloseBtn.addEventListener('click', () => {
       verificationMessage.style.display = 'none';
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
-    // Authentication methods
-    function signInWithGoogle() {
-      auth.signInWithPopup(googleProvider)
-        .catch(error => showRequirementsMenu([getErrorMessage(error)]));
-    }
-
-    function signInWithYahoo() {
-      auth.signInWithPopup(yahooProvider)
-        .catch(error => showRequirementsMenu([getErrorMessage(error)]));
-    }
-
-    function signInWithGithub() {
-      auth.signInWithPopup(githubProvider)
-        .catch(error => showRequirementsMenu([getErrorMessage(error)]));
-    }
-
-    googleAuthBtn.addEventListener('click', signInWithGoogle);
-    yahooAuthBtn.addEventListener('click', signInWithYahoo);
-    githubAuthBtn.addEventListener('click', signInWithGithub);
-
-    // Email login
-    loginBtn.addEventListener('click', async () => {
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
-      if (!email || !password) {
-        showRequirementsMenu(['Please enter both email and password']);
-        return;
-      }
-      
-      try {
-        await auth.signInWithEmailAndPassword(email, password);
-      } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
-      }
+    // Input validation listeners
+    registerUsername.addEventListener('input', () => {
+      validationStates.register.username = isValidUsername(registerUsername.value.trim());
     });
 
-    // Email registration
-    signupBtn.addEventListener('click', async () => {
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
-      
-      if (!email) {
-        showRequirementsMenu(['Please enter your email']);
-        return;
-      }
-      
-      if (!password || password.length < 6) {
-        showRequirementsMenu(['Password must be at least 6 characters']);
-        return;
-      }
-      
-      try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.sendEmailVerification();
-        verificationMessage.style.display = 'block';
-        signupEmail.value = '';
-        signupPassword.value = '';
-        showMainOptions();
-      } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
-      }
+    registerEmail.addEventListener('input', () => {
+      validationStates.register.email = isValidEmail(registerEmail.value.trim());
     });
 
-    // Initialize
-    showMainOptions();
+    registerPassword.addEventListener('input', () => {
+      isValidPassword(registerPassword.value);
+    });
+
+    registerConfirmPassword.addEventListener('input', () => {
+      checkPasswordMatch();
+    });
+
+    loginEmail.addEventListener('input', () => {
+      validationStates.login.emailOrUsername = loginEmail.value.trim().length > 0;
+    });
+
+    loginPassword.addEventListener('input', () => {
+      validationStates.login.password = loginPassword.value.trim().length > 0;
+    });
   </script>
 </body>
 </html>
