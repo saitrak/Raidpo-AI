@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login or Register | Raidpo AI</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751796028/clbhmjq9kzv0g3itasrg.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -225,21 +226,24 @@
       justify-content: center;
     }
 
-    /* Password requirements */
-    .password-requirements {
+    /* Requirements List */
+    .requirements-list {
       margin-top: 0.5rem;
       font-size: 0.8rem;
       color: #ccc;
+      padding-left: 1.5rem;
     }
 
     .requirement {
       display: flex;
       align-items: center;
       margin-bottom: 0.3rem;
+      position: relative;
     }
 
     .requirement i {
-      margin-right: 0.5rem;
+      position: absolute;
+      left: -1.5rem;
       font-size: 0.8rem;
     }
 
@@ -318,14 +322,30 @@
       
       <div id="loginForm" class="auth-form active">
         <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" required>
+          <label for="loginEmail">Email or Username</label>
+          <input type="text" id="loginEmail" placeholder="Enter your email or username" required>
         </div>
         
         <div class="form-group">
           <label for="loginPassword">Password</label>
           <input type="password" id="loginPassword" placeholder="Enter your password" required>
           <i class="fas fa-eye password-toggle" id="toggleLoginPassword"></i>
+        </div>
+        
+        <!-- Requirements list for login -->
+        <div class="requirements-list" id="loginRequirements">
+          <div class="requirement" id="loginAccountValid">
+            <i class="fas fa-times"></i>
+            <span>Valid account exists</span>
+          </div>
+          <div class="requirement" id="loginPasswordValid">
+            <i class="fas fa-times"></i>
+            <span>Correct password</span>
+          </div>
+          <div class="requirement" id="loginRecaptchaValid">
+            <i class="fas fa-times"></i>
+            <span>reCAPTCHA completed</span>
+          </div>
         </div>
         
         <!-- reCAPTCHA for login -->
@@ -362,20 +382,6 @@
           <label for="signupPassword">Password</label>
           <input type="password" id="signupPassword" placeholder="Create a password" required>
           <i class="fas fa-eye password-toggle" id="toggleSignupPassword"></i>
-          <div class="password-requirements">
-            <div class="requirement" id="req-length">
-              <i class="fas fa-times"></i>
-              <span>At least 5 characters</span>
-            </div>
-            <div class="requirement" id="req-uppercase">
-              <i class="fas fa-times"></i>
-              <span>At least 1 uppercase letter</span>
-            </div>
-            <div class="requirement" id="req-lowercase">
-              <i class="fas fa-times"></i>
-              <span>At least 1 lowercase letter</span>
-            </div>
-          </div>
         </div>
         
         <div class="form-group">
@@ -383,6 +389,30 @@
           <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
           <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
           <div id="passwordMatchError" class="auth-error" style="display: none;">Passwords do not match</div>
+        </div>
+        
+        <!-- Requirements list for signup -->
+        <div class="requirements-list" id="signupRequirements">
+          <div class="requirement" id="signupUsernameValid">
+            <i class="fas fa-times"></i>
+            <span>Valid username</span>
+          </div>
+          <div class="requirement" id="signupEmailValid">
+            <i class="fas fa-times"></i>
+            <span>Valid email</span>
+          </div>
+          <div class="requirement" id="signupPasswordValid">
+            <i class="fas fa-times"></i>
+            <span>Password meets requirements</span>
+          </div>
+          <div class="requirement" id="signupPasswordMatch">
+            <i class="fas fa-times"></i>
+            <span>Passwords match</span>
+          </div>
+          <div class="requirement" id="signupRecaptchaValid">
+            <i class="fas fa-times"></i>
+            <span>reCAPTCHA completed</span>
+          </div>
         </div>
         
         <!-- reCAPTCHA for signup -->
@@ -463,10 +493,74 @@
     const recaptchaLoginError = document.getElementById('recaptchaLoginError');
     const recaptchaSignupError = document.getElementById('recaptchaSignupError');
 
-    // Password requirement elements
-    const reqLength = document.getElementById('req-length');
-    const reqUppercase = document.getElementById('req-uppercase');
-    const reqLowercase = document.getElementById('req-lowercase');
+    // Requirements elements
+    const loginAccountValid = document.getElementById('loginAccountValid');
+    const loginPasswordValid = document.getElementById('loginPasswordValid');
+    const loginRecaptchaValid = document.getElementById('loginRecaptchaValid');
+    const signupUsernameValid = document.getElementById('signupUsernameValid');
+    const signupEmailValid = document.getElementById('signupEmailValid');
+    const signupPasswordValid = document.getElementById('signupPasswordValid');
+    const signupPasswordMatch = document.getElementById('signupPasswordMatch');
+    const signupRecaptchaValid = document.getElementById('signupRecaptchaValid');
+
+    // Validation states
+    const validationStates = {
+      login: {
+        account: false,
+        password: false,
+        recaptcha: false
+      },
+      signup: {
+        username: false,
+        email: false,
+        password: false,
+        passwordMatch: false,
+        recaptcha: false
+      }
+    };
+
+    // Update requirement status
+    function updateRequirement(element, isValid) {
+      element.classList.toggle('valid', isValid);
+      element.classList.toggle('invalid', !isValid);
+      element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
+    }
+
+    // Check email validity
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Check username validity
+    function isValidUsername(username) {
+      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check password validity
+    function isValidPassword(password) {
+      return password.length >= 5 && /[A-Z]/.test(password) && /[a-z]/.test(password);
+    }
+
+    // Check if passwords match
+    function checkPasswordMatch() {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      
+      if (password && confirmPassword) {
+        const isMatch = password === confirmPassword;
+        validationStates.signup.passwordMatch = isMatch;
+        updateRequirement(signupPasswordMatch, isMatch);
+        
+        if (!isMatch) {
+          passwordMatchError.style.display = 'block';
+          return false;
+        } else {
+          passwordMatchError.style.display = 'none';
+          return true;
+        }
+      }
+      return false;
+    }
 
     // reCAPTCHA state
     let recaptchaCompleted = {
@@ -478,9 +572,29 @@
     function onRecaptchaComplete(type) {
       recaptchaCompleted[type] = true;
       if (type === 'login') {
+        validationStates.login.recaptcha = true;
+        updateRequirement(loginRecaptchaValid, true);
         recaptchaLoginError.style.display = 'none';
       } else {
+        validationStates.signup.recaptcha = true;
+        updateRequirement(signupRecaptchaValid, true);
         recaptchaSignupError.style.display = 'none';
+      }
+    }
+
+    // Track reCAPTCHA expiration
+    function onRecaptchaExpired(type) {
+      recaptchaCompleted[type] = false;
+      if (type === 'login') {
+        validationStates.login.recaptcha = false;
+        updateRequirement(loginRecaptchaValid, false);
+        recaptchaLoginError.textContent = 'reCAPTCHA expired - please complete again';
+        recaptchaLoginError.style.display = 'block';
+      } else {
+        validationStates.signup.recaptcha = false;
+        updateRequirement(signupRecaptchaValid, false);
+        recaptchaSignupError.textContent = 'reCAPTCHA expired - please complete again';
+        recaptchaSignupError.style.display = 'block';
       }
     }
 
@@ -556,55 +670,76 @@
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
-    // Check password requirements
-    function checkPasswordRequirements(password) {
-      // Check length
-      const hasLength = password.length >= 5;
-      reqLength.classList.toggle('valid', hasLength);
-      reqLength.classList.toggle('invalid', !hasLength);
-      reqLength.querySelector('i').className = hasLength ? 'fas fa-check' : 'fas fa-times';
-
-      // Check uppercase
-      const hasUppercase = /[A-Z]/.test(password);
-      reqUppercase.classList.toggle('valid', hasUppercase);
-      reqUppercase.classList.toggle('invalid', !hasUppercase);
-      reqUppercase.querySelector('i').className = hasUppercase ? 'fas fa-check' : 'fas fa-times';
-
-      // Check lowercase
-      const hasLowercase = /[a-z]/.test(password);
-      reqLowercase.classList.toggle('valid', hasLowercase);
-      reqLowercase.classList.toggle('invalid', !hasLowercase);
-      reqLowercase.querySelector('i').className = hasLowercase ? 'fas fa-check' : 'fas fa-times';
-
-      return hasLength && hasUppercase && hasLowercase;
-    }
-
-    // Check if passwords match
-    function checkPasswordMatch() {
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
+    // Validate login inputs
+    function validateLoginInputs() {
+      const emailOrUsername = loginEmail.value;
+      const password = loginPassword.value;
       
-      if (password && confirmPassword) {
-        if (password !== confirmPassword) {
-          passwordMatchError.style.display = 'block';
-          return false;
-        } else {
-          passwordMatchError.style.display = 'none';
-          return true;
-        }
-      }
-      return false;
+      // Check if account exists (simplified - actual check happens on server)
+      const hasAccount = emailOrUsername.length > 0;
+      validationStates.login.account = hasAccount;
+      updateRequirement(loginAccountValid, hasAccount);
+      
+      // Check password
+      const hasPassword = password.length > 0;
+      validationStates.login.password = hasPassword;
+      updateRequirement(loginPasswordValid, hasPassword);
+      
+      return hasAccount && hasPassword;
     }
 
-    // Password validation event listeners
-    signupPassword.addEventListener('input', () => {
-      checkPasswordRequirements(signupPassword.value);
-      if (signupConfirmPassword.value) {
-        checkPasswordMatch();
-      }
+    // Validate signup inputs
+    function validateSignupInputs() {
+      const username = signupUsername.value;
+      const email = signupEmail.value;
+      const password = signupPassword.value;
+      
+      // Check username
+      const isUsernameValid = isValidUsername(username);
+      validationStates.signup.username = isUsernameValid;
+      updateRequirement(signupUsernameValid, isUsernameValid);
+      
+      // Check email
+      const isEmailValid = isValidEmail(email);
+      validationStates.signup.email = isEmailValid;
+      updateRequirement(signupEmailValid, isEmailValid);
+      
+      // Check password
+      const isPasswordValid = isValidPassword(password);
+      validationStates.signup.password = isPasswordValid;
+      updateRequirement(signupPasswordValid, isPasswordValid);
+      
+      // Check password match
+      checkPasswordMatch();
+      
+      return isUsernameValid && isEmailValid && isPasswordValid && validationStates.signup.passwordMatch;
+    }
+
+    // Input event listeners for login
+    loginEmail.addEventListener('input', () => {
+      validateLoginInputs();
     });
 
-    signupConfirmPassword.addEventListener('input', checkPasswordMatch);
+    loginPassword.addEventListener('input', () => {
+      validateLoginInputs();
+    });
+
+    // Input event listeners for signup
+    signupUsername.addEventListener('input', () => {
+      validateSignupInputs();
+    });
+
+    signupEmail.addEventListener('input', () => {
+      validateSignupInputs();
+    });
+
+    signupPassword.addEventListener('input', () => {
+      validateSignupInputs();
+    });
+
+    signupConfirmPassword.addEventListener('input', () => {
+      validateSignupInputs();
+    });
 
     // Check Auth State - redirect if already logged in
     auth.onAuthStateChanged(user => {
@@ -616,15 +751,15 @@
 
     // Email Login
     loginBtn.addEventListener('click', () => {
-      const email = loginEmail.value;
+      const emailOrUsername = loginEmail.value;
       const password = loginPassword.value;
       
       // Clear previous errors
       loginError.style.display = 'none';
       
-      // Basic email validation
-      if (!email.includes('@') || !email.includes('.')) {
-        loginError.textContent = 'Please enter a valid email address';
+      // Validate inputs
+      if (!validateLoginInputs()) {
+        loginError.textContent = 'Please complete all requirements';
         loginError.style.display = 'block';
         return;
       }
@@ -634,28 +769,49 @@
         return;
       }
       
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          // Login successful, handled by auth state change
-          if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset(loginRecaptcha);
-            recaptchaCompleted.login = false;
-          }
-        })
-        .catch(error => {
-          if (typeof grecaptcha !== 'undefined') {
-            grecaptcha.reset(loginRecaptcha);
-            recaptchaCompleted.login = false;
-          }
-          if (error.code === 'auth/user-not-found') {
-            loginError.textContent = 'No account found with this email';
-          } else if (error.code === 'auth/wrong-password') {
-            loginError.textContent = 'Incorrect password';
-          } else {
-            loginError.textContent = error.message;
-          }
-          loginError.style.display = 'block';
-        });
+      // Determine if input is email or username
+      const isEmail = emailOrUsername.includes('@');
+      
+      if (isEmail) {
+        // Login with email
+        auth.signInWithEmailAndPassword(emailOrUsername, password)
+          .then(() => {
+            // Login successful, handled by auth state change
+            if (typeof grecaptcha !== 'undefined') {
+              grecaptcha.reset(loginRecaptcha);
+              recaptchaCompleted.login = false;
+              validationStates.login.recaptcha = false;
+              updateRequirement(loginRecaptchaValid, false);
+            }
+          })
+          .catch(error => {
+            if (typeof grecaptcha !== 'undefined') {
+              grecaptcha.reset(loginRecaptcha);
+              recaptchaCompleted.login = false;
+              validationStates.login.recaptcha = false;
+              updateRequirement(loginRecaptchaValid, false);
+            }
+            
+            // Update requirements based on error
+            if (error.code === 'auth/user-not-found') {
+              validationStates.login.account = false;
+              updateRequirement(loginAccountValid, false);
+              loginError.textContent = 'No account found with this email';
+            } else if (error.code === 'auth/wrong-password') {
+              validationStates.login.password = false;
+              updateRequirement(loginPasswordValid, false);
+              loginError.textContent = 'Incorrect password';
+            } else {
+              loginError.textContent = error.message;
+            }
+            loginError.style.display = 'block';
+          });
+      } else {
+        // For username login, we'd need to look up the email first
+        // This is a simplified version - in a real app you'd need a backend service
+        loginError.textContent = 'Username login not yet implemented - please use email';
+        loginError.style.display = 'block';
+      }
     });
 
     // Email Sign Up
@@ -669,29 +825,10 @@
       signupError.style.display = 'none';
       passwordMatchError.style.display = 'none';
       
-      // Validation
-      if (!username) {
-        signupError.textContent = 'Please enter a username';
+      // Validate inputs
+      if (!validateSignupInputs()) {
+        signupError.textContent = 'Please complete all requirements';
         signupError.style.display = 'block';
-        return;
-      }
-      
-      if (!email.includes('@') || !email.includes('.')) {
-        signupError.textContent = 'Please enter a valid email address';
-        signupError.style.display = 'block';
-        return;
-      }
-      
-      // Check password requirements
-      if (!checkPasswordRequirements(password)) {
-        signupError.textContent = 'Please meet all password requirements';
-        signupError.style.display = 'block';
-        return;
-      }
-      
-      // Check password match
-      if (password !== confirmPassword) {
-        passwordMatchError.style.display = 'block';
         return;
       }
       
@@ -708,7 +845,12 @@
             if (typeof grecaptcha !== 'undefined') {
               grecaptcha.reset(signupRecaptcha);
               recaptchaCompleted.signup = false;
+              validationStates.signup.recaptcha = false;
+              updateRequirement(signupRecaptchaValid, false);
             }
+            
+            validationStates.signup.email = false;
+            updateRequirement(signupEmailValid, false);
             signupError.textContent = 'This email is already in use';
             signupError.style.display = 'block';
           } else {
@@ -729,10 +871,24 @@
                 if (typeof grecaptcha !== 'undefined') {
                   grecaptcha.reset(signupRecaptcha);
                   recaptchaCompleted.signup = false;
+                  validationStates.signup.recaptcha = false;
+                  updateRequirement(signupRecaptchaValid, false);
                 }
                 // Show verification message
                 verificationMessage.style.display = 'block';
                 signupForm.reset();
+                
+                // Reset all validation states
+                Object.keys(validationStates.signup).forEach(key => {
+                  validationStates.signup[key] = false;
+                });
+                
+                // Update all requirement indicators
+                updateRequirement(signupUsernameValid, false);
+                updateRequirement(signupEmailValid, false);
+                updateRequirement(signupPasswordValid, false);
+                updateRequirement(signupPasswordMatch, false);
+                updateRequirement(signupRecaptchaValid, false);
               });
           }
         })
@@ -740,6 +896,8 @@
           if (typeof grecaptcha !== 'undefined') {
             grecaptcha.reset(signupRecaptcha);
             recaptchaCompleted.signup = false;
+            validationStates.signup.recaptcha = false;
+            updateRequirement(signupRecaptchaValid, false);
           }
           signupError.textContent = error.message;
           signupError.style.display = 'block';
@@ -786,6 +944,14 @@
       onRecaptchaComplete('signup');
     };
 
+    window.onLoginRecaptchaExpired = function() {
+      onRecaptchaExpired('login');
+    };
+
+    window.onSignupRecaptchaExpired = function() {
+      onRecaptchaExpired('signup');
+    };
+
     // Update reCAPTCHA elements to use callbacks
     document.addEventListener('DOMContentLoaded', () => {
       if (typeof grecaptcha !== 'undefined') {
@@ -794,7 +960,9 @@
         
         // Update reCAPTCHA elements to use callbacks
         loginRecaptcha.setAttribute('data-callback', 'onLoginRecaptchaComplete');
+        loginRecaptcha.setAttribute('data-expired-callback', 'onLoginRecaptchaExpired');
         signupRecaptcha.setAttribute('data-callback', 'onSignupRecaptchaComplete');
+        signupRecaptcha.setAttribute('data-expired-callback', 'onSignupRecaptchaExpired');
       }
     });
   </script>
