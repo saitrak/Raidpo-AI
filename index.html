@@ -912,7 +912,7 @@
       if (userProfileInfo.classList.contains('active')) {
         profileMenuTimeout = setTimeout(() => {
           userProfileInfo.classList.remove('active');
-        }, 1500);
+        }, 800); // Changed from 1500 to 800
       }
     });
 
@@ -920,7 +920,7 @@
       if (userProfileInfo.classList.contains('active')) {
         profileMenuTimeout = setTimeout(() => {
           userProfileInfo.classList.remove('active');
-        }, 1500);
+        }, 800); // Changed from 1500 to 800
       }
     });
 
@@ -932,7 +932,7 @@
     userProfileInfo.addEventListener('mouseleave', () => {
       profileMenuTimeout = setTimeout(() => {
         userProfileInfo.classList.remove('active');
-      }, 1500);
+      }, 800); // Changed from 1500 to 800
     });
 
     // Update user profile with photo if available
