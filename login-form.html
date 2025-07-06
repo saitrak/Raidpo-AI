@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <!-- reCAPTCHA -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
   <style>
     /* General Styles */
     * {
@@ -727,8 +727,8 @@
 
     // Countdown timer for requirements menu
     let countdownTimer;
-    let recaptchaCompleted = false;
     let recaptchaWidgetId;
+    let recaptchaCompleted = false;
 
     // Custom error messages mapping
     const errorMessages = {
@@ -762,6 +762,47 @@
       return errorMessages[code] || error.message || errorMessages['default'];
     }
 
+    // reCAPTCHA load callback
+    function onRecaptchaLoad() {
+      // Initialize reCAPTCHA when the API is loaded
+      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+        callback: onSecurityRecaptchaComplete,
+        'expired-callback': onRecaptchaExpired,
+        'error-callback': onRecaptchaError
+      });
+    }
+
+    // reCAPTCHA completion callback
+    function onSecurityRecaptchaComplete(token) {
+      recaptchaCompleted = true;
+      challengeComplete.style.display = 'block';
+      
+      // After completing reCAPTCHA, show auth page after short delay
+      setTimeout(() => {
+        securityChallenge.style.display = 'none';
+        authPage.style.display = 'flex';
+      }, 1000);
+    }
+
+    // reCAPTCHA expired callback
+    function onRecaptchaExpired() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
+
+    // reCAPTCHA error callback
+    function onRecaptchaError() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
+
     // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
@@ -774,14 +815,9 @@
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
           
-          // Initialize reCAPTCHA
-          if (typeof grecaptcha !== 'undefined') {
-            recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-              sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-              callback: onSecurityRecaptchaComplete,
-              'expired-callback': onRecaptchaExpired,
-              'error-callback': onRecaptchaError
-            });
+          // Initialize reCAPTCHA if not already loaded
+          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+            onRecaptchaLoad();
           }
         }
       });
@@ -814,7 +850,7 @@
 
     // Check password validity
     function isValidPassword(password) {
-      const hasLength = password.length >= 6; // Changed from 5 to 6
+      const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
@@ -1033,32 +1069,6 @@
       validationStates.signup.passwordMatch = isPasswordMatch;
       
       return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
-    }
-
-    // reCAPTCHA callback for security challenge
-    function onSecurityRecaptchaComplete(token) {
-      recaptchaCompleted = true;
-      challengeComplete.style.display = 'block';
-      
-      // After completing reCAPTCHA, show auth page after short delay
-      setTimeout(() => {
-        securityChallenge.style.display = 'none';
-        authPage.style.display = 'flex';
-      }, 1000);
-    }
-
-    // reCAPTCHA expired callback
-    function onRecaptchaExpired() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      grecaptcha.reset(recaptchaWidgetId);
-    }
-
-    // reCAPTCHA error callback
-    function onRecaptchaError() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      grecaptcha.reset(recaptchaWidgetId);
     }
 
     // Email Login
