@@ -13,6 +13,10 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     /* General Styles */
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
@@ -20,6 +24,7 @@
       color: #fff;
       background-color: #0f0f0f;
       overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
     h1, h2, h3 {
@@ -69,6 +74,7 @@
       min-height: 100vh;
       background: linear-gradient(135deg, #ff6f61, #ff3b2f);
       position: relative;
+      padding: 20px;
     }
 
     .close-button {
@@ -79,13 +85,16 @@
       color: #fff;
       cursor: pointer;
       z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
     }
 
     .auth-container {
       background-color: #1a1a1a;
       padding: 2rem;
       border-radius: 10px;
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       position: relative;
@@ -97,12 +106,13 @@
     }
 
     .auth-header h1 {
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
       margin-bottom: 0.5rem;
     }
 
     .auth-header p {
       color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .auth-tabs {
@@ -117,6 +127,7 @@
       padding: 1rem;
       cursor: pointer;
       position: relative;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .auth-tab.active {
@@ -149,7 +160,7 @@
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
-      font-size: 0.9rem;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
       color: #ccc;
     }
 
@@ -160,7 +171,7 @@
       border-radius: 5px;
       background-color: #333;
       color: #fff;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .form-group input:focus {
@@ -174,6 +185,9 @@
       top: 35px;
       cursor: pointer;
       color: #ccc;
+      background: none;
+      border: none;
+      padding: 5px;
     }
 
     .auth-btn {
@@ -183,7 +197,7 @@
       color: #fff;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.3s;
@@ -200,7 +214,7 @@
       color: #fff;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.3s;
@@ -218,7 +232,7 @@
       color: #fff;
       border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.3s;
@@ -230,58 +244,69 @@
     }
 
     /* Requirements Menu */
-    .requirements-menu {
+    .requirements-overlay {
       position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .requirements-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .requirements-menu {
       background-color: #1a1a1a;
       border: 1px solid #ff6f61;
       border-radius: 10px;
-      padding: 15px;
+      padding: 20px;
       width: 90%;
       max-width: 400px;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      z-index: 100;
-      display: none;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
     }
 
-    .requirements-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
+    .requirements-overlay.active .requirements-menu {
+      transform: translateY(0);
     }
 
     .requirements-title {
       font-weight: bold;
       color: #ff6f61;
-    }
-
-    .close-requirements {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 1.2rem;
-      cursor: pointer;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: clamp(1rem, 4vw, 1.2rem);
     }
 
     .requirements-list {
       list-style-type: none;
       padding: 0;
-      margin: 0;
+      margin: 0 0 15px 0;
     }
 
     .requirement-item {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
+      margin-bottom: 10px;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
     }
 
     .requirement-item i {
-      margin-right: 8px;
-      font-size: 0.8rem;
+      margin-right: 10px;
+      font-size: 0.9rem;
+      min-width: 16px;
     }
 
     .requirement-item.valid i {
@@ -290,6 +315,21 @@
 
     .requirement-item.invalid i {
       color: #ff6f61;
+    }
+
+    .countdown-bar {
+      height: 4px;
+      background-color: #333;
+      border-radius: 2px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .countdown-progress {
+      height: 100%;
+      background-color: #ff6f61;
+      width: 0%;
+      transition: width 2s linear;
     }
 
     /* reCAPTCHA container */
@@ -303,7 +343,7 @@
     .password-requirements {
       display: none;
       margin-top: 0.5rem;
-      font-size: 0.8rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
       color: #ccc;
     }
 
@@ -331,7 +371,7 @@
       display: flex;
       align-items: center;
       margin: 1rem 0;
-      font-size: 0.8rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
       color: #ccc;
     }
 
@@ -364,11 +404,13 @@
     .verification-message h2 {
       margin-bottom: 1rem;
       color: #ff6f61;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
     }
 
     .verification-message p {
       margin-bottom: 1.5rem;
       color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     .verification-message button {
@@ -379,16 +421,57 @@
       border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
+    /* Auth Footer Links */
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
+    .auth-footer a {
+      color: #ff6f61;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 480px) {
       .auth-container {
         padding: 1.5rem;
       }
       
       .auth-header h1 {
-        font-size: 2rem;
+        margin-bottom: 0.3rem;
+      }
+      
+      .auth-tab {
+        padding: 0.8rem;
+      }
+      
+      .form-group input {
+        padding: 0.7rem;
+      }
+      
+      .auth-btn, .google-btn, .apple-btn {
+        padding: 0.8rem;
+      }
+      
+      .requirements-menu {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .auth-container {
+        padding: 1.2rem;
+      }
+      
+      .auth-tab {
+        padding: 0.6rem;
       }
     }
   </style>
@@ -401,7 +484,7 @@
 
   <!-- Auth Page -->
   <div class="auth-page" id="authPage" style="display: none;">
-    <a href="https://raidpo-ai.netlify.app/" class="close-button"><i class="fas fa-times"></i></a>
+    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
     
     <div class="auth-container">
       <div class="auth-header">
@@ -423,7 +506,7 @@
         <div class="form-group">
           <label for="loginPassword">Password</label>
           <input type="password" id="loginPassword" placeholder="Enter your password" required>
-          <i class="fas fa-eye password-toggle" id="toggleLoginPassword"></i>
+          <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
         </div>
         
         <!-- reCAPTCHA for login -->
@@ -438,7 +521,7 @@
         </button>
         
         <div class="auth-footer">
-          Don't have an account? <a href="#" id="switchToSignup">Sign up</a>
+          Don't have an account? <a href="#" id="switchToSignup">Register</a>
         </div>
       </div>
       
@@ -456,7 +539,7 @@
         <div class="form-group">
           <label for="signupPassword">Password</label>
           <input type="password" id="signupPassword" placeholder="Create a password" required>
-          <i class="fas fa-eye password-toggle" id="toggleSignupPassword"></i>
+          <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
           <div class="password-requirements" id="signupPasswordRequirements">
             <div class="requirement" id="req-length">
               <i class="fas fa-times"></i>
@@ -476,7 +559,7 @@
         <div class="form-group">
           <label for="signupConfirmPassword">Confirm Password</label>
           <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
-          <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+          <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
         </div>
         
         <!-- Terms and conditions checkbox -->
@@ -497,21 +580,23 @@
         </button>
         
         <div class="auth-footer">
-          Already have an account? <a href="#" id="switchToLogin">Login</a>
+          Already have an account? <a href="#" id="switchToLogin">Sign in</a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Requirements Menu -->
-  <div class="requirements-menu" id="requirementsMenu">
-    <div class="requirements-header">
+  <!-- Requirements Overlay -->
+  <div class="requirements-overlay" id="requirementsOverlay">
+    <div class="requirements-menu">
       <div class="requirements-title">Complete these requirements</div>
-      <button class="close-requirements" id="closeRequirements"><i class="fas fa-times"></i></button>
+      <ul class="requirements-list" id="requirementsList">
+        <!-- Will be populated dynamically -->
+      </ul>
+      <div class="countdown-bar">
+        <div class="countdown-progress" id="countdownProgress"></div>
+      </div>
     </div>
-    <ul class="requirements-list" id="requirementsList">
-      <!-- Will be populated dynamically -->
-    </ul>
   </div>
 
   <!-- Verification Message -->
@@ -542,6 +627,7 @@
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
     const authPage = document.getElementById('authPage');
+    const closeButton = document.getElementById('closeButton');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const loginBtn = document.getElementById('loginBtn');
@@ -568,9 +654,9 @@
     const signupRecaptcha = document.getElementById('signupRecaptcha');
     const acceptTerms = document.getElementById('acceptTerms');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
-    const requirementsMenu = document.getElementById('requirementsMenu');
+    const requirementsOverlay = document.getElementById('requirementsOverlay');
     const requirementsList = document.getElementById('requirementsList');
-    const closeRequirements = document.getElementById('closeRequirements');
+    const countdownProgress = document.getElementById('countdownProgress');
 
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
@@ -603,6 +689,9 @@
       signup: false
     };
 
+    // Countdown timer for requirements menu
+    let countdownTimer;
+
     // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
@@ -617,6 +706,11 @@
         }
       });
     }, 3000);
+
+    // Close button functionality
+    closeButton.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
 
     // Update requirement status
     function updateRequirement(element, isValid) {
@@ -647,6 +741,7 @@
       updateRequirement(reqLowercase, hasLowercase);
       
       validationStates.signup.password = hasLength && hasUppercase && hasLowercase;
+      showRequirementsMenuIfNeeded();
       return validationStates.signup.password;
     }
 
@@ -658,6 +753,7 @@
       if (password && confirmPassword) {
         const isMatch = password === confirmPassword;
         validationStates.signup.passwordMatch = isMatch;
+        showRequirementsMenuIfNeeded();
         return isMatch;
       }
       return false;
@@ -667,18 +763,18 @@
     function onRecaptchaComplete(type) {
       recaptchaCompleted[type] = true;
       validationStates[type].recaptcha = true;
-      showRequirementsMenu();
+      showRequirementsMenuIfNeeded();
     }
 
     // Track reCAPTCHA expiration
     function onRecaptchaExpired(type) {
       recaptchaCompleted[type] = false;
       validationStates[type].recaptcha = false;
-      showRequirementsMenu();
+      showRequirementsMenuIfNeeded();
     }
 
-    // Show requirements menu with all unmet requirements
-    function showRequirementsMenu() {
+    // Show requirements menu if there are unmet requirements
+    function showRequirementsMenuIfNeeded() {
       const isLogin = loginForm.classList.contains('active');
       const requirements = [];
       
@@ -724,31 +820,54 @@
         }
       }
       
-      // Only show menu if there are requirements to show
       if (requirements.length > 0) {
-        requirementsList.innerHTML = '';
-        requirements.forEach(req => {
-          const li = document.createElement('li');
-          li.className = 'requirement-item invalid';
-          li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-          requirementsList.appendChild(li);
-        });
-        requirementsMenu.style.display = 'block';
-      } else {
-        requirementsMenu.style.display = 'none';
+        showRequirementsMenu(requirements);
       }
     }
 
-    // Close requirements menu
-    closeRequirements.addEventListener('click', () => {
-      requirementsMenu.style.display = 'none';
-    });
+    // Show requirements menu
+    function showRequirementsMenu(requirements) {
+      // Clear any existing timer
+      if (countdownTimer) {
+        clearTimeout(countdownTimer);
+      }
+      
+      // Populate requirements list
+      requirementsList.innerHTML = '';
+      requirements.forEach(req => {
+        const li = document.createElement('li');
+        li.className = 'requirement-item invalid';
+        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
+        requirementsList.appendChild(li);
+      });
+      
+      // Show overlay and menu
+      requirementsOverlay.classList.add('active');
+      
+      // Start countdown animation
+      countdownProgress.style.width = '0%';
+      setTimeout(() => {
+        countdownProgress.style.width = '100%';
+      }, 10);
+      
+      // Set timer to hide after 2 seconds
+      countdownTimer = setTimeout(() => {
+        hideRequirementsMenu();
+      }, 2000);
+    }
+
+    // Hide requirements menu
+    function hideRequirementsMenu() {
+      requirementsOverlay.classList.remove('active');
+    }
 
     // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
       const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
       inputElement.setAttribute('type', type);
-      toggleElement.classList.toggle('fa-eye-slash');
+      const icon = toggleElement.querySelector('i');
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
     }
 
     // Show password requirements when password field is focused
@@ -790,8 +909,8 @@
           signupForm.classList.add('active');
         }
         
-        // Reset requirements menu when switching tabs
-        requirementsMenu.style.display = 'none';
+        // Hide requirements menu when switching tabs
+        hideRequirementsMenu();
       });
     });
 
@@ -815,7 +934,7 @@
     // Terms checkbox change
     acceptTerms.addEventListener('change', () => {
       validationStates.signup.termsAccepted = acceptTerms.checked;
-      showRequirementsMenu();
+      showRequirementsMenuIfNeeded();
     });
 
     // Validate login inputs
@@ -827,7 +946,7 @@
       validationStates.login.emailOrUsername = emailOrUsername.length > 0;
       validationStates.login.password = password.length > 0;
       
-      showRequirementsMenu();
+      showRequirementsMenuIfNeeded();
       return validationStates.login.emailOrUsername && validationStates.login.password;
     }
 
@@ -854,8 +973,32 @@
       const isPasswordMatch = checkPasswordMatch();
       validationStates.signup.passwordMatch = isPasswordMatch;
       
-      showRequirementsMenu();
+      showRequirementsMenuIfNeeded();
       return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
+    }
+
+    // Check if all login requirements are met
+    function allLoginRequirementsMet() {
+      return (
+        validationStates.login.emailOrUsername &&
+        validationStates.login.password &&
+        validationStates.login.recaptcha &&
+        validationStates.login.accountExists &&
+        validationStates.login.passwordCorrect
+      );
+    }
+
+    // Check if all signup requirements are met
+    function allSignupRequirementsMet() {
+      return (
+        validationStates.signup.username &&
+        validationStates.signup.email &&
+        validationStates.signup.password &&
+        validationStates.signup.passwordMatch &&
+        validationStates.signup.recaptcha &&
+        validationStates.signup.termsAccepted &&
+        validationStates.signup.emailAvailable
+      );
     }
 
     // Input event listeners for login
@@ -896,7 +1039,7 @@
       
       // Check if reCAPTCHA is completed
       if (!validationStates.login.recaptcha) {
-        showRequirementsMenu();
+        showRequirementsMenuIfNeeded();
         return;
       }
       
@@ -911,7 +1054,7 @@
           if (signInMethods.length === 0) {
             // Email doesn't exist
             validationStates.login.accountExists = false;
-            showRequirementsMenu();
+            showRequirementsMenu(['Account does not exist']);
             return;
           }
           
@@ -939,18 +1082,9 @@
             
             if (error.code === 'auth/wrong-password') {
               validationStates.login.passwordCorrect = false;
-              showRequirementsMenu();
+              showRequirementsMenu(['Incorrect password']);
             } else {
-              // Add error to requirements menu
-              const requirements = [`Error: ${error.message}`];
-              requirementsList.innerHTML = '';
-              requirements.forEach(req => {
-                const li = document.createElement('li');
-                li.className = 'requirement-item invalid';
-                li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-                requirementsList.appendChild(li);
-              });
-              requirementsMenu.style.display = 'block';
+              showRequirementsMenu([`Error: ${error.message}`]);
             }
           }
         } catch (error) {
@@ -959,29 +1093,11 @@
             recaptchaCompleted.login = false;
             validationStates.login.recaptcha = false;
           }
-          // Add error to requirements menu
-          const requirements = [`Error: ${error.message}`];
-          requirementsList.innerHTML = '';
-          requirements.forEach(req => {
-            const li = document.createElement('li');
-            li.className = 'requirement-item invalid';
-            li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-            requirementsList.appendChild(li);
-          });
-          requirementsMenu.style.display = 'block';
+          showRequirementsMenu([`Error: ${error.message}`]);
         }
       } else {
         // For username login, we'd need to look up the email first
-        // This is a simplified version - in a real app you'd need a backend service
-        const requirements = ['Username login not yet implemented - please use email'];
-        requirementsList.innerHTML = '';
-        requirements.forEach(req => {
-          const li = document.createElement('li');
-          li.className = 'requirement-item invalid';
-          li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-          requirementsList.appendChild(li);
-        });
-        requirementsMenu.style.display = 'block';
+        showRequirementsMenu(['Username login not yet implemented - please use email']);
       }
     });
 
@@ -999,13 +1115,13 @@
       
       // Check if reCAPTCHA is completed
       if (!validationStates.signup.recaptcha) {
-        showRequirementsMenu();
+        showRequirementsMenuIfNeeded();
         return;
       }
       
       // Check terms accepted
       if (!validationStates.signup.termsAccepted) {
-        showRequirementsMenu();
+        showRequirementsMenuIfNeeded();
         return;
       }
       
@@ -1022,7 +1138,7 @@
           }
           
           validationStates.signup.emailAvailable = false;
-          showRequirementsMenu();
+          showRequirementsMenu(['Email is already registered']);
           return;
         }
         
@@ -1070,16 +1186,7 @@
           recaptchaCompleted.signup = false;
           validationStates.signup.recaptcha = false;
         }
-        // Add error to requirements menu
-        const requirements = [`Error: ${error.message}`];
-        requirementsList.innerHTML = '';
-        requirements.forEach(req => {
-          const li = document.createElement('li');
-          li.className = 'requirement-item invalid';
-          li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-          requirementsList.appendChild(li);
-        });
-        requirementsMenu.style.display = 'block';
+        showRequirementsMenu([`Error: ${error.message}`]);
       }
     });
 
@@ -1090,16 +1197,7 @@
           // Google auth successful, handled by auth state change
         })
         .catch(error => {
-          // Add error to requirements menu
-          const requirements = [`Error: ${error.message}`];
-          requirementsList.innerHTML = '';
-          requirements.forEach(req => {
-            const li = document.createElement('li');
-            li.className = 'requirement-item invalid';
-            li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-            requirementsList.appendChild(li);
-          });
-          requirementsMenu.style.display = 'block';
+          showRequirementsMenu([`Error: ${error.message}`]);
         });
     }
 
@@ -1110,16 +1208,7 @@
           // Apple auth successful, handled by auth state change
         })
         .catch(error => {
-          // Add error to requirements menu
-          const requirements = [`Error: ${error.message}`];
-          requirementsList.innerHTML = '';
-          requirements.forEach(req => {
-            const li = document.createElement('li');
-            li.className = 'requirement-item invalid';
-            li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-            requirementsList.appendChild(li);
-          });
-          requirementsMenu.style.display = 'block';
+          showRequirementsMenu([`Error: ${error.message}`]);
         });
     }
 
