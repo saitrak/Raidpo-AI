@@ -52,9 +52,9 @@
     }
 
     .loading-spinner {
-      width: 70px; /* Increased from 50px */
-      height: 70px; /* Increased from 50px */
-      border: 6px solid #ff6f61; /* Increased from 5px */
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ff6f61;
       border-radius: 50%;
       border-top-color: transparent;
       animation: spin 1s linear infinite;
@@ -729,7 +729,6 @@
     let countdownTimer;
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
-    let authCheckComplete = false;
 
     // Custom error messages mapping
     const errorMessages = {
@@ -761,53 +760,6 @@
     function getErrorMessage(error) {
       const code = error.code || '';
       return errorMessages[code] || error.message || errorMessages['default'];
-    }
-
-    // Smarter loading duration function
-    function handleLoadingScreen() {
-      const minLoadingTime = 1500; // Minimum loading time in milliseconds
-      const maxLoadingTime = 3000; // Maximum loading time in milliseconds
-      const startTime = Date.now();
-      
-      // Check auth state
-      const authCheck = auth.onAuthStateChanged(user => {
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-        
-        setTimeout(() => {
-          loadingScreen.style.display = 'none';
-          authCheckComplete = true;
-          
-          if (user) {
-            // User is signed in, redirect to homepage
-            window.location.href = 'https://raidpo-ai.netlify.app/';
-          } else {
-            // User is not signed in, show security challenge
-            securityChallenge.style.display = 'flex';
-            
-            // Initialize reCAPTCHA if not already loaded
-            if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
-              onRecaptchaLoad();
-            }
-          }
-          
-          // Remove the auth state listener
-          authCheck();
-        }, remainingTime);
-      });
-      
-      // Set maximum loading time as fallback
-      setTimeout(() => {
-        if (!authCheckComplete) {
-          loadingScreen.style.display = 'none';
-          securityChallenge.style.display = 'flex';
-          
-          // Initialize reCAPTCHA if not already loaded
-          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
-            onRecaptchaLoad();
-          }
-        }
-      }, maxLoadingTime);
     }
 
     // reCAPTCHA load callback
@@ -851,8 +803,25 @@
       }
     }
 
-    // Start the smarter loading process
-    handleLoadingScreen();
+    // Show loading screen for 3 seconds and check auth state
+    setTimeout(() => {
+      auth.onAuthStateChanged(user => {
+        loadingScreen.style.display = 'none';
+        
+        if (user) {
+          // User is signed in, redirect to homepage
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        } else {
+          // User is not signed in, show security challenge
+          securityChallenge.style.display = 'flex';
+          
+          // Initialize reCAPTCHA if not already loaded
+          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+            onRecaptchaLoad();
+          }
+        }
+      });
+    }, 3000);
 
     // Close button functionality
     closeButton.addEventListener('click', () => {
