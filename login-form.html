@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login or Register | Raidpo AI</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751796028/clbhmjq9kzv0g3itasrg.png">
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -44,7 +44,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: #0f0f0f;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -52,9 +52,9 @@
     }
 
     .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid #ff6f61;
+      width: 70px; /* Increased from 50px */
+      height: 70px; /* Increased from 50px */
+      border: 6px solid #ff6f61; /* Increased from 5px */
       border-radius: 50%;
       border-top-color: transparent;
       animation: spin 1s linear infinite;
@@ -729,6 +729,7 @@
     let countdownTimer;
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
+    let authCheckComplete = false;
 
     // Custom error messages mapping
     const errorMessages = {
@@ -760,6 +761,53 @@
     function getErrorMessage(error) {
       const code = error.code || '';
       return errorMessages[code] || error.message || errorMessages['default'];
+    }
+
+    // Smarter loading duration function
+    function handleLoadingScreen() {
+      const minLoadingTime = 1500; // Minimum loading time in milliseconds
+      const maxLoadingTime = 3000; // Maximum loading time in milliseconds
+      const startTime = Date.now();
+      
+      // Check auth state
+      const authCheck = auth.onAuthStateChanged(user => {
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+        
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          authCheckComplete = true;
+          
+          if (user) {
+            // User is signed in, redirect to homepage
+            window.location.href = 'https://raidpo-ai.netlify.app/';
+          } else {
+            // User is not signed in, show security challenge
+            securityChallenge.style.display = 'flex';
+            
+            // Initialize reCAPTCHA if not already loaded
+            if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+              onRecaptchaLoad();
+            }
+          }
+          
+          // Remove the auth state listener
+          authCheck();
+        }, remainingTime);
+      });
+      
+      // Set maximum loading time as fallback
+      setTimeout(() => {
+        if (!authCheckComplete) {
+          loadingScreen.style.display = 'none';
+          securityChallenge.style.display = 'flex';
+          
+          // Initialize reCAPTCHA if not already loaded
+          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+            onRecaptchaLoad();
+          }
+        }
+      }, maxLoadingTime);
     }
 
     // reCAPTCHA load callback
@@ -803,25 +851,8 @@
       }
     }
 
-    // Show loading screen for 3 seconds and check auth state
-    setTimeout(() => {
-      auth.onAuthStateChanged(user => {
-        loadingScreen.style.display = 'none';
-        
-        if (user) {
-          // User is signed in, redirect to homepage
-          window.location.href = 'https://raidpo-ai.netlify.app/';
-        } else {
-          // User is not signed in, show security challenge
-          securityChallenge.style.display = 'flex';
-          
-          // Initialize reCAPTCHA if not already loaded
-          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
-            onRecaptchaLoad();
-          }
-        }
-      });
-    }, 3000);
+    // Start the smarter loading process
+    handleLoadingScreen();
 
     // Close button functionality
     closeButton.addEventListener('click', () => {
