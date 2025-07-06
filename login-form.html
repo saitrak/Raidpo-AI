@@ -589,7 +589,7 @@
           <div class="password-requirements" id="signupPasswordRequirements">
             <div class="requirement" id="req-length">
               <i class="fas fa-times"></i>
-              <span>At least 5 characters</span>
+              <span>At least 6 characters</span>
             </div>
             <div class="requirement" id="req-uppercase">
               <i class="fas fa-times"></i>
@@ -728,6 +728,39 @@
     // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaCompleted = false;
+    let recaptchaWidgetId;
+
+    // Custom error messages mapping
+    const errorMessages = {
+      // Common errors
+      'auth/invalid-email': 'Invalid email address',
+      'auth/user-disabled': 'This account has been disabled',
+      'auth/user-not-found': 'Account not found',
+      'auth/wrong-password': 'Incorrect password',
+      'auth/email-already-in-use': 'Email is already registered',
+      'auth/operation-not-allowed': 'This operation is not allowed',
+      'auth/weak-password': 'Password is too weak',
+      'auth/too-many-requests': 'Too many requests. Please try again later.',
+      'auth/requires-recent-login': 'This operation requires recent authentication. Please log in again.',
+      
+      // Sign-up specific
+      'auth/invalid-verification-code': 'Invalid verification code',
+      'auth/invalid-verification-id': 'Invalid verification ID',
+      'auth/missing-verification-code': 'Missing verification code',
+      'auth/missing-verification-id': 'Missing verification ID',
+      
+      // Network errors
+      'auth/network-request-failed': 'Network error. Please check your connection.',
+      
+      // Default
+      'default': 'An error occurred. Please try again.'
+    };
+
+    // Get friendly error message
+    function getErrorMessage(error) {
+      const code = error.code || '';
+      return errorMessages[code] || error.message || errorMessages['default'];
+    }
 
     // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
@@ -740,6 +773,16 @@
         } else {
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
+          
+          // Initialize reCAPTCHA
+          if (typeof grecaptcha !== 'undefined') {
+            recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+              sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+              callback: onSecurityRecaptchaComplete,
+              'expired-callback': onRecaptchaExpired,
+              'error-callback': onRecaptchaError
+            });
+          }
         }
       });
     }, 3000);
@@ -753,7 +796,10 @@
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
-      element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
+      const icon = element.querySelector('i');
+      if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      }
     }
 
     // Check email validity
@@ -768,7 +814,7 @@
 
     // Check password validity
     function isValidPassword(password) {
-      const hasLength = password.length >= 5;
+      const hasLength = password.length >= 6; // Changed from 5 to 6
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
@@ -801,6 +847,16 @@
         clearTimeout(countdownTimer);
       }
       
+      // Reset animation
+      countdownProgress.style.transition = 'none';
+      countdownProgress.style.width = '0%';
+      
+      // Force reflow to reset animation
+      void countdownProgress.offsetWidth;
+      
+      // Re-enable transition
+      countdownProgress.style.transition = 'width 3s linear';
+      
       // Populate requirements list
       requirementsList.innerHTML = '';
       requirements.forEach(req => {
@@ -814,7 +870,6 @@
       requirementsOverlay.classList.add('active');
       
       // Start countdown animation
-      countdownProgress.style.width = '0%';
       setTimeout(() => {
         countdownProgress.style.width = '100%';
       }, 10);
@@ -981,7 +1036,7 @@
     }
 
     // reCAPTCHA callback for security challenge
-    window.onSecurityRecaptchaComplete = function() {
+    function onSecurityRecaptchaComplete(token) {
       recaptchaCompleted = true;
       challengeComplete.style.display = 'block';
       
@@ -990,7 +1045,21 @@
         securityChallenge.style.display = 'none';
         authPage.style.display = 'flex';
       }, 1000);
-    };
+    }
+
+    // reCAPTCHA expired callback
+    function onRecaptchaExpired() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      grecaptcha.reset(recaptchaWidgetId);
+    }
+
+    // reCAPTCHA error callback
+    function onRecaptchaError() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      grecaptcha.reset(recaptchaWidgetId);
+    }
 
     // Email Login
     loginBtn.addEventListener('click', async () => {
@@ -1032,14 +1101,10 @@
             // Login successful, handled by auth state change
             validationStates.login.passwordCorrect = true;
           } catch (error) {
-            if (error.code === 'auth/wrong-password') {
-              showRequirementsMenu(['Incorrect password']);
-            } else {
-              showRequirementsMenu([`Error: ${error.message}`]);
-            }
+            showRequirementsMenu([getErrorMessage(error)]);
           }
         } catch (error) {
-          showRequirementsMenu([`Error: ${error.message}`]);
+          showRequirementsMenu([getErrorMessage(error)]);
         }
       } else {
         // For username login, we'd need to look up the email first
@@ -1108,7 +1173,7 @@
         updateRequirement(reqLowercase, false);
         
       } catch (error) {
-        showRequirementsMenu([`Error: ${error.message}`]);
+        showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
@@ -1119,7 +1184,7 @@
           // Google auth successful, handled by auth state change
         })
         .catch(error => {
-          showRequirementsMenu([`Error: ${error.message}`]);
+          showRequirementsMenu([getErrorMessage(error)]);
         });
     }
 
@@ -1130,7 +1195,7 @@
           // Apple auth successful, handled by auth state change
         })
         .catch(error => {
-          showRequirementsMenu([`Error: ${error.message}`]);
+          showRequirementsMenu([getErrorMessage(error)]);
         });
     }
 
@@ -1139,11 +1204,29 @@
     appleLoginBtn.addEventListener('click', signInWithApple);
     appleSignupBtn.addEventListener('click', signInWithApple);
 
-    // Initialize reCAPTCHA callback function for security challenge
-    document.addEventListener('DOMContentLoaded', () => {
-      if (typeof grecaptcha !== 'undefined') {
-        securityRecaptcha.setAttribute('data-callback', 'onSecurityRecaptchaComplete');
-      }
+    // Input validation listeners
+    signupUsername.addEventListener('input', () => {
+      validationStates.signup.username = isValidUsername(signupUsername.value.trim());
+    });
+
+    signupEmail.addEventListener('input', () => {
+      validationStates.signup.email = isValidEmail(signupEmail.value.trim());
+    });
+
+    signupPassword.addEventListener('input', () => {
+      isValidPassword(signupPassword.value);
+    });
+
+    signupConfirmPassword.addEventListener('input', () => {
+      checkPasswordMatch();
+    });
+
+    loginEmail.addEventListener('input', () => {
+      validationStates.login.emailOrUsername = loginEmail.value.trim().length > 0;
+    });
+
+    loginPassword.addEventListener('input', () => {
+      validationStates.login.password = loginPassword.value.trim().length > 0;
     });
   </script>
 </body>
