@@ -187,11 +187,6 @@
       color: #fff;
     }
 
-    .facebook-btn {
-      background-color: #1877f2;
-      color: #fff;
-    }
-
     .email-btn {
       background-color: #ff6f61;
       color: #fff;
@@ -548,6 +543,14 @@
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
+    /* Error Message */
+    .error-message {
+      color: #ff6f61;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
     /* Close Button */
     .close-button {
       position: absolute;
@@ -655,10 +658,6 @@
           <i class="fab fa-github"></i> Continue with GitHub
         </button>
         
-        <button id="facebookMethodBtn" class="method-btn facebook-btn">
-          <i class="fab fa-facebook-f"></i> Continue with Facebook
-        </button>
-        
         <div class="or-divider">or</div>
         
         <button id="emailMethodBtn" class="method-btn email-btn">
@@ -694,12 +693,14 @@
           <div class="form-group">
             <label for="loginEmail">Email</label>
             <input type="text" id="loginEmail" placeholder="Enter your email" required>
+            <div class="error-message" id="loginEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="loginPasswordError"></div>
           </div>
           
           <button id="loginBtn" class="auth-btn">Login</button>
@@ -713,17 +714,20 @@
           <div class="form-group">
             <label for="signupUsername">Username</label>
             <input type="text" id="signupUsername" placeholder="Choose a username" required>
+            <div class="error-message" id="signupUsernameError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupEmail">Email</label>
             <input type="email" id="signupEmail" placeholder="Enter your email" required>
+            <div class="error-message" id="signupEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupPassword">Password</label>
             <input type="password" id="signupPassword" placeholder="Create a password" required>
             <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupPasswordError"></div>
             <div class="password-requirements" id="signupPasswordRequirements">
               <div class="requirement" id="req-length">
                 <i class="fas fa-times"></i>
@@ -744,6 +748,7 @@
             <label for="signupConfirmPassword">Confirm Password</label>
             <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
             <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupConfirmPasswordError"></div>
           </div>
           
           <button id="signupBtn" class="auth-btn">Sign Up</button>
@@ -794,7 +799,6 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const yahooProvider = new firebase.auth.OAuthProvider('yahoo.com');
     const githubProvider = new firebase.auth.GithubAuthProvider();
-    const facebookProvider = new firebase.auth.FacebookAuthProvider();
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
@@ -806,7 +810,6 @@
     const googleMethodBtn = document.getElementById('googleMethodBtn');
     const yahooMethodBtn = document.getElementById('yahooMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
-    const facebookMethodBtn = document.getElementById('facebookMethodBtn');
     const emailMethodBtn = document.getElementById('emailMethodBtn');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -832,6 +835,14 @@
     const requirementsOverlay = document.getElementById('requirementsOverlay');
     const requirementsList = document.getElementById('requirementsList');
     const countdownProgress = document.getElementById('countdownProgress');
+
+    // Error message elements
+    const loginEmailError = document.getElementById('loginEmailError');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    const signupUsernameError = document.getElementById('signupUsernameError');
+    const signupEmailError = document.getElementById('signupEmailError');
+    const signupPasswordError = document.getElementById('signupPasswordError');
+    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
 
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
@@ -890,6 +901,28 @@
     function getErrorMessage(error) {
       const code = error.code || '';
       return errorMessages[code] || error.message || errorMessages['default'];
+    }
+
+    // Show error message
+    function showError(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    // Hide error message
+    function hideError(element) {
+      element.textContent = '';
+      element.style.display = 'none';
+    }
+
+    // Clear all error messages
+    function clearAllErrors() {
+      hideError(loginEmailError);
+      hideError(loginPasswordError);
+      hideError(signupUsernameError);
+      hideError(signupEmailError);
+      hideError(signupPasswordError);
+      hideError(signupConfirmPasswordError);
     }
 
     // reCAPTCHA load callback
@@ -973,7 +1006,7 @@
       auth.signInWithPopup(googleProvider)
         .then((result) => {
           // Google auth successful, handled by auth state change
-          // Display name is automatically set from Google profile
+          // Display name and photo URL are automatically set from Google profile
         })
         .catch(error => {
           showRequirementsMenu([getErrorMessage(error)]);
@@ -981,16 +1014,34 @@
     });
 
     yahooMethodBtn.addEventListener('click', () => {
+      // Configure Yahoo provider to request profile information
+      yahooProvider.setCustomParameters({
+        'profile': true,
+        'email': true
+      });
+      
       auth.signInWithPopup(yahooProvider)
         .then((result) => {
           // Yahoo auth successful, handled by auth state change
-          // Set display name from Yahoo profile
           const user = result.user;
-          if (user && !user.displayName) {
-            const displayName = user.email.split('@')[0]; // Use email prefix as fallback
-            user.updateProfile({
-              displayName: displayName
-            });
+          const additionalUserInfo = result.additionalUserInfo;
+          
+          // Set display name and photo URL if available
+          if (user && additionalUserInfo && additionalUserInfo.profile) {
+            const profile = additionalUserInfo.profile;
+            const updates = {};
+            
+            if (profile.name && !user.displayName) {
+              updates.displayName = profile.name;
+            }
+            
+            if (profile.picture && !user.photoURL) {
+              updates.photoURL = profile.picture;
+            }
+            
+            if (Object.keys(updates).length > 0) {
+              return user.updateProfile(updates);
+            }
           }
         })
         .catch(error => {
@@ -1002,33 +1053,17 @@
       auth.signInWithPopup(githubProvider)
         .then((result) => {
           // GitHub auth successful, handled by auth state change
-          // Set display name from GitHub profile
           const user = result.user;
           const additionalUserInfo = result.additionalUserInfo;
-          if (user && !user.displayName && additionalUserInfo) {
-            const displayName = additionalUserInfo.username || user.email.split('@')[0];
-            user.updateProfile({
-              displayName: displayName
-            });
-          }
-        })
-        .catch(error => {
-          showRequirementsMenu([getErrorMessage(error)]);
-        });
-    });
-
-    facebookMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(facebookProvider)
-        .then((result) => {
-          // Facebook auth successful, handled by auth state change
-          // Set display name from Facebook profile
-          const user = result.user;
-          const additionalUserInfo = result.additionalUserInfo;
-          if (user && !user.displayName && additionalUserInfo && additionalUserInfo.profile) {
-            const displayName = additionalUserInfo.profile.name || user.email.split('@')[0];
-            user.updateProfile({
-              displayName: displayName
-            });
+          
+          // Set display name from GitHub username if available
+          if (user && additionalUserInfo && !user.displayName) {
+            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
+            if (displayName) {
+              return user.updateProfile({
+                displayName: displayName
+              });
+            }
           }
         })
         .catch(error => {
@@ -1129,40 +1164,6 @@
       requirementsOverlay.classList.remove('active');
     }
 
-    // Check if all requirements are met for login
-    function checkLoginRequirements() {
-      const requirements = [];
-      
-      if (!validationStates.login.email) {
-        requirements.push('Enter your email');
-      }
-      if (!validationStates.login.password) {
-        requirements.push('Enter your password');
-      }
-      
-      return requirements;
-    }
-
-    // Check if all requirements are met for signup
-    function checkSignupRequirements() {
-      const requirements = [];
-      
-      if (!validationStates.signup.username) {
-        requirements.push('Username must be at least 3 characters (letters, numbers, underscores)');
-      }
-      if (!validationStates.signup.email) {
-        requirements.push('Enter a valid email address');
-      }
-      if (!validationStates.signup.password) {
-        requirements.push('Password must meet all requirements');
-      }
-      if (!validationStates.signup.passwordMatch) {
-        requirements.push('Passwords must match');
-      }
-      
-      return requirements;
-    }
-
     // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
       const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -1211,8 +1212,8 @@
           signupForm.classList.add('active');
         }
         
-        // Hide requirements menu when switching tabs
-        hideRequirementsMenu();
+        // Clear all errors when switching tabs
+        clearAllErrors();
       });
     });
 
@@ -1235,40 +1236,85 @@
 
     // Validate login inputs
     function validateLoginInputs() {
+      let isValid = true;
       const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
-      // Basic validation
-      validationStates.login.email = isValidEmail(email);
-      validationStates.login.password = password.length > 0;
+      // Validate email
+      if (!email) {
+        showError(loginEmailError, 'Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        showError(loginEmailError, 'Please enter a valid email');
+        isValid = false;
+      } else {
+        hideError(loginEmailError);
+      }
       
-      return validationStates.login.email && validationStates.login.password;
+      // Validate password
+      if (!password) {
+        showError(loginPasswordError, 'Password is required');
+        isValid = false;
+      } else {
+        hideError(loginPasswordError);
+      }
+      
+      return isValid;
     }
 
     // Validate signup inputs
     function validateSignupInputs() {
+      let isValid = true;
       const username = signupUsername.value.trim();
       const email = signupEmail.value.trim();
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
       
-      // Check username
-      const isUsernameValid = isValidUsername(username);
-      validationStates.signup.username = isUsernameValid;
+      // Validate username
+      if (!username) {
+        showError(signupUsernameError, 'Username is required');
+        isValid = false;
+      } else if (!isValidUsername(username)) {
+        showError(signupUsernameError, 'Username must be at least 3 characters (letters, numbers, underscores)');
+        isValid = false;
+      } else {
+        hideError(signupUsernameError);
+      }
       
-      // Check email
-      const isEmailValid = isValidEmail(email);
-      validationStates.signup.email = isEmailValid;
+      // Validate email
+      if (!email) {
+        showError(signupEmailError, 'Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        showError(signupEmailError, 'Please enter a valid email');
+        isValid = false;
+      } else {
+        hideError(signupEmailError);
+      }
       
-      // Check password
-      const isPasswordValid = isValidPassword(password);
-      validationStates.signup.password = isPasswordValid;
+      // Validate password
+      if (!password) {
+        showError(signupPasswordError, 'Password is required');
+        isValid = false;
+      } else if (!isValidPassword(password)) {
+        showError(signupPasswordError, 'Password must meet all requirements');
+        isValid = false;
+      } else {
+        hideError(signupPasswordError);
+      }
       
-      // Check password match
-      const isPasswordMatch = checkPasswordMatch();
-      validationStates.signup.passwordMatch = isPasswordMatch;
+      // Validate confirm password
+      if (!confirmPassword) {
+        showError(signupConfirmPasswordError, 'Please confirm your password');
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        showError(signupConfirmPasswordError, 'Passwords do not match');
+        isValid = false;
+      } else {
+        hideError(signupConfirmPasswordError);
+      }
       
-      return isUsernameValid && isEmailValid && isPasswordValid && isPasswordMatch;
+      return isValid;
     }
 
     // Email Login
@@ -1277,24 +1323,23 @@
       const password = loginPassword.value.trim();
       
       // Validate inputs
-      validateLoginInputs();
-      
-      // Check requirements
-      const requirements = checkLoginRequirements();
-      
-      if (requirements.length > 0) {
-        showRequirementsMenu(requirements);
+      if (!validateLoginInputs()) {
         return;
       }
       
-      // Attempt to sign in
       try {
+        // Attempt to sign in
         await auth.signInWithEmailAndPassword(email, password);
         
         // Login successful, handled by auth state change
-        validationStates.login.passwordCorrect = true;
       } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
+        // Show appropriate error message
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          showError(loginEmailError, 'Invalid email or password');
+          showError(loginPasswordError, 'Invalid email or password');
+        } else {
+          showRequirementsMenu([getErrorMessage(error)]);
+        }
       }
     });
 
@@ -1306,13 +1351,7 @@
       const confirmPassword = signupConfirmPassword.value.trim();
       
       // Validate inputs
-      validateSignupInputs();
-      
-      // Check requirements
-      const requirements = checkSignupRequirements();
-      
-      if (requirements.length > 0) {
-        showRequirementsMenu(requirements);
+      if (!validateSignupInputs()) {
         return;
       }
       
@@ -1322,12 +1361,9 @@
         
         if (signInMethods.length > 0) {
           // Email already exists
-          showRequirementsMenu(['Email is already registered']);
+          showError(signupEmailError, 'Email is already registered');
           return;
         }
-        
-        // Email doesn't exist, proceed with signup
-        validationStates.signup.emailAvailable = true;
         
         // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -1348,11 +1384,6 @@
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
-        // Reset all validation states
-        Object.keys(validationStates.signup).forEach(key => {
-          validationStates.signup[key] = false;
-        });
-        
         // Reset password requirements
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
@@ -1365,27 +1396,68 @@
 
     // Input validation listeners
     signupUsername.addEventListener('input', () => {
-      validationStates.signup.username = isValidUsername(signupUsername.value.trim());
+      const username = signupUsername.value.trim();
+      if (!username) {
+        showError(signupUsernameError, 'Username is required');
+      } else if (!isValidUsername(username)) {
+        showError(signupUsernameError, 'Username must be at least 3 characters (letters, numbers, underscores)');
+      } else {
+        hideError(signupUsernameError);
+      }
     });
 
     signupEmail.addEventListener('input', () => {
-      validationStates.signup.email = isValidEmail(signupEmail.value.trim());
+      const email = signupEmail.value.trim();
+      if (!email) {
+        showError(signupEmailError, 'Email is required');
+      } else if (!isValidEmail(email)) {
+        showError(signupEmailError, 'Please enter a valid email');
+      } else {
+        hideError(signupEmailError);
+      }
     });
 
     signupPassword.addEventListener('input', () => {
-      isValidPassword(signupPassword.value);
+      const password = signupPassword.value;
+      if (!password) {
+        showError(signupPasswordError, 'Password is required');
+      } else if (!isValidPassword(password)) {
+        showError(signupPasswordError, 'Password must meet all requirements');
+      } else {
+        hideError(signupPasswordError);
+      }
     });
 
     signupConfirmPassword.addEventListener('input', () => {
-      checkPasswordMatch();
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      if (!confirmPassword) {
+        showError(signupConfirmPasswordError, 'Please confirm your password');
+      } else if (password !== confirmPassword) {
+        showError(signupConfirmPasswordError, 'Passwords do not match');
+      } else {
+        hideError(signupConfirmPasswordError);
+      }
     });
 
     loginEmail.addEventListener('input', () => {
-      validationStates.login.email = isValidEmail(loginEmail.value.trim());
+      const email = loginEmail.value.trim();
+      if (!email) {
+        showError(loginEmailError, 'Email is required');
+      } else if (!isValidEmail(email)) {
+        showError(loginEmailError, 'Please enter a valid email');
+      } else {
+        hideError(loginEmailError);
+      }
     });
 
     loginPassword.addEventListener('input', () => {
-      validationStates.login.password = loginPassword.value.trim().length > 0;
+      const password = loginPassword.value;
+      if (!password) {
+        showError(loginPasswordError, 'Password is required');
+      } else {
+        hideError(loginPasswordError);
+      }
     });
   </script>
 </body>
