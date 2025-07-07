@@ -128,7 +128,8 @@
     .method-left {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: cover;
+      background-size: contain;
+      background-color: #0f0f0f;
     }
 
     .method-right {
@@ -241,7 +242,22 @@
     .auth-left {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: cover;
+      background-size: contain;
+      background-color: #0f0f0f;
+      position: relative;
+    }
+
+    .back-to-methods {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
     }
 
     .auth-right {
@@ -649,10 +665,10 @@
 
   <!-- Auth Page -->
   <div class="auth-page" id="authPage">
-    <button class="close-button" id="authCloseButton"><i class="fas fa-times"></i></button>
-    
     <div class="auth-container">
-      <div class="auth-left"></div>
+      <div class="auth-left">
+        <button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button>
+      </div>
       
       <div class="auth-right">
         <div class="auth-header">
@@ -776,7 +792,7 @@
     const methodSelectorPage = document.getElementById('methodSelectorPage');
     const authPage = document.getElementById('authPage');
     const closeButton = document.getElementById('closeButton');
-    const authCloseButton = document.getElementById('authCloseButton');
+    const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
     const yahooMethodBtn = document.getElementById('yahooMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
@@ -838,8 +854,8 @@
       // Common errors
       'auth/invalid-email': 'Invalid email address',
       'auth/user-disabled': 'This account has been disabled',
-      'auth/user-not-found': 'Account not found',
-      'auth/wrong-password': 'Incorrect password',
+      'auth/user-not-found': 'Invalid email/username or password',
+      'auth/wrong-password': 'Invalid email/username or password',
       'auth/email-already-in-use': 'Email is already registered',
       'auth/operation-not-allowed': 'This operation is not allowed',
       'auth/weak-password': 'Password is too weak',
@@ -931,8 +947,9 @@
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
-    authCloseButton.addEventListener('click', () => {
-      window.location.href = 'https://raidpo-ai.netlify.app/';
+    backToMethods.addEventListener('click', () => {
+      authPage.style.display = 'none';
+      methodSelectorPage.style.display = 'block';
     });
 
     // Method selector buttons
@@ -1232,7 +1249,7 @@
           
           if (signInMethods.length === 0) {
             // Email doesn't exist
-            showRequirementsMenu(['Account does not exist']);
+            showRequirementsMenu(['Invalid email/username or password']);
             return;
           }
           
@@ -1252,7 +1269,8 @@
           showRequirementsMenu([getErrorMessage(error)]);
         }
       } else {
-        // For username login, we'd need to look up the email first
+        // For username login, we need to look up the email first
+        // In a real app, you would need a backend service to map usernames to emails
         showRequirementsMenu(['Username login not yet implemented - please use email']);
       }
     });
