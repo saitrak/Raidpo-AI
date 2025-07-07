@@ -128,7 +128,7 @@
     .method-left {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: contain;
+      background-size: cover;
       background-color: #0f0f0f;
     }
 
@@ -187,6 +187,11 @@
       color: #fff;
     }
 
+    .facebook-btn {
+      background-color: #1877f2;
+      color: #fff;
+    }
+
     .email-btn {
       background-color: #ff6f61;
       color: #fff;
@@ -242,7 +247,7 @@
     .auth-left {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: contain;
+      background-size: cover;
       background-color: #0f0f0f;
       position: relative;
     }
@@ -650,6 +655,10 @@
           <i class="fab fa-github"></i> Continue with GitHub
         </button>
         
+        <button id="facebookMethodBtn" class="method-btn facebook-btn">
+          <i class="fab fa-facebook-f"></i> Continue with Facebook
+        </button>
+        
         <div class="or-divider">or</div>
         
         <button id="emailMethodBtn" class="method-btn email-btn">
@@ -683,8 +692,8 @@
         
         <div id="loginForm" class="auth-form active">
           <div class="form-group">
-            <label for="loginEmail">Email or Username</label>
-            <input type="text" id="loginEmail" placeholder="Enter your email or username" required>
+            <label for="loginEmail">Email</label>
+            <input type="text" id="loginEmail" placeholder="Enter your email" required>
           </div>
           
           <div class="form-group">
@@ -785,6 +794,7 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const yahooProvider = new firebase.auth.OAuthProvider('yahoo.com');
     const githubProvider = new firebase.auth.GithubAuthProvider();
+    const facebookProvider = new firebase.auth.FacebookAuthProvider();
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
@@ -796,6 +806,7 @@
     const googleMethodBtn = document.getElementById('googleMethodBtn');
     const yahooMethodBtn = document.getElementById('yahooMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
+    const facebookMethodBtn = document.getElementById('facebookMethodBtn');
     const emailMethodBtn = document.getElementById('emailMethodBtn');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -830,7 +841,7 @@
     // Validation states
     const validationStates = {
       login: {
-        emailOrUsername: false,
+        email: false,
         password: false,
         accountExists: false,
         passwordCorrect: false
@@ -854,8 +865,8 @@
       // Common errors
       'auth/invalid-email': 'Invalid email address',
       'auth/user-disabled': 'This account has been disabled',
-      'auth/user-not-found': 'Invalid email/username or password',
-      'auth/wrong-password': 'Invalid email/username or password',
+      'auth/user-not-found': 'Invalid email or password',
+      'auth/wrong-password': 'Invalid email or password',
       'auth/email-already-in-use': 'Email is already registered',
       'auth/operation-not-allowed': 'This operation is not allowed',
       'auth/weak-password': 'Password is too weak',
@@ -962,6 +973,7 @@
       auth.signInWithPopup(googleProvider)
         .then((result) => {
           // Google auth successful, handled by auth state change
+          // Display name is automatically set from Google profile
         })
         .catch(error => {
           showRequirementsMenu([getErrorMessage(error)]);
@@ -972,6 +984,14 @@
       auth.signInWithPopup(yahooProvider)
         .then((result) => {
           // Yahoo auth successful, handled by auth state change
+          // Set display name from Yahoo profile
+          const user = result.user;
+          if (user && !user.displayName) {
+            const displayName = user.email.split('@')[0]; // Use email prefix as fallback
+            user.updateProfile({
+              displayName: displayName
+            });
+          }
         })
         .catch(error => {
           showRequirementsMenu([getErrorMessage(error)]);
@@ -982,6 +1002,34 @@
       auth.signInWithPopup(githubProvider)
         .then((result) => {
           // GitHub auth successful, handled by auth state change
+          // Set display name from GitHub profile
+          const user = result.user;
+          const additionalUserInfo = result.additionalUserInfo;
+          if (user && !user.displayName && additionalUserInfo) {
+            const displayName = additionalUserInfo.username || user.email.split('@')[0];
+            user.updateProfile({
+              displayName: displayName
+            });
+          }
+        })
+        .catch(error => {
+          showRequirementsMenu([getErrorMessage(error)]);
+        });
+    });
+
+    facebookMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(facebookProvider)
+        .then((result) => {
+          // Facebook auth successful, handled by auth state change
+          // Set display name from Facebook profile
+          const user = result.user;
+          const additionalUserInfo = result.additionalUserInfo;
+          if (user && !user.displayName && additionalUserInfo && additionalUserInfo.profile) {
+            const displayName = additionalUserInfo.profile.name || user.email.split('@')[0];
+            user.updateProfile({
+              displayName: displayName
+            });
+          }
         })
         .catch(error => {
           showRequirementsMenu([getErrorMessage(error)]);
@@ -1085,8 +1133,8 @@
     function checkLoginRequirements() {
       const requirements = [];
       
-      if (!validationStates.login.emailOrUsername) {
-        requirements.push('Enter your email or username');
+      if (!validationStates.login.email) {
+        requirements.push('Enter your email');
       }
       if (!validationStates.login.password) {
         requirements.push('Enter your password');
@@ -1187,14 +1235,14 @@
 
     // Validate login inputs
     function validateLoginInputs() {
-      const emailOrUsername = loginEmail.value.trim();
+      const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
       // Basic validation
-      validationStates.login.emailOrUsername = emailOrUsername.length > 0;
+      validationStates.login.email = isValidEmail(email);
       validationStates.login.password = password.length > 0;
       
-      return validationStates.login.emailOrUsername && validationStates.login.password;
+      return validationStates.login.email && validationStates.login.password;
     }
 
     // Validate signup inputs
@@ -1225,7 +1273,7 @@
 
     // Email Login
     loginBtn.addEventListener('click', async () => {
-      const emailOrUsername = loginEmail.value.trim();
+      const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
       // Validate inputs
@@ -1239,39 +1287,14 @@
         return;
       }
       
-      // Determine if input is email or username
-      const isEmail = emailOrUsername.includes('@');
-      
-      if (isEmail) {
-        // First check if email exists
-        try {
-          const signInMethods = await auth.fetchSignInMethodsForEmail(emailOrUsername);
-          
-          if (signInMethods.length === 0) {
-            // Email doesn't exist
-            showRequirementsMenu(['Invalid email/username or password']);
-            return;
-          }
-          
-          // Email exists, proceed with login
-          validationStates.login.accountExists = true;
-          
-          // Attempt to sign in
-          try {
-            await auth.signInWithEmailAndPassword(emailOrUsername, password);
-            
-            // Login successful, handled by auth state change
-            validationStates.login.passwordCorrect = true;
-          } catch (error) {
-            showRequirementsMenu([getErrorMessage(error)]);
-          }
-        } catch (error) {
-          showRequirementsMenu([getErrorMessage(error)]);
-        }
-      } else {
-        // For username login, we need to look up the email first
-        // In a real app, you would need a backend service to map usernames to emails
-        showRequirementsMenu(['Username login not yet implemented - please use email']);
+      // Attempt to sign in
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        
+        // Login successful, handled by auth state change
+        validationStates.login.passwordCorrect = true;
+      } catch (error) {
+        showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
@@ -1358,7 +1381,7 @@
     });
 
     loginEmail.addEventListener('input', () => {
-      validationStates.login.emailOrUsername = loginEmail.value.trim().length > 0;
+      validationStates.login.email = isValidEmail(loginEmail.value.trim());
     });
 
     loginPassword.addEventListener('input', () => {
