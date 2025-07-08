@@ -25,6 +25,10 @@
       background-color: #0f0f0f;
       overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     h1, h2, h3 {
@@ -115,14 +119,18 @@
     /* Method Selector Page */
     .method-selector-page {
       display: none;
-      min-height: 100vh;
+      width: 95vw;
+      height: 90vh;
       background: linear-gradient(135deg, #ff6f61, #ff3b2f);
       position: relative;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     .method-container {
       display: flex;
-      min-height: 100vh;
+      width: 100%;
+      height: 100%;
     }
 
     .method-left {
@@ -139,6 +147,7 @@
       justify-content: center;
       padding: 2rem;
       background-color: #1a1a1a;
+      overflow-y: auto;
     }
 
     .method-header {
@@ -174,11 +183,6 @@
 
     .google-btn {
       background-color: #4285F4;
-      color: #fff;
-    }
-
-    .yahoo-btn {
-      background-color: #720e9e;
       color: #fff;
     }
 
@@ -229,14 +233,18 @@
     /* Auth Page */
     .auth-page {
       display: none;
-      min-height: 100vh;
+      width: 95vw;
+      height: 90vh;
       background: linear-gradient(135deg, #ff6f61, #ff3b2f);
       position: relative;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     .auth-container {
       display: flex;
-      min-height: 100vh;
+      width: 100%;
+      height: 100%;
     }
 
     .auth-left {
@@ -267,6 +275,7 @@
       justify-content: center;
       padding: 2rem;
       background-color: #1a1a1a;
+      overflow-y: auto;
     }
 
     .auth-header {
@@ -650,10 +659,6 @@
           <i class="fab fa-google"></i> Continue with Google
         </button>
         
-        <button id="yahooMethodBtn" class="method-btn yahoo-btn">
-          <i class="fab fa-yahoo"></i> Continue with Yahoo
-        </button>
-        
         <button id="githubMethodBtn" class="method-btn github-btn">
           <i class="fab fa-github"></i> Continue with GitHub
         </button>
@@ -797,7 +802,6 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const yahooProvider = new firebase.auth.OAuthProvider('yahoo.com');
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
     // DOM Elements
@@ -808,7 +812,6 @@
     const closeButton = document.getElementById('closeButton');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
-    const yahooMethodBtn = document.getElementById('yahooMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
     const emailMethodBtn = document.getElementById('emailMethodBtn');
     const loginForm = document.getElementById('loginForm');
@@ -1007,42 +1010,6 @@
         .then((result) => {
           // Google auth successful, handled by auth state change
           // Display name and photo URL are automatically set from Google profile
-        })
-        .catch(error => {
-          showRequirementsMenu([getErrorMessage(error)]);
-        });
-    });
-
-    yahooMethodBtn.addEventListener('click', () => {
-      // Configure Yahoo provider to request profile information
-      yahooProvider.setCustomParameters({
-        'profile': true,
-        'email': true
-      });
-      
-      auth.signInWithPopup(yahooProvider)
-        .then((result) => {
-          // Yahoo auth successful, handled by auth state change
-          const user = result.user;
-          const additionalUserInfo = result.additionalUserInfo;
-          
-          // Set display name and photo URL if available
-          if (user && additionalUserInfo && additionalUserInfo.profile) {
-            const profile = additionalUserInfo.profile;
-            const updates = {};
-            
-            if (profile.name && !user.displayName) {
-              updates.displayName = profile.name;
-            }
-            
-            if (profile.picture && !user.photoURL) {
-              updates.photoURL = profile.picture;
-            }
-            
-            if (Object.keys(updates).length > 0) {
-              return user.updateProfile(updates);
-            }
-          }
         })
         .catch(error => {
           showRequirementsMenu([getErrorMessage(error)]);
