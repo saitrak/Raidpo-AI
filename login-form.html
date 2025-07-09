@@ -426,11 +426,16 @@
       font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: all 0.3s;
     }
 
     .auth-btn:hover {
       background-color: #ff3b2f;
+    }
+
+    .auth-btn.loading {
+      background-color: #666;
+      cursor: not-allowed;
     }
 
     .password-requirements {
@@ -1022,6 +1027,19 @@
       hideError(signupConfirmPasswordError);
     }
 
+    // Set button loading state
+    function setButtonLoading(button, isLoading, text) {
+      if (isLoading) {
+        button.disabled = true;
+        button.classList.add('loading');
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
+      } else {
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.textContent = text.replace('ing', '');
+      }
+    }
+
     // reCAPTCHA load callback
     function onRecaptchaLoad() {
       // Initialize reCAPTCHA when the API is loaded
@@ -1105,23 +1123,27 @@
     });
 
     googleMethodBtn.addEventListener('click', () => {
+      setButtonLoading(googleMethodBtn, true, 'Continuing with Google...');
       auth.signInWithPopup(googleProvider)
         .then((result) => {
           // Google auth successful, redirect immediately
           window.location.href = 'https://raidpo-ai.netlify.app/';
         })
         .catch(error => {
+          setButtonLoading(googleMethodBtn, false, 'Continue with Google');
           showMiniNotification(getErrorMessage(error));
         });
     });
 
     githubMethodBtn.addEventListener('click', () => {
+      setButtonLoading(githubMethodBtn, true, 'Continuing with GitHub...');
       auth.signInWithPopup(githubProvider)
         .then((result) => {
           // GitHub auth successful, redirect immediately
           window.location.href = 'https://raidpo-ai.netlify.app/';
         })
         .catch(error => {
+          setButtonLoading(githubMethodBtn, false, 'Continue with GitHub');
           showMiniNotification(getErrorMessage(error));
         });
     });
@@ -1417,6 +1439,8 @@
         return;
       }
       
+      setButtonLoading(loginBtn, true, 'Logging in...');
+      
       try {
         // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
@@ -1425,6 +1449,7 @@
         // Check if email is verified
         if (!user.emailVerified) {
           await auth.signOut();
+          setButtonLoading(loginBtn, false, 'Login');
           showRequirementsMenu(['Please verify your email first. Check your inbox for the verification link.']);
           return;
         }
@@ -1432,6 +1457,7 @@
         // Login successful - redirect directly to raidpo-ai.netlify.app
         window.location.href = 'https://raidpo-ai.netlify.app/';
       } catch (error) {
+        setButtonLoading(loginBtn, false, 'Login');
         // Show appropriate error message
         showRequirementsMenu([getErrorMessage(error)]);
       }
@@ -1449,12 +1475,15 @@
         return;
       }
       
+      setButtonLoading(signupBtn, true, 'Registering...');
+      
       try {
         // First check if email exists
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
         
         if (signInMethods.length > 0) {
           // Email already exists
+          setButtonLoading(signupBtn, false, 'Sign Up');
           showRequirementsMenu(['Email already exists. Use a different one.']);
           return;
         }
@@ -1480,6 +1509,7 @@
         window.location.href = 'https://raidpo-ai.netlify.app/';
         
       } catch (error) {
+        setButtonLoading(signupBtn, false, 'Sign Up');
         showRequirementsMenu([getErrorMessage(error)]);
       }
     });
