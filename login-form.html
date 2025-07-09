@@ -468,7 +468,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -619,10 +619,12 @@
       }
       
       .method-left, .auth-left {
-        display: none;
+        height: 30%;
+        min-height: 200px;
       }
       
       .method-right, .auth-right {
+        height: 70%;
         padding: 1.5rem;
       }
     }
@@ -807,7 +809,7 @@
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
-      <div class="requirements-title">Complete these requirements</div>
+      <div class="requirements-title">Please fix these issues</div>
       <ul class="requirements-list" id="requirementsList">
         <!-- Will be populated dynamically -->
       </ul>
@@ -890,23 +892,6 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
 
-    // Validation states
-    const validationStates = {
-      login: {
-        email: false,
-        password: false,
-        accountExists: false,
-        passwordCorrect: false
-      },
-      signup: {
-        username: false,
-        email: false,
-        password: false,
-        passwordMatch: false,
-        emailAvailable: true
-      }
-    };
-
     // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaWidgetId;
@@ -921,7 +906,7 @@
       'auth/wrong-password': 'Invalid email or password',
       'auth/email-already-in-use': 'Email is already registered',
       'auth/operation-not-allowed': 'This operation is not allowed',
-      'auth/weak-password': 'Password is too weak',
+      'auth/weak-password': 'Password must be at least 6 characters with uppercase and lowercase letters',
       'auth/too-many-requests': 'Too many requests. Please try again later.',
       'auth/requires-recent-login': 'This operation requires recent authentication. Please log in again.',
       
@@ -941,7 +926,7 @@
     // Get friendly error message
     function getErrorMessage(error) {
       const code = error.code || '';
-      return errorMessages[code] || error.message || errorMessages['default'];
+      return errorMessages[code] || errorMessages['default'];
     }
 
     // Show error message
@@ -1107,8 +1092,7 @@
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
       
-      validationStates.signup.password = hasLength && hasUppercase && hasLowercase;
-      return validationStates.signup.password;
+      return hasLength && hasUppercase && hasLowercase;
     }
 
     // Check if passwords match
@@ -1117,9 +1101,7 @@
       const confirmPassword = signupConfirmPassword.value;
       
       if (password && confirmPassword) {
-        const isMatch = password === confirmPassword;
-        validationStates.signup.passwordMatch = isMatch;
-        return isMatch;
+        return password === confirmPassword;
       }
       return false;
     }
@@ -1244,24 +1226,25 @@
       let isValid = true;
       const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
+      const errors = [];
       
       // Validate email
       if (!email) {
-        showError(loginEmailError, 'Email is required');
+        errors.push('Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
-        showError(loginEmailError, 'Please enter a valid email');
+        errors.push('Please enter a valid email');
         isValid = false;
-      } else {
-        hideError(loginEmailError);
       }
       
       // Validate password
       if (!password) {
-        showError(loginPasswordError, 'Password is required');
+        errors.push('Password is required');
         isValid = false;
-      } else {
-        hideError(loginPasswordError);
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
       }
       
       return isValid;
@@ -1274,49 +1257,46 @@
       const email = signupEmail.value.trim();
       const password = signupPassword.value.trim();
       const confirmPassword = signupConfirmPassword.value.trim();
+      const errors = [];
       
       // Validate username
       if (!username) {
-        showError(signupUsernameError, 'Username is required');
+        errors.push('Username is required');
         isValid = false;
       } else if (!isValidUsername(username)) {
-        showError(signupUsernameError, 'Username must be at least 3 characters (letters, numbers, underscores)');
+        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
         isValid = false;
-      } else {
-        hideError(signupUsernameError);
       }
       
       // Validate email
       if (!email) {
-        showError(signupEmailError, 'Email is required');
+        errors.push('Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
-        showError(signupEmailError, 'Please enter a valid email');
+        errors.push('Please enter a valid email');
         isValid = false;
-      } else {
-        hideError(signupEmailError);
       }
       
       // Validate password
       if (!password) {
-        showError(signupPasswordError, 'Password is required');
+        errors.push('Password is required');
         isValid = false;
       } else if (!isValidPassword(password)) {
-        showError(signupPasswordError, 'Password must meet all requirements');
+        errors.push('Password must be at least 6 characters with uppercase and lowercase letters');
         isValid = false;
-      } else {
-        hideError(signupPasswordError);
       }
       
       // Validate confirm password
       if (!confirmPassword) {
-        showError(signupConfirmPasswordError, 'Please confirm your password');
+        errors.push('Please confirm your password');
         isValid = false;
       } else if (password !== confirmPassword) {
-        showError(signupConfirmPasswordError, 'Passwords do not match');
+        errors.push('Passwords do not match');
         isValid = false;
-      } else {
-        hideError(signupConfirmPasswordError);
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
       }
       
       return isValid;
@@ -1339,12 +1319,7 @@
         // Login successful, handled by auth state change
       } catch (error) {
         // Show appropriate error message
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          showError(loginEmailError, 'Invalid email or password');
-          showError(loginPasswordError, 'Invalid email or password');
-        } else {
-          showRequirementsMenu([getErrorMessage(error)]);
-        }
+        showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
@@ -1366,7 +1341,7 @@
         
         if (signInMethods.length > 0) {
           // Email already exists
-          showError(signupEmailError, 'Email is already registered');
+          showRequirementsMenu(['Email is already registered']);
           return;
         }
         
@@ -1427,7 +1402,7 @@
       if (!password) {
         showError(signupPasswordError, 'Password is required');
       } else if (!isValidPassword(password)) {
-        showError(signupPasswordError, 'Password must meet all requirements');
+        showError(signupPasswordError, 'Password must be at least 6 characters with uppercase and lowercase letters');
       } else {
         hideError(signupPasswordError);
       }
