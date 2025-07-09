@@ -284,6 +284,21 @@
             color: var(--primary);
             margin-bottom: 20px;
         }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--white);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -302,18 +317,22 @@
             </div>
             
             <h2 class="verification-title">Verifying Your Email</h2>
-            <p class="verification-message">We're automatically verifying your email address. This will just take a moment.</p>
-            
-            <div class="countdown" id="countdown">Verification starts in 3 seconds...</div>
+            <p class="verification-message" id="verificationMessage">We're verifying your email address. Please wait...</p>
             
             <div class="verification-progress">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             
-            <div class="verification-status" id="verificationStatus">Initializing verification process...</div>
+            <div class="verification-status" id="verificationStatus">Checking verification link...</div>
             
-            <button class="action-button hidden" id="continueButton">Continue to Dashboard</button>
-            <button class="action-button hidden" id="resendButton">Resend Verification Email</button>
+            <button class="action-button hidden" id="continueButton">
+                <span id="buttonText">Continue to Homepage</span>
+                <div class="loading-spinner hidden" id="buttonSpinner"></div>
+            </button>
+            <button class="action-button hidden" id="resendButton">
+                <span id="resendButtonText">Resend Verification Email</span>
+                <div class="loading-spinner hidden" id="resendSpinner"></div>
+            </button>
         </div>
     </div>
 
@@ -339,47 +358,30 @@
         const verificationContainer = document.getElementById('verificationContainer');
         const progressBar = document.getElementById('progressBar');
         const verificationStatus = document.getElementById('verificationStatus');
+        const verificationMessage = document.getElementById('verificationMessage');
         const continueButton = document.getElementById('continueButton');
         const resendButton = document.getElementById('resendButton');
-        const countdownElement = document.getElementById('countdown');
+        const buttonText = document.getElementById('buttonText');
+        const buttonSpinner = document.getElementById('buttonSpinner');
+        const resendButtonText = document.getElementById('resendButtonText');
+        const resendSpinner = document.getElementById('resendSpinner');
 
-        // Simulate email verification process
-        function startVerificationProcess() {
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 5;
-                progressBar.style.width = `${progress}%`;
-                
-                if (progress <= 25) {
-                    verificationStatus.textContent = "Connecting to verification server...";
-                } else if (progress <= 50) {
-                    verificationStatus.textContent = "Checking email validity...";
-                } else if (progress <= 75) {
-                    verificationStatus.textContent = "Verifying security tokens...";
-                } else {
-                    verificationStatus.textContent = "Finalizing verification...";
-                }
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    simulateVerificationResult();
-                }
-            }, 300);
+        // Homepage URL
+        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app";
+
+        // Extract action code from URL
+        function getActionCodeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('oobCode');
         }
 
-        // Simulate verification result (success or expired)
-        function simulateVerificationResult() {
-            // In a real app, you would check the actual verification status
-            // For this demo, we'll randomly decide success or expired (80% success rate)
-            const isSuccess = Math.random() < 0.8;
-            
-            if (isSuccess) {
-                showSuccessState();
-            } else {
-                showExpiredState();
-            }
+        // Update progress bar
+        function updateProgress(percent, message) {
+            progressBar.style.width = `${percent}%`;
+            verificationStatus.textContent = message;
         }
 
+        // Show success state
         function showSuccessState() {
             verificationContainer.classList.add('success-state');
             
@@ -391,89 +393,157 @@
                 </svg>
             `;
             
-            verificationStatus.textContent = "Email verified successfully!";
             document.querySelector('.verification-title').textContent = "Verification Complete!";
-            document.querySelector('.verification-message').textContent = "Your email address has been successfully verified. You can now access all features.";
+            verificationMessage.textContent = "Your email address has been successfully verified.";
+            updateProgress(100, "Email verified successfully!");
             
             continueButton.classList.remove('hidden');
             
-            // In a real app, you would redirect or update user state
-            continueButton.addEventListener('click', () => {
-                alert("Redirecting to dashboard...");
-                // window.location.href = '/dashboard';
-            });
+            continueButton.addEventListener('click', redirectToHomepage);
         }
 
+        // Show expired state
         function showExpiredState() {
             verificationContainer.classList.add('expired-state');
             
             const innerCircle = document.querySelector('.inner-circle');
             innerCircle.innerHTML = '<div class="expired-icon"></div>';
             
-            verificationStatus.textContent = "Verification link has expired";
             document.querySelector('.verification-title').textContent = "Link Expired";
-            document.querySelector('.verification-message').textContent = "This verification link is no longer valid. Please request a new verification email.";
+            verificationMessage.textContent = "This verification link is no longer valid. Please request a new verification email.";
+            updateProgress(100, "Verification link has expired");
             
             resendButton.classList.remove('hidden');
             
-            resendButton.addEventListener('click', () => {
-                resendVerificationEmail();
-            });
+            resendButton.addEventListener('click', resendVerificationEmail);
         }
 
-        function resendVerificationEmail() {
-            // In a real app, you would resend the verification email
-            verificationStatus.textContent = "Sending new verification email...";
+        // Show error state
+        function showErrorState(errorMessage) {
+            verificationContainer.classList.add('expired-state');
+            
+            const innerCircle = document.querySelector('.inner-circle');
+            innerCircle.innerHTML = '<div class="expired-icon"></div>';
+            
+            document.querySelector('.verification-title').textContent = "Verification Failed";
+            verificationMessage.textContent = errorMessage || "An error occurred during verification.";
+            updateProgress(100, "Verification process failed");
+            
+            resendButton.classList.remove('hidden');
+            resendButton.addEventListener('click', resendVerificationEmail);
+        }
+
+        // Redirect to homepage
+        function redirectToHomepage() {
+            buttonText.classList.add('hidden');
+            buttonSpinner.classList.remove('hidden');
+            
+            // In a real app, you might want to check auth state first
+            setTimeout(() => {
+                window.location.href = HOMEPAGE_URL;
+            }, 1500);
+        }
+
+        // Resend verification email
+        async function resendVerificationEmail() {
+            resendButtonText.classList.add('hidden');
+            resendSpinner.classList.remove('hidden');
             resendButton.disabled = true;
             
-            setTimeout(() => {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error("No user found. Please sign in again.");
+                }
+                
+                await user.sendEmailVerification();
+                
                 verificationStatus.textContent = "New verification email sent! Please check your inbox.";
-                resendButton.textContent = "Email Sent!";
+                resendButtonText.textContent = "Email Sent!";
                 
                 setTimeout(() => {
-                    resendButton.textContent = "Resend Verification Email";
+                    resendButtonText.textContent = "Resend Verification Email";
                     resendButton.disabled = false;
+                    resendButtonText.classList.remove('hidden');
+                    resendSpinner.classList.add('hidden');
                 }, 3000);
-            }, 2000);
+            } catch (error) {
+                console.error("Error resending verification email:", error);
+                verificationStatus.textContent = "Failed to resend email: " + error.message;
+                resendButtonText.textContent = "Try Again";
+                resendButton.disabled = false;
+                resendButtonText.classList.remove('hidden');
+                resendSpinner.classList.add('hidden');
+            }
         }
 
-        // Countdown before starting verification
-        let countdown = 3;
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = `Verification starts in ${countdown} second${countdown !== 1 ? 's' : ''}...`;
-            
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                countdownElement.classList.add('hidden');
-                startVerificationProcess();
-            }
-        }, 1000);
-
-        // Check if there's a user logged in (in a real app)
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in
-                if (user.emailVerified) {
-                    // Email is already verified
-                    showSuccessState();
-                } else {
-                    // Check if email verification link was clicked
-                    if (window.location.href.includes('mode=verifyEmail')) {
-                        // Apply email verification
-                        auth.applyActionCode(window.location.search.split('oobCode=')[1].split('&')[0])
-                            .then(() => {
-                                showSuccessState();
-                            })
-                            .catch((error) => {
-                                showExpiredState();
-                                console.error("Error verifying email:", error);
-                            });
+        // Handle email verification
+        async function handleEmailVerification(actionCode) {
+            try {
+                updateProgress(20, "Verifying your email...");
+                
+                // Apply the verification code
+                await auth.applyActionCode(actionCode);
+                
+                updateProgress(60, "Email verified. Updating your account...");
+                
+                // Get the current user (should be logged in after verification)
+                const user = auth.currentUser;
+                
+                if (user) {
+                    // Reload user to get updated emailVerified status
+                    await user.reload();
+                    
+                    if (user.emailVerified) {
+                        updateProgress(100, "Finalizing verification...");
+                        setTimeout(showSuccessState, 1000);
+                    } else {
+                        throw new Error("Email still not verified after applying action code");
                     }
+                } else {
+                    throw new Error("No user authenticated after verification");
                 }
+            } catch (error) {
+                console.error("Email verification error:", error);
+                
+                // Handle specific error cases
+                if (error.code === 'auth/expired-action-code') {
+                    showExpiredState();
+                } else if (error.code === 'auth/invalid-action-code') {
+                    showErrorState("Invalid verification link. Please request a new one.");
+                } else if (error.code === 'auth/user-disabled') {
+                    showErrorState("This account has been disabled.");
+                } else if (error.code === 'auth/user-not-found') {
+                    showErrorState("No account found with this email.");
+                } else {
+                    showErrorState(error.message);
+                }
+            }
+        }
+
+        // Main initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            const actionCode = getActionCodeFromUrl();
+            
+            if (actionCode) {
+                // We have a verification code in the URL
+                await handleEmailVerification(actionCode);
             } else {
-                // No user is signed in (in a real app, you might redirect to login)
-                console.log("No user signed in");
+                // No verification code - check if user is already verified
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        if (user.emailVerified) {
+                            // User is already verified
+                            showSuccessState();
+                        } else {
+                            // User not verified and no action code
+                            showErrorState("No verification link found. Please check your email for the verification link.");
+                        }
+                    } else {
+                        // No user signed in
+                        showErrorState("Please sign in to verify your email.");
+                    }
+                });
             }
         });
     </script>
