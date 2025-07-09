@@ -144,10 +144,29 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 2rem;
       background-color: #1a1a1a;
       overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .method-right::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .method-right::-webkit-scrollbar-track {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    .method-right::-webkit-scrollbar-thumb {
+      background: #ff6f61;
+      border-radius: 4px;
+    }
+
+    .method-right::-webkit-scrollbar-thumb:hover {
+      background: #ff3b2f;
     }
 
     .method-header {
@@ -272,10 +291,29 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 2rem;
       background-color: #1a1a1a;
       overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .auth-right::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .auth-right::-webkit-scrollbar-track {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    .auth-right::-webkit-scrollbar-thumb {
+      background: #ff6f61;
+      border-radius: 4px;
+    }
+
+    .auth-right::-webkit-scrollbar-thumb:hover {
+      background: #ff3b2f;
     }
 
     .auth-header {
@@ -1426,6 +1464,47 @@
         hideError(loginPasswordError);
       }
     });
+
+    // Enable click-and-drag scrolling for forms
+    const authRight = document.querySelector('.auth-right');
+    let isDragging = false;
+    let startY;
+    let scrollTop;
+
+    authRight.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.pageY - authRight.offsetTop;
+      scrollTop = authRight.scrollTop;
+      authRight.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const y = e.pageY - authRight.offsetTop;
+      const walk = (y - startY) * 2;
+      authRight.scrollTop = scrollTop - walk;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      authRight.style.cursor = 'default';
+    });
+
+    // Enable keyboard scrolling
+    authRight.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        authRight.scrollBy(0, -50);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        authRight.scrollBy(0, 50);
+      }
+    });
+
+    // Make the form focusable for keyboard scrolling
+    authRight.setAttribute('tabindex', '0');
+    authRight.focus();
   </script>
 </body>
 </html>
