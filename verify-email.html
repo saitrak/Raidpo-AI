@@ -3,49 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raidpo-AI Sign-In</title>
+    <title>Raidpo-AI Email Verification</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS is identical to your previous version, no changes needed here */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        :root { --primary: #6c5ce7; --primary-dark: #5649c0; --secondary: #00cec9; --danger: #ff7675; --success: #00b894; --dark: #2d3436; --light: #f5f6fa; --white: #ffffff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--light); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .verification-container { background-color: var(--white); border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 450px; padding: 40px; position: relative; overflow: hidden; text-align: center; }
-        .verification-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
-        .logo { margin-bottom: 30px; }
-        .logo h1 { color: var(--primary); font-size: 28px; font-weight: 700; letter-spacing: 1px; }
-        .logo h1 span { color: var(--secondary); }
-        .verification-icon { width: 120px; height: 120px; margin: 0 auto 25px; position: relative; }
-        .circle { width: 100%; height: 100%; border-radius: 50%; border: 8px solid rgba(108, 92, 231, 0.2); position: absolute; top: 0; left: 0; animation: pulse 2s infinite; }
-        .inner-circle { width: 80px; height: 80px; background-color: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; position: absolute; top: 20px; left: 20px; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); transition: background-color 0.5s ease, box-shadow 0.5s ease; }
-        .inner-circle i { color: var(--white); font-size: 40px; }
-        .verification-title { font-size: 24px; font-weight: 600; color: var(--dark); margin-bottom: 15px; }
-        .verification-message { color: #666; margin-bottom: 30px; line-height: 1.6; }
-        .verification-progress { width: 100%; height: 8px; background-color: rgba(108, 92, 231, 0.1); border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 4px; transition: width 0.5s ease; }
-        .verification-status { font-size: 14px; color: #666; margin-bottom: 30px; }
-        .action-button { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: var(--white); border: none; padding: 12px 30px; border-radius: 30px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); min-width: 220px; }
-        .action-button:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6); }
-        .action-button:disabled { opacity: 0.7; cursor: wait; }
-        .success-state .inner-circle { background-color: var(--success); box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4); }
-        .success-state .circle { border-color: rgba(0, 184, 148, 0.2); animation: none; }
-        .success-state .progress-bar { background: linear-gradient(90deg, var(--success), var(--secondary)); }
-        .success-state .action-button { background: linear-gradient(90deg, var(--success), var(--secondary)); box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4); }
-        .failure-state .inner-circle { background-color: var(--danger); box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4); }
-        .failure-state .circle { border-color: rgba(255, 118, 117, 0.2); animation: none; }
-        .failure-state .progress-bar { background: linear-gradient(90deg, var(--danger), #e84393); }
-        .failure-state .action-button { background: linear-gradient(90deg, var(--danger), #e84393); box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4); }
-        .hidden { display: none; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #5649c0;
+            --secondary: #00cec9;
+            --danger: #ff7675;
+            --success: #00b894;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .verification-container {
+            background-color: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .verification-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .logo h1 span {
+            color: var(--secondary);
+        }
+                
+        .verification-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            position: relative;
+        }
+        
+        .circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid rgba(108, 92, 231, 0.2);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: pulse 2s infinite;
+        }
+        
+        .inner-circle {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        .inner-circle i {
+            color: var(--white);
+            font-size: 40px;
+        }
+        
+        .verification-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .verification-message {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .verification-progress {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(108, 92, 231, 0.1);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .verification-status {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .countdown {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 20px;
+            height: 21px; /* Reserve space to prevent layout shift */
+        }
+        
+        .action-button {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            min-width: 220px;
+        }
+        
+        .action-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6);
+        }
+
+        .action-button:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+        
+        .success-state .inner-circle {
+            background-color: var(--success);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+        
+        .success-state .circle {
+            border-color: rgba(0, 184, 148, 0.2);
+            animation: none;
+        }
+        
+        .success-state .progress-bar {
+            background: linear-gradient(90deg, var(--success), var(--secondary));
+        }
+
+        .success-state .action-button {
+             background: linear-gradient(90deg, var(--success), var(--secondary));
+             box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+        }
+        
+        .failure-state .inner-circle {
+            background-color: var(--danger);
+            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
+        }
+        
+        .failure-state .circle {
+            border-color: rgba(255, 118, 117, 0.2);
+            animation: none;
+        }
+        
+        .failure-state .progress-bar {
+            background: linear-gradient(90deg, var(--danger), #e84393);
+        }
+
+        .failure-state .action-button {
+            background: linear-gradient(90deg, var(--danger), #e84393);
+            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .checkmark { width: 40px; height: 40px; }
         .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--white); fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
         .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--white); fill: none; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
         @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        
         .cross-icon { width: 40px; height: 40px; position: relative; }
         .cross-icon::before, .cross-icon::after { content: ''; position: absolute; height: 40px; width: 4px; border-radius: 2px; background-color: var(--white); top: 0; left: 18px; }
         .cross-icon::before { transform: rotate(45deg); }
         .cross-icon::after { transform: rotate(-45deg); }
+        
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: var(--white); animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
@@ -53,31 +246,49 @@
         <div class="logo">
             <h1>Raidpo<span>-AI</span></h1>
         </div>
+        
         <div class="verification-icon">
             <div class="circle"></div>
-            <div class="inner-circle"> <i class="fas fa-magic-wand-sparkles"></i> </div>
+            <div class="inner-circle">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
         </div>
-        <h2 class="verification-title" id="verificationTitle">Completing Sign-In</h2>
-        <p class="verification-message" id="verificationMessage">Please wait while we securely sign you into your account.</p>
+        
+        <h2 class="verification-title" id="verificationTitle">Verifying Your Email</h2>
+        <p class="verification-message" id="verificationMessage">Please wait while we confirm your email address. This shouldn't take long.</p>
+        
         <div class="verification-progress">
             <div class="progress-bar" id="progressBar"></div>
         </div>
+        
         <div class="verification-status" id="verificationStatus">Initializing...</div>
-        <button class="action-button hidden" id="actionButton">Continue to Dashboard</button>
+        
+        <div id="countdown" class="countdown"></div>
+        
+        <button class="action-button hidden" id="actionButton" disabled>
+            <span id="buttonText"></span>
+            <div class="loading-spinner hidden" id="buttonSpinner"></div>
+        </button>
     </div>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
+        // --- IMPORTANT ---
+        // Your Firebase config object. These keys are meant to be public.
+        // Secure your app using Firebase Security Rules in your Firebase console, not by hiding these keys.
         const firebaseConfig = {
-            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", // Replace with your actual API key
             authDomain: "raidpo-ai-3c84b.firebaseapp.com",
             projectId: "raidpo-ai-3c84b",
             storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
             messagingSenderId: "41213161184",
             appId: "1:41213161184:web:58604fc48f2c026f5aaa85"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
         // --- DOM Elements ---
@@ -87,10 +298,14 @@
         const progressBar = document.getElementById('progressBar');
         const verificationStatus = document.getElementById('verificationStatus');
         const innerCircle = document.querySelector('.inner-circle');
+        const countdownEl = document.getElementById('countdown');
         const actionButton = document.getElementById('actionButton');
+        const buttonText = document.getElementById('buttonText');
+        const buttonSpinner = document.getElementById('buttonSpinner');
         
         // --- Configuration ---
-        const DASHBOARD_URL = "https://raidpo-ai.netlify.app"; // The actual protected area of your app
+        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app"; // URL to redirect after success/failure
+        let countdownInterval;
 
         // --- UI Update Functions ---
         function updateProgress(percent, message) {
@@ -99,67 +314,154 @@
         }
 
         function showSuccessState() {
+            clearInterval(countdownInterval);
             verificationContainer.classList.add('success-state');
-            innerCircle.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>`;
-            verificationTitle.textContent = "Sign-In Successful!";
-            verificationMessage.textContent = "You are now securely logged in. We're redirecting you to your dashboard.";
-            updateProgress(100, "Authentication complete!");
             
-            setTimeout(() => {
-                window.location.href = DASHBOARD_URL;
-            }, 2000); // Redirect after 2 seconds
+            innerCircle.innerHTML = `
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>`;
+            
+            verificationTitle.textContent = "Verification Complete!";
+            verificationMessage.textContent = "Your email address has been successfully verified. Welcome aboard!";
+            updateProgress(100, "Email verified successfully!");
+            
+            buttonText.textContent = "Continue to Dashboard";
+            actionButton.classList.remove('hidden');
+            actionButton.disabled = false;
+            actionButton.onclick = () => redirectToHomepage(true);
+
+            // Start countdown for automatic redirect
+            let seconds = 5;
+            countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+            countdownInterval = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+                } else {
+                    countdownEl.textContent = 'Redirecting...';
+                    redirectToHomepage(false);
+                }
+            }, 1000);
         }
 
         function showFailureState(title, message, status) {
+            clearInterval(countdownInterval);
             verificationContainer.classList.add('failure-state');
+            
             innerCircle.innerHTML = '<div class="cross-icon"></div>';
+            
             verificationTitle.textContent = title;
             verificationMessage.textContent = message;
             updateProgress(100, status);
-            actionButton.textContent = "Return to Login";
+            
+            buttonText.textContent = 'Go to Login Page';
             actionButton.classList.remove('hidden');
-            actionButton.onclick = () => window.location.href = "login.html"; // Point back to your login page
+            actionButton.disabled = false;
+            actionButton.onclick = () => window.location.href = HOMEPAGE_URL;
+        }
+        
+        function redirectToHomepage(isButtonClick) {
+            if (isButtonClick) {
+                clearInterval(countdownInterval);
+                countdownEl.textContent = '';
+            }
+            buttonText.classList.add('hidden');
+            buttonSpinner.classList.remove('hidden');
+            actionButton.disabled = true;
+
+            // Get the current user and sign them in
+            const user = auth.currentUser;
+            if (user) {
+                // User is already logged in (from the verification process)
+                setTimeout(() => {
+                    window.location.href = HOMEPAGE_URL;
+                }, 1000);
+            } else {
+                // This shouldn't normally happen, but just in case
+                setTimeout(() => {
+                    window.location.href = HOMEPAGE_URL;
+                }, 1000);
+            }
         }
 
-        // --- Core Sign-In Logic ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            updateProgress(10, "Checking for sign-in link...");
+        // --- Core Verification Logic ---
+        function getActionCodeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('oobCode');
+        }
 
-            // 1. Check if the current URL is a sign-in link.
-            if (auth.isSignInWithEmailLink(window.location.href)) {
-                updateProgress(30, "Valid link detected. Getting your email...");
+        async function handleEmailVerification(actionCode) {
+            try {
+                updateProgress(33, "Checking verification code...");
                 
-                // 2. Get the email from localStorage.
-                let email = window.localStorage.getItem('emailForSignIn');
-                if (!email) {
-                    // If the user opens the link on a different device, prompt for the email.
-                    email = window.prompt('Please provide your email for confirmation');
-                }
-
-                if (!email) {
-                    showFailureState("Email Required", "We need your email address to complete the sign-in process.", "Sign-in cancelled.");
-                    return;
-                }
-
-                try {
-                    updateProgress(60, "Authenticating...");
-                    // 3. Complete the sign-in process. This verifies the email and logs the user in.
-                    await auth.signInWithEmailLink(email, window.location.href);
+                // Apply the verification code
+                await auth.applyActionCode(actionCode);
+                
+                updateProgress(66, "Email confirmed. Signing you in...");
+                
+                // Get the current user (should be logged in after verification)
+                const user = auth.currentUser;
+                
+                if (user) {
+                    // Reload user to get the latest emailVerified status
+                    await user.reload();
                     
-                    // 4. Clean up the stored email.
-                    window.localStorage.removeItem('emailForSignIn');
-                    
-                    updateProgress(90, "Finalizing your session...");
-                    showSuccessState();
-
-                } catch (error) {
-                    console.error("Sign-in error:", error);
-                    showFailureState("Sign-In Failed", `An error occurred: ${error.message}. Please try signing in again.`, "Authentication failed.");
+                    // Small delay to let the UI update and feel smooth
+                    setTimeout(showSuccessState, 750);
+                } else {
+                    // This case shouldn't normally happen, but handle it just in case
+                    showFailureState("Verification Complete", "Your email was verified but we couldn't sign you in automatically. Please log in manually.", "Please log in");
                 }
 
+            } catch (error) {
+                console.error("Email verification error:", error.code, error.message);
+                
+                switch (error.code) {
+                    case 'auth/expired-action-code':
+                        showFailureState("Link Expired", "This verification link is no longer valid. Please log in to your account to get a new one.", "Verification link has expired.");
+                        break;
+                    case 'auth/invalid-action-code':
+                        showFailureState("Invalid Link", "This verification link is invalid or has already been used. Please log in to get a new one.", "Invalid verification link.");
+                        break;
+                    case 'auth/user-disabled':
+                        showFailureState("Account Disabled", "This account has been disabled by an administrator.", "Account disabled.");
+                        break;
+                    case 'auth/user-not-found':
+                        showFailureState("User Not Found", "There is no user corresponding to this verification link.", "User not found.");
+                        break;
+                    default:
+                        showFailureState("Verification Failed", "An unexpected error occurred. Please try again or contact support.", "An error occurred.");
+                        break;
+                }
+            }
+        }
+
+        // --- Page Load Handler ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress(10, "Initializing verification...");
+            const actionCode = getActionCodeFromUrl();
+            
+            if (actionCode) {
+                // Primary flow: A verification code is in the URL.
+                handleEmailVerification(actionCode);
             } else {
-                updateProgress(100, "No valid sign-in link found.");
-                showFailureState("Invalid Access", "This page should only be accessed via a sign-in link sent to your email.", "Invalid link.");
+                // Fallback flow: No code. Check auth state for users who land here directly.
+                updateProgress(50, "Checking session status...");
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await user.reload();
+                        if (user.emailVerified) {
+                            verificationMessage.textContent = "Your email is already verified. Redirecting you...";
+                            showSuccessState();
+                        } else {
+                            showFailureState("Email Not Verified", "Your email has not been verified yet. Please use the link sent to your inbox, or log in to receive a new one.", "Action required.");
+                        }
+                    } else {
+                        showFailureState("No Verification Link Found", "Please use the link we sent to your email address. If the link has expired, log in to your account to get a new one.", "Waiting for verification link.");
+                    }
+                });
             }
         });
     </script>
