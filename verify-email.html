@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raidpo-AI Email Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -43,8 +44,7 @@
             padding: 40px;
             position: relative;
             overflow: hidden;
-            transform-style: preserve-3d;
-            transition: all 0.5s ease;
+            text-align: center;
         }
         
         .verification-container::before {
@@ -58,7 +58,6 @@
         }
         
         .logo {
-            text-align: center;
             margin-bottom: 30px;
         }
         
@@ -72,11 +71,7 @@
         .logo h1 span {
             color: var(--secondary);
         }
-        
-        .verification-content {
-            text-align: center;
-        }
-        
+                
         .verification-icon {
             width: 120px;
             height: 120px;
@@ -107,6 +102,7 @@
             top: 20px;
             left: 20px;
             box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
         }
         
         .inner-circle i {
@@ -149,6 +145,14 @@
             color: #666;
             margin-bottom: 30px;
         }
+
+        .countdown {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 20px;
+            height: 21px; /* Reserve space to prevent layout shift */
+        }
         
         .action-button {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -161,12 +165,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
-            margin-top: 20px;
+            min-width: 220px;
         }
         
-        .action-button:hover {
+        .action-button:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6);
+        }
+
+        .action-button:disabled {
+            opacity: 0.7;
+            cursor: wait;
         }
         
         .success-state .inner-circle {
@@ -181,22 +190,30 @@
         
         .success-state .progress-bar {
             background: linear-gradient(90deg, var(--success), var(--secondary));
-            width: 100% !important;
+        }
+
+        .success-state .action-button {
+             background: linear-gradient(90deg, var(--success), var(--secondary));
+             box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
         }
         
-        .expired-state .inner-circle {
+        .failure-state .inner-circle {
             background-color: var(--danger);
             box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
         }
         
-        .expired-state .circle {
+        .failure-state .circle {
             border-color: rgba(255, 118, 117, 0.2);
             animation: none;
         }
         
-        .expired-state .progress-bar {
+        .failure-state .progress-bar {
             background: linear-gradient(90deg, var(--danger), #e84393);
-            width: 100% !important;
+        }
+
+        .failure-state .action-button {
+            background: linear-gradient(90deg, var(--danger), #e84393);
+            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
         }
         
         .hidden {
@@ -204,103 +221,25 @@
         }
         
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
         }
+
+        .checkmark { width: 40px; height: 40px; }
+        .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--white); fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--white); fill: none; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
         
-        @keyframes checkmark {
-            0% {
-                stroke-dashoffset: 50;
-            }
-            100% {
-                stroke-dashoffset: 0;
-            }
-        }
+        .cross-icon { width: 40px; height: 40px; position: relative; }
+        .cross-icon::before, .cross-icon::after { content: ''; position: absolute; height: 40px; width: 4px; border-radius: 2px; background-color: var(--white); top: 0; left: 18px; }
+        .cross-icon::before { transform: rotate(45deg); }
+        .cross-icon::after { transform: rotate(-45deg); }
         
-        .checkmark {
-            width: 40px;
-            height: 40px;
-        }
-        
-        .checkmark__circle {
-            stroke-dasharray: 166;
-            stroke-dashoffset: 166;
-            stroke-width: 2;
-            stroke-miterlimit: 10;
-            stroke: var(--white);
-            fill: none;
-            animation: checkmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-        }
-        
-        .checkmark__check {
-            transform-origin: 50% 50%;
-            stroke-dasharray: 48;
-            stroke-dashoffset: 48;
-            stroke-width: 2;
-            stroke-miterlimit: 10;
-            stroke: var(--white);
-            fill: none;
-            animation: checkmark 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-        }
-        
-        .expired-icon {
-            width: 40px;
-            height: 40px;
-            position: relative;
-        }
-        
-        .expired-icon::before,
-        .expired-icon::after {
-            content: '';
-            position: absolute;
-            height: 40px;
-            width: 2px;
-            background-color: var(--white);
-            top: 0;
-            left: 19px;
-        }
-        
-        .expired-icon::before {
-            transform: rotate(45deg);
-        }
-        
-        .expired-icon::after {
-            transform: rotate(-45deg);
-        }
-        
-        .countdown {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid var(--white);
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: var(--white); animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="verification-container" id="verificationContainer">
@@ -308,240 +247,200 @@
             <h1>Raidpo<span>-AI</span></h1>
         </div>
         
-        <div class="verification-content">
-            <div class="verification-icon">
-                <div class="circle"></div>
-                <div class="inner-circle">
-                    <i class="fas fa-envelope"></i>
-                </div>
+        <div class="verification-icon">
+            <div class="circle"></div>
+            <div class="inner-circle">
+                <i class="fas fa-envelope-open-text"></i>
             </div>
-            
-            <h2 class="verification-title">Verifying Your Email</h2>
-            <p class="verification-message" id="verificationMessage">We're verifying your email address. Please wait...</p>
-            
-            <div class="verification-progress">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            
-            <div class="verification-status" id="verificationStatus">Checking verification link...</div>
-            
-            <button class="action-button hidden" id="continueButton">
-                <span id="buttonText">Continue to Homepage</span>
-                <div class="loading-spinner hidden" id="buttonSpinner"></div>
-            </button>
-            <button class="action-button hidden" id="resendButton">
-                <span id="resendButtonText">Resend Verification Email</span>
-                <div class="loading-spinner hidden" id="resendSpinner"></div>
-            </button>
         </div>
+        
+        <h2 class="verification-title" id="verificationTitle">Verifying Your Email</h2>
+        <p class="verification-message" id="verificationMessage">Please wait while we confirm your email address. This shouldn't take long.</p>
+        
+        <div class="verification-progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="verification-status" id="verificationStatus">Initializing...</div>
+        
+        <div id="countdown" class="countdown"></div>
+        
+        <button class="action-button hidden" id="actionButton" disabled>
+            <span id="buttonText"></span>
+            <div class="loading-spinner hidden" id="buttonSpinner"></div>
+        </button>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-        // Firebase configuration
+        // --- IMPORTANT ---
+        // Your Firebase config object. These keys are meant to be public.
+        // Secure your app using Firebase Security Rules in your Firebase console, not by hiding these keys.
         const firebaseConfig = {
-            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", // Replace with your actual API key
             authDomain: "raidpo-ai-3c84b.firebaseapp.com",
             projectId: "raidpo-ai-3c84b",
             storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
             messagingSenderId: "41213161184",
-            appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
-            measurementId: "G-7MBZHVFCZR"
+            appId: "1:41213161184:web:58604fc48f2c026f5aaa85"
         };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // DOM elements
+        // --- DOM Elements ---
         const verificationContainer = document.getElementById('verificationContainer');
+        const verificationTitle = document.getElementById('verificationTitle');
+        const verificationMessage = document.getElementById('verificationMessage');
         const progressBar = document.getElementById('progressBar');
         const verificationStatus = document.getElementById('verificationStatus');
-        const verificationMessage = document.getElementById('verificationMessage');
-        const continueButton = document.getElementById('continueButton');
-        const resendButton = document.getElementById('resendButton');
+        const innerCircle = document.querySelector('.inner-circle');
+        const countdownEl = document.getElementById('countdown');
+        const actionButton = document.getElementById('actionButton');
         const buttonText = document.getElementById('buttonText');
         const buttonSpinner = document.getElementById('buttonSpinner');
-        const resendButtonText = document.getElementById('resendButtonText');
-        const resendSpinner = document.getElementById('resendSpinner');
+        
+        // --- Configuration ---
+        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app"; // URL to redirect after success/failure
+        let countdownInterval;
 
-        // Homepage URL
-        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app";
-
-        // Extract action code from URL
-        function getActionCodeFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('oobCode');
-        }
-
-        // Update progress bar
+        // --- UI Update Functions ---
         function updateProgress(percent, message) {
             progressBar.style.width = `${percent}%`;
             verificationStatus.textContent = message;
         }
 
-        // Show success state
         function showSuccessState() {
+            clearInterval(countdownInterval);
             verificationContainer.classList.add('success-state');
             
-            const innerCircle = document.querySelector('.inner-circle');
             innerCircle.innerHTML = `
                 <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                     <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                     <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                </svg>
-            `;
+                </svg>`;
             
-            document.querySelector('.verification-title').textContent = "Verification Complete!";
-            verificationMessage.textContent = "Your email address has been successfully verified.";
+            verificationTitle.textContent = "Verification Complete!";
+            verificationMessage.textContent = "Your email address has been successfully verified. Welcome aboard!";
             updateProgress(100, "Email verified successfully!");
             
-            continueButton.classList.remove('hidden');
-            
-            continueButton.addEventListener('click', redirectToHomepage);
+            buttonText.textContent = "Continue to Dashboard";
+            actionButton.classList.remove('hidden');
+            actionButton.disabled = false;
+            actionButton.onclick = () => redirectToHomepage(true);
+
+            // Start countdown for automatic redirect
+            let seconds = 5;
+            countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+            countdownInterval = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+                } else {
+                    countdownEl.textContent = 'Redirecting...';
+                    redirectToHomepage(false);
+                }
+            }, 1000);
         }
 
-        // Show expired state
-        function showExpiredState() {
-            verificationContainer.classList.add('expired-state');
+        function showFailureState(title, message, status) {
+            clearInterval(countdownInterval);
+            verificationContainer.classList.add('failure-state');
             
-            const innerCircle = document.querySelector('.inner-circle');
-            innerCircle.innerHTML = '<div class="expired-icon"></div>';
+            innerCircle.innerHTML = '<div class="cross-icon"></div>';
             
-            document.querySelector('.verification-title').textContent = "Link Expired";
-            verificationMessage.textContent = "This verification link is no longer valid. Please request a new verification email.";
-            updateProgress(100, "Verification link has expired");
+            verificationTitle.textContent = title;
+            verificationMessage.textContent = message;
+            updateProgress(100, status);
             
-            resendButton.classList.remove('hidden');
-            
-            resendButton.addEventListener('click', resendVerificationEmail);
+            buttonText.textContent = 'Go to Login Page';
+            actionButton.classList.remove('hidden');
+            actionButton.disabled = false;
+            actionButton.onclick = () => window.location.href = HOMEPAGE_URL;
         }
-
-        // Show error state
-        function showErrorState(errorMessage) {
-            verificationContainer.classList.add('expired-state');
-            
-            const innerCircle = document.querySelector('.inner-circle');
-            innerCircle.innerHTML = '<div class="expired-icon"></div>';
-            
-            document.querySelector('.verification-title').textContent = "Verification Failed";
-            verificationMessage.textContent = errorMessage || "An error occurred during verification.";
-            updateProgress(100, "Verification process failed");
-            
-            resendButton.classList.remove('hidden');
-            resendButton.addEventListener('click', resendVerificationEmail);
-        }
-
-        // Redirect to homepage
-        function redirectToHomepage() {
+        
+        function redirectToHomepage(isButtonClick) {
+            if (isButtonClick) {
+                clearInterval(countdownInterval);
+                countdownEl.textContent = '';
+            }
             buttonText.classList.add('hidden');
             buttonSpinner.classList.remove('hidden');
-            
-            // In a real app, you might want to check auth state first
+            actionButton.disabled = true;
+
             setTimeout(() => {
                 window.location.href = HOMEPAGE_URL;
-            }, 1500);
+            }, 1000);
         }
 
-        // Resend verification email
-        async function resendVerificationEmail() {
-            resendButtonText.classList.add('hidden');
-            resendSpinner.classList.remove('hidden');
-            resendButton.disabled = true;
-            
-            try {
-                const user = auth.currentUser;
-                if (!user) {
-                    throw new Error("No user found. Please sign in again.");
-                }
-                
-                await user.sendEmailVerification();
-                
-                verificationStatus.textContent = "New verification email sent! Please check your inbox.";
-                resendButtonText.textContent = "Email Sent!";
-                
-                setTimeout(() => {
-                    resendButtonText.textContent = "Resend Verification Email";
-                    resendButton.disabled = false;
-                    resendButtonText.classList.remove('hidden');
-                    resendSpinner.classList.add('hidden');
-                }, 3000);
-            } catch (error) {
-                console.error("Error resending verification email:", error);
-                verificationStatus.textContent = "Failed to resend email: " + error.message;
-                resendButtonText.textContent = "Try Again";
-                resendButton.disabled = false;
-                resendButtonText.classList.remove('hidden');
-                resendSpinner.classList.add('hidden');
-            }
+        // --- Core Verification Logic ---
+        function getActionCodeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('oobCode');
         }
 
-        // Handle email verification
         async function handleEmailVerification(actionCode) {
             try {
-                updateProgress(20, "Verifying your email...");
-                
-                // Apply the verification code
+                updateProgress(33, "Checking verification code...");
                 await auth.applyActionCode(actionCode);
                 
-                updateProgress(60, "Email verified. Updating your account...");
+                updateProgress(66, "Email confirmed. Updating your account...");
                 
-                // Get the current user (should be logged in after verification)
+                // Ensure user is reloaded to get the latest emailVerified status
                 const user = auth.currentUser;
-                
-                if (user) {
-                    // Reload user to get updated emailVerified status
-                    await user.reload();
-                    
-                    if (user.emailVerified) {
-                        updateProgress(100, "Finalizing verification...");
-                        setTimeout(showSuccessState, 1000);
-                    } else {
-                        throw new Error("Email still not verified after applying action code");
-                    }
-                } else {
-                    throw new Error("No user authenticated after verification");
-                }
+                if(user) await user.reload();
+
+                // Small delay to let the UI update and feel smooth
+                setTimeout(showSuccessState, 750);
+
             } catch (error) {
-                console.error("Email verification error:", error);
+                console.error("Email verification error:", error.code, error.message);
                 
-                // Handle specific error cases
-                if (error.code === 'auth/expired-action-code') {
-                    showExpiredState();
-                } else if (error.code === 'auth/invalid-action-code') {
-                    showErrorState("Invalid verification link. Please request a new one.");
-                } else if (error.code === 'auth/user-disabled') {
-                    showErrorState("This account has been disabled.");
-                } else if (error.code === 'auth/user-not-found') {
-                    showErrorState("No account found with this email.");
-                } else {
-                    showErrorState(error.message);
+                switch (error.code) {
+                    case 'auth/expired-action-code':
+                        showFailureState("Link Expired", "This verification link is no longer valid. Please log in to your account to get a new one.", "Verification link has expired.");
+                        break;
+                    case 'auth/invalid-action-code':
+                        showFailureState("Invalid Link", "This verification link is invalid or has already been used. Please log in to get a new one.", "Invalid verification link.");
+                        break;
+                    case 'auth/user-disabled':
+                        showFailureState("Account Disabled", "This account has been disabled by an administrator.", "Account disabled.");
+                        break;
+                    case 'auth/user-not-found':
+                        showFailureState("User Not Found", "There is no user corresponding to this verification link.", "User not found.");
+                        break;
+                    default:
+                        showFailureState("Verification Failed", "An unexpected error occurred. Please try again or contact support.", "An error occurred.");
+                        break;
                 }
             }
         }
 
-        // Main initialization
-        document.addEventListener('DOMContentLoaded', async () => {
+        // --- Page Load Handler ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress(10, "Initializing verification...");
             const actionCode = getActionCodeFromUrl();
             
             if (actionCode) {
-                // We have a verification code in the URL
-                await handleEmailVerification(actionCode);
+                // Primary flow: A verification code is in the URL.
+                handleEmailVerification(actionCode);
             } else {
-                // No verification code - check if user is already verified
+                // Fallback flow: No code. Check auth state for users who land here directly.
+                updateProgress(50, "Checking session status...");
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
+                        await user.reload();
                         if (user.emailVerified) {
-                            // User is already verified
+                            verificationMessage.textContent = "Your email is already verified. Redirecting you...";
                             showSuccessState();
                         } else {
-                            // User not verified and no action code
-                            showErrorState("No verification link found. Please check your email for the verification link.");
+                            showFailureState("Email Not Verified", "Your email has not been verified yet. Please use the link sent to your inbox, or log in to receive a new one.", "Action required.");
                         }
                     } else {
-                        // No user signed in
-                        showErrorState("Please sign in to verify your email.");
+                        showFailureState("No Verification Link Found", "Please use the link we sent to your email address. If the link has expired, log in to your account to get a new one.", "Waiting for verification link.");
                     }
                 });
             }
