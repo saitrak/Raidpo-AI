@@ -737,12 +737,14 @@
           <div class="form-group">
             <label for="loginEmail">Email</label>
             <input type="text" id="loginEmail" placeholder="Enter your email">
+            <div class="error-message" id="loginEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password">
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="loginPasswordError"></div>
           </div>
           
           <button id="loginBtn" class="auth-btn">Login</button>
@@ -756,17 +758,20 @@
           <div class="form-group">
             <label for="signupUsername">Username</label>
             <input type="text" id="signupUsername" placeholder="Choose a username">
+            <div class="error-message" id="signupUsernameError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupEmail">Email</label>
             <input type="email" id="signupEmail" placeholder="Enter your email">
+            <div class="error-message" id="signupEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupPassword">Password</label>
             <input type="password" id="signupPassword" placeholder="Create a password">
             <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupPasswordError"></div>
             <div class="password-requirements" id="signupPasswordRequirements">
               <div class="requirement" id="req-length">
                 <i class="fas fa-times"></i>
@@ -787,6 +792,7 @@
             <label for="signupConfirmPassword">Confirm Password</label>
             <input type="password" id="signupConfirmPassword" placeholder="Confirm your password">
             <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupConfirmPasswordError"></div>
           </div>
           
           <button id="signupBtn" class="auth-btn">Sign Up</button>
@@ -891,6 +897,19 @@
     const countdownProgress = document.getElementById('countdownProgress');
     const miniNotification = document.getElementById('miniNotification');
 
+    // Error message elements
+    const loginEmailError = document.getElementById('loginEmailError');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    const signupUsernameError = document.getElementById('signupUsernameError');
+    const signupEmailError = document.getElementById('signupEmailError');
+    const signupPasswordError = document.getElementById('signupPasswordError');
+    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
+
+    // Password requirement elements
+    const reqLength = document.getElementById('req-length');
+    const reqUppercase = document.getElementById('req-uppercase');
+    const reqLowercase = document.getElementById('req-lowercase');
+
     // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaWidgetId;
@@ -981,6 +1000,28 @@
       return errorMessages[code] || errorMessages['default'];
     }
 
+    // Show error message
+    function showError(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    // Hide error message
+    function hideError(element) {
+      element.textContent = '';
+      element.style.display = 'none';
+    }
+
+    // Clear all error messages
+    function clearAllErrors() {
+      hideError(loginEmailError);
+      hideError(loginPasswordError);
+      hideError(signupUsernameError);
+      hideError(signupEmailError);
+      hideError(signupPasswordError);
+      hideError(signupConfirmPasswordError);
+    }
+
     // reCAPTCHA load callback
     function onRecaptchaLoad() {
       // Initialize reCAPTCHA when the API is loaded
@@ -1066,8 +1107,8 @@
     googleMethodBtn.addEventListener('click', () => {
       auth.signInWithPopup(googleProvider)
         .then((result) => {
-          // Google auth successful, handled by auth state change
-          // Display name and photo URL are automatically set from Google profile
+          // Google auth successful, redirect immediately
+          window.location.href = 'https://raidpo-ai.netlify.app/';
         })
         .catch(error => {
           showMiniNotification(getErrorMessage(error));
@@ -1077,24 +1118,25 @@
     githubMethodBtn.addEventListener('click', () => {
       auth.signInWithPopup(githubProvider)
         .then((result) => {
-          // GitHub auth successful, handled by auth state change
-          const user = result.user;
-          const additionalUserInfo = result.additionalUserInfo;
-          
-          // Set display name from GitHub username if available
-          if (user && additionalUserInfo && !user.displayName) {
-            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
-            if (displayName) {
-              return user.updateProfile({
-                displayName: displayName
-              });
-            }
-          }
+          // GitHub auth successful, redirect immediately
+          window.location.href = 'https://raidpo-ai.netlify.app/';
         })
         .catch(error => {
           showMiniNotification(getErrorMessage(error));
         });
     });
+
+    // Update requirement status in real-time
+    function updatePasswordRequirements(password) {
+      const hasLength = password.length >= 6;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      
+      // Update requirements in real-time
+      updateRequirement(reqLength, hasLength);
+      updateRequirement(reqUppercase, hasUppercase);
+      updateRequirement(reqLowercase, hasLowercase);
+    }
 
     // Update requirement status
     function updateRequirement(element, isValid) {
@@ -1131,11 +1173,6 @@
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
-      
-      // Update password requirements visibility
-      updateRequirement(reqLength, hasLength);
-      updateRequirement(reqUppercase, hasUppercase);
-      updateRequirement(reqLowercase, hasLowercase);
       
       return hasLength && hasUppercase && hasLowercase;
     }
@@ -1230,6 +1267,12 @@
       }
     });
 
+    // Update password requirements in real-time
+    signupPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      updatePasswordRequirements(password);
+    });
+
     // Setup password toggles
     toggleLoginPassword.addEventListener('click', () => {
       togglePasswordVisibility(loginPassword, toggleLoginPassword);
@@ -1256,6 +1299,9 @@
           loginForm.classList.remove('active');
           signupForm.classList.add('active');
         }
+        
+        // Clear all errors when switching tabs
+        clearAllErrors();
       });
     });
 
@@ -1269,6 +1315,87 @@
       e.preventDefault();
       authTabs[0].click();
     });
+
+    // Validate login inputs
+    function validateLoginInputs() {
+      let isValid = true;
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      const errors = [];
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmailFormat(email)) {
+        errors.push('Please enter a valid email');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
+    }
+
+    // Validate signup inputs
+    function validateSignupInputs() {
+      let isValid = true;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      const errors = [];
+      
+      // Validate username
+      if (!username) {
+        errors.push('Username is required');
+        isValid = false;
+      } else if (!isValidUsername(username)) {
+        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
+        isValid = false;
+      }
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmailForRegistration(email)) {
+        errors.push('Please use a valid allowed email domain');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      } else if (!isValidPassword(password)) {
+        errors.push('Password must meet all requirements');
+        isValid = false;
+      }
+      
+      // Validate confirm password
+      if (!confirmPassword) {
+        errors.push('Please confirm your password');
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        errors.push('Passwords do not match');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
+    }
 
     // Email Login
     loginBtn.addEventListener('click', async () => {
@@ -1318,38 +1445,7 @@
       const confirmPassword = signupConfirmPassword.value.trim();
       
       // Validate inputs
-      const errors = [];
-      
-      // Validate username
-      if (!username) {
-        errors.push('Username is required');
-      } else if (!isValidUsername(username)) {
-        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
-      }
-      
-      // Validate email
-      if (!email) {
-        errors.push('Email is required');
-      } else if (!isValidEmailForRegistration(email)) {
-        errors.push('Please use a valid allowed email domain');
-      }
-      
-      // Validate password
-      if (!password) {
-        errors.push('Password is required');
-      } else if (!isValidPassword(password)) {
-        errors.push('Password must meet all requirements');
-      }
-      
-      // Validate confirm password
-      if (!confirmPassword) {
-        errors.push('Please confirm your password');
-      } else if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
-      }
-      
-      if (errors.length > 0) {
-        showRequirementsMenu(errors);
+      if (!validateSignupInputs()) {
         return;
       }
       
@@ -1385,6 +1481,60 @@
         
       } catch (error) {
         showRequirementsMenu([getErrorMessage(error)]);
+      }
+    });
+
+    // Input validation listeners
+    signupUsername.addEventListener('input', () => {
+      const username = signupUsername.value.trim();
+      if (!username) {
+        // Error only shown in requirements menu
+      } else if (!isValidUsername(username)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    signupEmail.addEventListener('input', () => {
+      const email = signupEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmailForRegistration(email)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    signupPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      if (!password) {
+        // Error only shown in requirements menu
+      } else if (!isValidPassword(password)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    signupConfirmPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      if (!confirmPassword) {
+        // Error only shown in requirements menu
+      } else if (password !== confirmPassword) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginEmail.addEventListener('input', () => {
+      const email = loginEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmailFormat(email)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginPassword.addEventListener('input', () => {
+      const password = loginPassword.value;
+      if (!password) {
+        // Error only shown in requirements menu
       }
     });
 
