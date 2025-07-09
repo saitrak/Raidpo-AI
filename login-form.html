@@ -590,14 +590,6 @@
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
-    /* Error Message (for inline validation, not used for Firebase errors) */
-    .error-message {
-      color: #ff6f61;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
     /* Close Button */
     .close-button {
       position: absolute;
@@ -826,7 +818,7 @@
       apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
       authDomain: "raidpo-ai-3c84b.firebaseapp.com",
       projectId: "raidpo-ai-3c84b",
-      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
+      storageBucket: "raidpo-ai-3c84b.appspot.com", // Corrected domain
       messagingSenderId: "41213161184",
       appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
       measurementId: "G-7MBZHVFCZR"
@@ -881,288 +873,174 @@
     // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaWidgetId;
-    let recaptchaCompleted = false;
 
-    // === THIS IS THE CORE OF YOUR CUSTOM ERROR HANDLING ===
-    // This object maps Firebase's internal error codes to your desired user-friendly messages.
+    // The full list of user-friendly error messages
     const errorMessages = {
-      // Email/Password Auth Errors
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
       "auth/user-disabled": "This account has been disabled. Contact support.",
       "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.",
       "auth/email-already-in-use": "Email already exists. Use a different one.",
       "auth/operation-not-allowed": "Email/password login is disabled.",
-      "auth/weak-password": "Password too weak. Use at least 6 characters.",
+      "auth/weak-password": "Password is too weak. Please use at least 6 characters.",
       "auth/missing-email": "Email is required.",
       "auth/missing-password": "Password is required.",
-
-      // General & API Errors
       "auth/invalid-api-key": "Invalid API key. Please check your configuration.",
-      "auth/app-not-authorized": "App not authorized for this Firebase project.",
+      "auth/app-not-authorized": "This app is not authorized to use Firebase Authentication.",
       "auth/network-request-failed": "Network error. Check your internet connection.",
       "auth/too-many-requests": "Too many attempts. Please try again later.",
-      "auth/internal-error": "Something went wrong. Please try again.",
-      "auth/timeout": "Request timed out. Try again.",
-
-      // Custom Token Errors
-      "auth/invalid-custom-token": "Custom token is invalid.",
-      "auth/custom-token-mismatch": "Custom token does not match project.",
-
-      // Popup / OAuth Errors
-      "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
-      "auth/popup-closed-by-user": "Popup closed before login completed.",
-      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
-
-      // Phone Auth Errors
-      "auth/invalid-phone-number": "Invalid phone number format.",
-      "auth/missing-phone-number": "Phone number is required.",
-      "auth/quota-exceeded": "SMS quota exceeded. Try later.",
-      "auth/captcha-check-failed": "Captcha check failed. Try again.",
-      "auth/missing-verification-code": "Verification code is required.",
-      "auth/invalid-verification-code": "Invalid verification code.",
-      "auth/missing-verification-id": "Missing verification ID.",
-      "auth/invalid-verification-id": "Invalid verification ID.",
-
-      // Credential Errors
-      "auth/account-exists-with-different-credential": "Account exists with another login method.",
-      "auth/credential-already-in-use": "Credential already linked with another account.",
-      "auth/invalid-credential": "Invalid login credential.",
-      "auth/missing-app-credential": "Missing phone app credential.",
-      "auth/invalid-app-credential": "Invalid app credential. Try again.",
-
-      // User Session Errors
-      "auth/requires-recent-login": "Please log in again to perform this action.",
-      "auth/invalid-user-token": "Session expired. Please log in again.",
-      "auth/null-user": "No user session found.",
-      "auth/user-mismatch": "Login does not match current user.",
-
-      // Linking Errors
-      "auth/provider-already-linked": "Account already linked with this provider.",
-      "auth/no-such-provider": "Account is not linked with this provider.",
-
-      // Continue URL Errors
-      "auth/invalid-continue-uri": "Continue URL is not valid.",
-      "auth/unauthorized-continue-uri": "Continue URL is not whitelisted.",
-
-      // App Issues
-      "auth/app-deleted": "App instance was deleted.",
-      "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
-      
-      // Default error for any unlisted codes
+      "auth/internal-error": "An internal error occurred. Please try again.",
+      "auth/timeout": "The request timed out. Please try again.",
+      "auth/popup-blocked": "Popup blocked by browser. Please allow popups for this site.",
+      "auth/popup-closed-by-user": "Login popup was closed before completion.",
+      "auth/unauthorized-domain": "This domain is not authorized for OAuth operations.",
+      "auth/account-exists-with-different-credential": "An account already exists with this email, but with a different sign-in method.",
+      "auth/requires-recent-login": "This action is sensitive and requires recent authentication. Please log in again.",
       "default": "Something went wrong. Please try again."
     };
 
-    // This function takes a Firebase error object and returns your custom message.
+    /**
+     * Translates a Firebase error object into a user-friendly message.
+     * @param {Error} error The error object from Firebase.
+     * @returns {string} A user-friendly error message.
+     */
     function getErrorMessage(error) {
-      const code = error.code || '';
-      return errorMessages[code] || errorMessages['default'];
+      // Check if the error code exists in our predefined list
+      if (error && error.code && errorMessages[error.code]) {
+        return errorMessages[error.code];
+      }
+      // Fallback to the default message for any unlisted errors
+      return errorMessages['default'];
     }
-    // =======================================================
 
-    // reCAPTCHA load callback
+    /**
+     * The NEW Centralized Error Handler.
+     * It logs the technical error for debugging and shows a friendly message to the user.
+     * @param {Error} error The error object from a try/catch block.
+     */
+    function handleAuthError(error) {
+      // THIS IS THE MOST IMPORTANT PART FOR DEBUGGING.
+      // It will print the full technical error to the browser's developer console (F12).
+      console.error("Firebase Auth Error:", error);
+
+      const friendlyMessage = getErrorMessage(error);
+      showRequirementsMenu([friendlyMessage]);
+    }
+
+    // reCAPTCHA callbacks
     function onRecaptchaLoad() {
-      if (document.getElementById('securityRecaptcha')) {
+      if (document.getElementById('securityRecaptcha') && typeof grecaptcha !== 'undefined' && grecaptcha.render) {
         recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
           sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-          callback: onSecurityRecaptchaComplete,
-          'expired-callback': onRecaptchaExpired,
-          'error-callback': onRecaptchaError
+          callback: () => {
+            challengeComplete.style.display = 'block';
+            setTimeout(() => {
+              securityChallenge.style.display = 'none';
+              methodSelectorPage.style.display = 'block';
+            }, 1000);
+          }
         });
       }
     }
 
-    // reCAPTCHA completion callback
-    function onSecurityRecaptchaComplete(token) {
-      recaptchaCompleted = true;
-      challengeComplete.style.display = 'block';
-      
-      setTimeout(() => {
-        securityChallenge.style.display = 'none';
-        methodSelectorPage.style.display = 'block';
-      }, 1000);
-    }
-
-    function onRecaptchaExpired() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId !== undefined) grecaptcha.reset(recaptchaWidgetId);
-    }
-
-    function onRecaptchaError() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      showRequirementsMenu(["reCAPTCHA failed. Please try again."]);
-    }
-
+    // Initial page load logic
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         loadingScreen.style.display = 'none';
-        
         if (user) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           securityChallenge.style.display = 'flex';
-          if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
-            onRecaptchaLoad();
-          }
+          onRecaptchaLoad();
         }
       });
     }, 3000);
 
-    closeButton.addEventListener('click', () => {
-      window.location.href = 'https://raidpo-ai.netlify.app/';
-    });
-
+    // Navigation and UI Listeners
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => {
       authPage.style.display = 'none';
       methodSelectorPage.style.display = 'block';
     });
-
     emailMethodBtn.addEventListener('click', () => {
       methodSelectorPage.style.display = 'none';
       authPage.style.display = 'block';
     });
 
+    // --- OAUTH METHODS USING THE NEW HANDLER ---
     googleMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider)
-        .then((result) => {
-          // Success is handled by onAuthStateChanged
-        })
-        .catch(error => {
-          // Use the custom error system
-          showRequirementsMenu([getErrorMessage(error)]);
-        });
+      auth.signInWithPopup(googleProvider).catch(handleAuthError);
     });
 
     githubMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(githubProvider)
-        .then((result) => {
-          // Success is handled by onAuthStateChanged
-        })
-        .catch(error => {
-          // Use the custom error system
-          showRequirementsMenu([getErrorMessage(error)]);
-        });
+      auth.signInWithPopup(githubProvider).catch(handleAuthError);
     });
 
+    // --- UTILITY AND VALIDATION FUNCTIONS ---
     function updateRequirement(element, isValid) {
       if (!element) return;
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       const icon = element.querySelector('i');
-      if (icon) {
-        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
-      }
+      if (icon) icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
 
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function isValidUsername(username) {
-      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-    }
-
+    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function isValidUsername(username) { return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username); }
     function isValidPassword(password) {
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
-      
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
-      
       return hasLength && hasUppercase && hasLowercase;
     }
 
-    // This function displays errors (both for validation and from Firebase) in your requirements menu.
     function showRequirementsMenu(requirements) {
       if (countdownTimer) clearTimeout(countdownTimer);
-      
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
       void countdownProgress.offsetWidth;
       countdownProgress.style.transition = 'width 3s linear';
-      
-      requirementsList.innerHTML = '';
-      requirements.forEach(req => {
-        const li = document.createElement('li');
-        li.className = 'requirement-item invalid';
-        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-        requirementsList.appendChild(li);
-      });
-      
+      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
-      
-      setTimeout(() => {
-        countdownProgress.style.width = '100%';
-      }, 10);
-      
-      countdownTimer = setTimeout(() => {
-        hideRequirementsMenu();
-      }, 3000);
+      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
+      countdownTimer = setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
     }
 
-    function hideRequirementsMenu() {
-      requirementsOverlay.classList.remove('active');
+    function togglePasswordVisibility(input, toggle) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      toggle.querySelector('i').classList.toggle('fa-eye-slash');
     }
 
-    function togglePasswordVisibility(inputElement, toggleElement) {
-      const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
-      inputElement.setAttribute('type', type);
-      const icon = toggleElement.querySelector('i');
-      icon.classList.toggle('fa-eye');
-      icon.classList.toggle('fa-eye-slash');
-    }
-
-    signupPassword.addEventListener('focus', () => {
-      signupPasswordRequirements.style.display = 'block';
-    });
-    signupPassword.addEventListener('input', () => {
-      isValidPassword(signupPassword.value);
-    });
-
+    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
+    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
     toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
     toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
     toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
 
+    // Tab Switching Logic
     authTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
         const isLogin = tab.dataset.tab === 'login';
         loginForm.classList.toggle('active', isLogin);
         signupForm.classList.toggle('active', !isLogin);
       });
     });
+    switchToSignup.addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
+    switchToLogin.addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
+    verificationCloseBtn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
 
-    switchToSignup.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[1].click();
-    });
-
-    switchToLogin.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[0].click();
-    });
-
-    verificationCloseBtn.addEventListener('click', () => {
-      verificationMessage.style.display = 'none';
-      window.location.href = 'https://raidpo-ai.netlify.app/';
-    });
-
+    // Input Validation
     function validateLoginInputs() {
       const errors = [];
       if (!loginEmail.value.trim()) errors.push('Email is required');
       else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
       if (!loginPassword.value.trim()) errors.push('Password is required');
-      
-      if (errors.length > 0) {
-        showRequirementsMenu(errors);
-        return false;
-      }
+      if (errors.length > 0) { showRequirementsMenu(errors); return false; }
       return true;
     }
 
@@ -1174,51 +1052,36 @@
       else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
       if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
       if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
-      
-      if (errors.length > 0) {
-        showRequirementsMenu(errors);
-        return false;
-      }
+      if (errors.length > 0) { showRequirementsMenu(errors); return false; }
       return true;
     }
 
+    // --- EMAIL/PASSWORD METHODS USING THE NEW HANDLER ---
     loginBtn.addEventListener('click', async () => {
       if (!validateLoginInputs()) return;
-      
       try {
         await auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginPassword.value.trim());
-        // Success is handled by onAuthStateChanged
       } catch (error) {
-        // Here, the specific error message from your list is shown
-        showRequirementsMenu([getErrorMessage(error)]);
+        handleAuthError(error);
       }
     });
 
     signupBtn.addEventListener('click', async () => {
       if (!validateSignupInputs()) return;
-      
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
-      const username = signupUsername.value.trim();
-
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.updateProfile({ displayName: username });
+        const userCredential = await auth.createUserWithEmailAndPassword(signupEmail.value.trim(), signupPassword.value.trim());
+        await userCredential.user.updateProfile({ displayName: signupUsername.value.trim() });
         await userCredential.user.sendEmailVerification();
-        
         verificationMessage.style.display = 'block';
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
-        
       } catch (error) {
-        // Here, the specific error message from your list is shown
-        showRequirementsMenu([getErrorMessage(error)]);
+        handleAuthError(error);
       }
     });
-
   </script>
 </body>
 </html>
