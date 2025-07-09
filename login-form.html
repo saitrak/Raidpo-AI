@@ -31,6 +31,16 @@
       min-height: 100vh;
     }
 
+    /* Custom cursor for mouse users */
+    @media (hover: hover) and (pointer: fine) {
+      body {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ff6f61" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>'), auto;
+      }
+      button, a, input, .auth-tab {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%23ff6f61" stroke="%23ff6f61" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>'), pointer;
+      }
+    }
+
     h1, h2, h3 {
       font-weight: bold;
       margin: 0;
@@ -809,7 +819,7 @@
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
-      <div class="requirements-title">Please fix these issues</div>
+      <div class="requirements-title">Please fill these requirements</div>
       <ul class="requirements-list" id="requirementsList">
         <!-- Will be populated dynamically -->
       </ul>
@@ -897,30 +907,108 @@
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
 
-    // Custom error messages mapping
+    // Comprehensive custom error messages mapping
     const errorMessages = {
-      // Common errors
-      'auth/invalid-email': 'Invalid email address',
-      'auth/user-disabled': 'This account has been disabled',
-      'auth/user-not-found': 'Invalid email or password',
-      'auth/wrong-password': 'Invalid email or password',
-      'auth/email-already-in-use': 'Email is already registered',
-      'auth/operation-not-allowed': 'This operation is not allowed',
-      'auth/weak-password': 'Password must be at least 6 characters with uppercase and lowercase letters',
+      // Authentication errors
+      'auth/admin-restricted-operation': 'This operation is restricted to administrators only.',
+      'auth/argument-error': 'An invalid argument was provided.',
+      'auth/app-not-authorized': 'This app is not authorized to use Firebase Authentication.',
+      'auth/app-not-installed': 'The requested mobile application is not installed on the device.',
+      'auth/captcha-check-failed': 'The reCAPTCHA response token is invalid, expired, or already used.',
+      'auth/code-expired': 'The SMS code has expired. Please request a new one.',
+      'auth/cordova-not-ready': 'Cordova framework is not ready.',
+      'auth/cors-unsupported': 'This browser is not supported.',
+      'auth/credential-already-in-use': 'This credential is already associated with a different user account.',
+      'auth/custom-token-mismatch': 'The custom token corresponds to a different audience.',
+      'auth/requires-recent-login': 'This operation is sensitive and requires recent authentication. Please log in again.',
+      'auth/dynamic-link-not-activated': 'Dynamic links are not activated for this project.',
+      'auth/email-change-needs-verification': 'Email change requires verification.',
+      'auth/email-already-in-use': 'The email address is already in use by another account.',
+      'auth/expired-action-code': 'The action code has expired.',
+      'auth/cancelled-popup-request': 'Only one popup request is allowed at one time.',
+      'auth/internal-error': 'An internal error occurred. Please try again.',
+      'auth/invalid-api-key': 'Your API key is invalid.',
+      'auth/invalid-app-credential': 'The app credential is invalid.',
+      'auth/invalid-app-id': 'The mobile app identifier is invalid.',
+      'auth/invalid-user-token': 'The user token is invalid.',
+      'auth/invalid-auth-event': 'An invalid authentication event occurred.',
+      'auth/invalid-cert-hash': 'The certificate hash is invalid.',
+      'auth/invalid-verification-code': 'The SMS verification code is invalid.',
+      'auth/invalid-continue-uri': 'The continue URL is invalid.',
+      'auth/invalid-cordova-configuration': 'The Cordova configuration is invalid.',
+      'auth/invalid-custom-token': 'The custom token is invalid.',
+      'auth/invalid-dynamic-link-domain': 'The dynamic link domain is invalid.',
+      'auth/invalid-email': 'The email address is invalid.',
+      'auth/invalid-emulator-scheme': 'The emulator scheme is invalid.',
+      'auth/invalid-credential': 'The supplied credential is invalid.',
+      'auth/invalid-message-payload': 'The email template payload is invalid.',
+      'auth/invalid-multi-factor-session': 'The multi-factor session is invalid.',
+      'auth/invalid-oauth-client-id': 'The OAuth client ID is invalid.',
+      'auth/invalid-oauth-provider': 'The OAuth provider is invalid.',
+      'auth/invalid-action-code': 'The action code is invalid.',
+      'auth/unauthorized-domain': 'This domain is not authorized for OAuth operations.',
+      'auth/invalid-persistence-type': 'The specified persistence type is invalid.',
+      'auth/invalid-phone-number': 'The phone number is invalid.',
+      'auth/invalid-provider-id': 'The provider ID is invalid.',
+      'auth/invalid-recipient-email': 'The recipient email is invalid.',
+      'auth/invalid-sender': 'The sender email is invalid.',
+      'auth/invalid-verification-id': 'The verification ID is invalid.',
+      'auth/invalid-tenant-id': 'The tenant ID is invalid.',
+      'auth/missing-android-pkg-name': 'An Android package name must be provided.',
+      'auth/missing-continue-uri': 'A continue URL must be provided.',
+      'auth/missing-iframe-start': 'An iframe start URL must be provided.',
+      'auth/missing-ios-bundle-id': 'An iOS bundle ID must be provided.',
+      'auth/missing-or-invalid-nonce': 'The nonce is missing or invalid.',
+      'auth/missing-multi-factor-info': 'Multi-factor information is missing.',
+      'auth/missing-multi-factor-session': 'The multi-factor session is missing.',
+      'auth/missing-phone-number': 'A phone number must be provided.',
+      'auth/missing-verification-code': 'The verification code is missing.',
+      'auth/missing-verification-id': 'The verification ID is missing.',
+      'auth/app-deleted': 'The Firebase app was deleted.',
+      'auth/account-exists-with-different-credential': 'An account already exists with the same email but different sign-in credentials.',
+      'auth/network-request-failed': 'A network error occurred. Please check your connection.',
+      'auth/no-auth-event': 'No authentication event was received.',
+      'auth/no-such-provider': 'The specified provider does not exist.',
+      'auth/null-user': 'A null user object was provided.',
+      'auth/operation-not-allowed': 'This operation is not allowed.',
+      'auth/operation-not-supported-in-this-environment': 'This operation is not supported in this environment.',
+      'auth/popup-blocked': 'The popup was blocked by the browser.',
+      'auth/popup-closed-by-user': 'The popup was closed by the user.',
+      'auth/provider-already-linked': 'This provider is already linked to the user.',
+      'auth/quota-exceeded': 'The quota for this operation has been exceeded.',
+      'auth/redirect-cancelled-by-user': 'The redirect operation was cancelled by the user.',
+      'auth/redirect-operation-pending': 'A redirect operation is already pending.',
+      'auth/rejected-credential': 'The request contains a rejected credential.',
+      'auth/second-factor-already-in-use': 'The second factor is already enrolled.',
+      'auth/maximum-second-factor-count-exceeded': 'The maximum number of second factors has been exceeded.',
+      'auth/tenant-id-mismatch': 'The tenant ID does not match.',
+      'auth/timeout': 'The operation timed out.',
+      'auth/user-token-expired': 'The user token has expired.',
       'auth/too-many-requests': 'Too many requests. Please try again later.',
-      'auth/requires-recent-login': 'This operation requires recent authentication. Please log in again.',
+      'auth/unauthorized-continue-uri': 'The continue URL is not whitelisted.',
+      'auth/unsupported-first-factor': 'The first factor is not supported.',
+      'auth/unsupported-persistence-type': 'The specified persistence type is not supported.',
+      'auth/unsupported-tenant-operation': 'This operation is not supported in a multi-tenant context.',
+      'auth/unverified-email': 'The operation requires a verified email.',
+      'auth/user-cancelled': 'The user cancelled the operation.',
+      'auth/user-not-found': 'No user found with this email address.',
+      'auth/user-disabled': 'This user account has been disabled.',
+      'auth/user-mismatch': 'The provided credentials do not match the signed-in user.',
+      'auth/user-signed-out': 'The user has signed out.',
+      'auth/weak-password': 'Password must be at least 6 characters with uppercase and lowercase letters.',
+      'auth/web-storage-unsupported': 'Web storage is not supported or disabled.',
+      'auth/already-initialized': 'Firebase has already been initialized.',
+      'auth/recaptcha-not-enabled': 'reCAPTCHA is not enabled.',
+      'auth/missing-recaptcha-token': 'The reCAPTCHA token is missing.',
+      'auth/invalid-recaptcha-token': 'The reCAPTCHA token is invalid.',
+      'auth/invalid-recaptcha-action': 'The reCAPTCHA action is invalid.',
+      'auth/missing-client-type': 'The client type is missing.',
+      'auth/missing-recaptcha-version': 'The reCAPTCHA version is missing.',
+      'auth/invalid-recaptcha-version': 'The reCAPTCHA version is invalid.',
+      'auth/invalid-req-type': 'The request type is invalid.',
       
-      // Sign-up specific
-      'auth/invalid-verification-code': 'Invalid verification code',
-      'auth/invalid-verification-id': 'Invalid verification ID',
-      'auth/missing-verification-code': 'Missing verification code',
-      'auth/missing-verification-id': 'Missing verification ID',
-      
-      // Network errors
-      'auth/network-request-failed': 'Network error. Please check your connection.',
-      
-      // Default
-      'default': 'An error occurred. Please try again.'
+      // Default error message
+      'default': 'An unexpected error occurred. Please try again.'
     };
 
     // Get friendly error message
@@ -1231,16 +1319,23 @@
       // Validate email
       if (!email) {
         errors.push('Email is required');
+        showError(loginEmailError, 'Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
         errors.push('Please enter a valid email');
+        showError(loginEmailError, 'Please enter a valid email');
         isValid = false;
+      } else {
+        hideError(loginEmailError);
       }
       
       // Validate password
       if (!password) {
         errors.push('Password is required');
+        showError(loginPasswordError, 'Password is required');
         isValid = false;
+      } else {
+        hideError(loginPasswordError);
       }
       
       if (!isValid) {
@@ -1262,37 +1357,53 @@
       // Validate username
       if (!username) {
         errors.push('Username is required');
+        showError(signupUsernameError, 'Username is required');
         isValid = false;
       } else if (!isValidUsername(username)) {
         errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
+        showError(signupUsernameError, 'Username must be at least 3 characters (letters, numbers, underscores)');
         isValid = false;
+      } else {
+        hideError(signupUsernameError);
       }
       
       // Validate email
       if (!email) {
         errors.push('Email is required');
+        showError(signupEmailError, 'Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
         errors.push('Please enter a valid email');
+        showError(signupEmailError, 'Please enter a valid email');
         isValid = false;
+      } else {
+        hideError(signupEmailError);
       }
       
       // Validate password
       if (!password) {
         errors.push('Password is required');
+        showError(signupPasswordError, 'Password is required');
         isValid = false;
       } else if (!isValidPassword(password)) {
         errors.push('Password must be at least 6 characters with uppercase and lowercase letters');
+        showError(signupPasswordError, 'Password must be at least 6 characters with uppercase and lowercase letters');
         isValid = false;
+      } else {
+        hideError(signupPasswordError);
       }
       
       // Validate confirm password
       if (!confirmPassword) {
         errors.push('Please confirm your password');
+        showError(signupConfirmPasswordError, 'Please confirm your password');
         isValid = false;
       } else if (password !== confirmPassword) {
         errors.push('Passwords do not match');
+        showError(signupConfirmPasswordError, 'Passwords do not match');
         isValid = false;
+      } else {
+        hideError(signupConfirmPasswordError);
       }
       
       if (!isValid) {
@@ -1342,6 +1453,7 @@
         if (signInMethods.length > 0) {
           // Email already exists
           showRequirementsMenu(['Email is already registered']);
+          showError(signupEmailError, 'Email is already registered');
           return;
         }
         
