@@ -550,7 +550,7 @@
       transition: width 3s linear;
     }
 
-    /* Verification Message */
+    /* Verification Message (5th Layer) */
     .verification-message {
       position: fixed;
       top: 50%;
@@ -848,10 +848,11 @@
     </div>
   </div>
 
-  <!-- Verification Message -->
+  <!-- Verification Message (5th Layer) -->
   <div class="verification-message" id="verificationMessage">
     <h2>Verify Your Email</h2>
     <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
+    <p>You won't be able to login until you verify your email address.</p>
     <button id="verificationCloseBtn">Close</button>
   </div>
 
@@ -1306,7 +1307,7 @@
       authTabs[0].click();
     });
 
-    // Close verification message
+    // Close verification message (5th layer)
     verificationCloseBtn.addEventListener('click', () => {
       verificationMessage.style.display = 'none';
       window.location.href = 'https://raidpo-ai.netlify.app/';
@@ -1458,17 +1459,13 @@
           handleCodeInApp: true
         });
         
-        // Show verification message
+        // Show verification message (5th layer)
         verificationMessage.style.display = 'block';
         
         // Sign out the user immediately after registration
         await auth.signOut();
         
-        // Redirect to main site after short delay
-        setTimeout(() => {
-          window.location.href = 'https://raidpo-ai.netlify.app/';
-        }, 2000);
-        
+        // Clear the form
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
