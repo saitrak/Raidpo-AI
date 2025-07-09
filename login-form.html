@@ -897,108 +897,73 @@
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
 
-    // Comprehensive custom error messages mapping
+    // Custom error messages mapping
     const errorMessages = {
-      // Authentication errors
-      'auth/admin-restricted-operation': 'This operation is restricted to administrators only',
-      'auth/argument-error': 'Invalid information provided',
-      'auth/app-not-authorized': 'This app is not authorized',
-      'auth/app-not-installed': 'The requested app is not installed',
-      'auth/captcha-check-failed': 'Security check failed. Please try again',
-      'auth/code-expired': 'The verification code has expired',
-      'auth/cordova-not-ready': 'System not ready. Please try again',
-      'auth/cors-unsupported': 'This browser is not supported',
-      'auth/credential-already-in-use': 'This login method is already linked to another account',
-      'auth/custom-token-mismatch': 'Invalid security token',
-      'auth/requires-recent-login': 'This action requires recent login. Please sign in again',
-      'auth/dynamic-link-not-activated': 'Link verification not activated',
-      'auth/email-change-needs-verification': 'Email change requires verification',
-      'auth/email-already-in-use': 'This email is already registered',
-      'auth/expired-action-code': 'The verification link has expired',
-      'auth/cancelled-popup-request': 'Login popup was cancelled',
-      'auth/internal-error': 'System error. Please try again',
-      'auth/invalid-api-key': 'Invalid system configuration',
-      'auth/invalid-app-credential': 'Invalid app credentials',
-      'auth/invalid-app-id': 'Invalid app identifier',
-      'auth/invalid-user-token': 'Invalid session. Please sign in again',
-      'auth/invalid-auth-event': 'Invalid authentication request',
-      'auth/invalid-cert-hash': 'Invalid security certificate',
-      'auth/invalid-verification-code': 'Invalid verification code',
-      'auth/invalid-continue-uri': 'Invalid redirect URL',
-      'auth/invalid-cordova-configuration': 'Invalid system configuration',
-      'auth/invalid-custom-token': 'Invalid security token',
-      'auth/invalid-dynamic-link-domain': 'Invalid verification link',
-      'auth/invalid-email': 'Please enter a valid email address',
-      'auth/invalid-emulator-scheme': 'Invalid system configuration',
-      'auth/invalid-credential': 'Invalid login credentials',
-      'auth/invalid-message-payload': 'Invalid email template',
-      'auth/invalid-multi-factor-session': 'Invalid security session',
-      'auth/invalid-oauth-client-id': 'Invalid login provider configuration',
-      'auth/invalid-oauth-provider': 'Invalid login provider',
-      'auth/invalid-action-code': 'Invalid verification link',
-      'auth/unauthorized-domain': 'This domain is not authorized',
-      'auth/invalid-persistence-type': 'Invalid system configuration',
-      'auth/invalid-phone-number': 'Invalid phone number',
-      'auth/invalid-provider-id': 'Invalid login provider',
-      'auth/invalid-recipient-email': 'Invalid recipient email',
-      'auth/invalid-sender': 'Invalid sender email',
-      'auth/invalid-verification-id': 'Invalid verification code',
-      'auth/invalid-tenant-id': 'Invalid system configuration',
-      'auth/missing-android-pkg-name': 'Android package name missing',
-      'auth/missing-continue-uri': 'Redirect URL missing',
-      'auth/missing-iframe-start': 'System configuration error',
-      'auth/missing-ios-bundle-id': 'iOS bundle ID missing',
-      'auth/missing-or-invalid-nonce': 'Security check failed',
-      'auth/missing-multi-factor-info': 'Security information missing',
-      'auth/missing-multi-factor-session': 'Security session expired',
-      'auth/missing-phone-number': 'Phone number required',
-      'auth/missing-verification-code': 'Verification code required',
-      'auth/missing-verification-id': 'Verification ID required',
-      'auth/app-deleted': 'System configuration error',
-      'auth/account-exists-with-different-credential': 'Account exists with different login method',
-      'auth/network-request-failed': 'Network error. Please check your connection',
-      'auth/no-auth-event': 'No authentication event received',
-      'auth/no-such-provider': 'Login provider not available',
-      'auth/null-user': 'No user account found',
-      'auth/operation-not-allowed': 'This operation is not allowed',
-      'auth/operation-not-supported-in-this-environment': 'Operation not supported',
-      'auth/popup-blocked': 'Login popup blocked. Please allow popups',
-      'auth/popup-closed-by-user': 'Login popup closed',
-      'auth/provider-already-linked': 'Login method already linked',
-      'auth/quota-exceeded': 'Request limit exceeded. Please try again later',
-      'auth/redirect-cancelled-by-user': 'Login redirect cancelled',
-      'auth/redirect-operation-pending': 'Login already in progress',
-      'auth/rejected-credential': 'Login rejected',
-      'auth/second-factor-already-in-use': 'Security method already in use',
-      'auth/maximum-second-factor-count-exceeded': 'Too many security methods',
-      'auth/tenant-id-mismatch': 'System configuration error',
-      'auth/timeout': 'Request timed out. Please try again',
-      'auth/user-token-expired': 'Session expired. Please sign in again',
-      'auth/too-many-requests': 'Too many attempts. Please try again later',
-      'auth/unauthorized-continue-uri': 'Unauthorized redirect URL',
-      'auth/unsupported-first-factor': 'Unsupported security method',
-      'auth/unsupported-persistence-type': 'Unsupported system configuration',
-      'auth/unsupported-tenant-operation': 'Operation not supported',
-      'auth/unverified-email': 'Email verification required',
-      'auth/user-cancelled': 'Login cancelled',
-      'auth/user-not-found': 'No account found with this email',
-      'auth/user-disabled': 'This account has been disabled',
-      'auth/user-mismatch': 'Credentials do not match',
-      'auth/user-signed-out': 'You have been signed out',
-      'auth/weak-password': 'Password must be at least 6 characters with uppercase and lowercase letters',
-      'auth/web-storage-unsupported': 'Browser storage not supported',
-      'auth/already-initialized': 'System already initialized',
-      'auth/recaptcha-not-enabled': 'Security check not enabled',
-      'auth/missing-recaptcha-token': 'Security token missing',
-      'auth/invalid-recaptcha-token': 'Invalid security token',
-      'auth/invalid-recaptcha-action': 'Invalid security action',
-      'auth/missing-client-type': 'Client type missing',
-      'auth/missing-recaptcha-version': 'Security version missing',
-      'auth/invalid-recaptcha-version': 'Invalid security version',
-      'auth/invalid-req-type': 'Invalid request type',
+      // Email/Password Auth Errors
+      "auth/invalid-email": "Invalid email format. Please enter a valid email.",
+      "auth/user-disabled": "This account has been disabled. Contact support.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password. Try again.",
+      "auth/email-already-in-use": "Email already exists. Use a different one.",
+      "auth/operation-not-allowed": "Email/password login is disabled.",
+      "auth/weak-password": "Password too weak. Use at least 6 characters.",
+      "auth/missing-email": "Email is required.",
+      "auth/missing-password": "Password is required.",
+
+      // General & API Errors
+      "auth/invalid-api-key": "Invalid API key. Please check your configuration.",
+      "auth/app-not-authorized": "App not authorized for this Firebase project.",
+      "auth/network-request-failed": "Network error. Check your internet connection.",
+      "auth/too-many-requests": "Too many attempts. Please try again later.",
+      "auth/internal-error": "Something went wrong. Please try again.",
+      "auth/timeout": "Request timed out. Try again.",
+
+      // Custom Token Errors
+      "auth/invalid-custom-token": "Custom token is invalid.",
+      "auth/custom-token-mismatch": "Custom token does not match project.",
+
+      // Popup / OAuth Errors
+      "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
+      "auth/popup-closed-by-user": "Popup closed before login completed.",
+      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
+
+      // Phone Auth Errors
+      "auth/invalid-phone-number": "Invalid phone number format.",
+      "auth/missing-phone-number": "Phone number is required.",
+      "auth/quota-exceeded": "SMS quota exceeded. Try later.",
+      "auth/captcha-check-failed": "Captcha check failed. Try again.",
+      "auth/missing-verification-code": "Verification code is required.",
+      "auth/invalid-verification-code": "Invalid verification code.",
+      "auth/missing-verification-id": "Missing verification ID.",
+      "auth/invalid-verification-id": "Invalid verification ID.",
+
+      // Credential Errors
+      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "auth/credential-already-in-use": "Credential already linked with another account.",
+      "auth/invalid-credential": "Invalid login credential.",
+      "auth/missing-app-credential": "Missing phone app credential.",
+      "auth/invalid-app-credential": "Invalid app credential. Try again.",
+
+      // User Session Errors
+      "auth/requires-recent-login": "Please log in again to perform this action.",
+      "auth/invalid-user-token": "Session expired. Please log in again.",
+      "auth/null-user": "No user session found.",
+      "auth/user-mismatch": "Login does not match current user.",
+
+      // Linking Errors
+      "auth/provider-already-linked": "Account already linked with this provider.",
+      "auth/no-such-provider": "Account is not linked with this provider.",
+
+      // Continue URL Errors
+      "auth/invalid-continue-uri": "Continue URL is not valid.",
+      "auth/unauthorized-continue-uri": "Continue URL is not whitelisted.",
+
+      // App Issues
+      "auth/app-deleted": "App instance was deleted.",
+      "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
       
-      // Default error message
-      'default': 'Something went wrong. Please try again'
+      // Default error
+      "default": "Something went wrong. Please try again."
     };
 
     // Get friendly error message
@@ -1360,11 +1325,8 @@
         errors.push('Password is required');
         isValid = false;
       } else if (!isValidPassword(password)) {
-        errors.push('Password must be at least 6 characters with uppercase and lowercase letters');
-        showError(signupPasswordError, 'Password must be at least 6 characters with uppercase and lowercase letters');
+        errors.push('Password must meet all requirements');
         isValid = false;
-      } else {
-        hideError(signupPasswordError);
       }
       
       // Validate confirm password
@@ -1422,7 +1384,7 @@
         
         if (signInMethods.length > 0) {
           // Email already exists
-          showRequirementsMenu(['Email is already registered']);
+          showRequirementsMenu(['Email already exists. Use a different one.']);
           return;
         }
         
@@ -1479,7 +1441,7 @@
       if (!password) {
         showError(signupPasswordError, 'Password is required');
       } else if (!isValidPassword(password)) {
-        showError(signupPasswordError, 'Password must be at least 6 characters with uppercase and lowercase letters');
+        // Error only shown in requirements menu
       } else {
         hideError(signupPasswordError);
       }
