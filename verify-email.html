@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify Email - Raidpo AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #message {
+      font-size: 1.2em;
+      margin-top: 20px;
+      color: #00ff99;
+    }
+    .error {
+      color: #ff4444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Raidpo AI</h1>
+  <h2>Email Verification</h2>
+  <p id="message">Verifying your email...</p>
+
+  <script>
+    // ✅ Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
+      projectId: "raidpo-ai-3c84b",
+      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
+      messagingSenderId: "41213161184",
+      appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
+      measurementId: "G-7MBZHVFCZR"
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ✅ Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    const oobCode = params.get('oobCode');
+
+    const messageEl = document.getElementById("message");
+
+    // ✅ Handle email verification
+    if (mode === 'verifyEmail' && oobCode) {
+      auth.applyActionCode(oobCode)
+        .then(() => {
+          messageEl.textContent = "✅ Your email has been verified successfully!";
+        })
+        .catch((error) => {
+          console.error(error);
+          messageEl.textContent = "❌ Verification failed: " + error.message;
+          messageEl.classList.add("error");
+        });
+    } else {
+      messageEl.textContent = "❌ Invalid verification link.";
+      messageEl.classList.add("error");
+    }
+  </script>
+</body>
+</html>
