@@ -598,20 +598,6 @@
       display: none;
     }
 
-    /* Close Button */
-    .close-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      z-index: 100;
-      background: none;
-      border: none;
-      padding: 5px;
-    }
-
     /* Mini Notification */
     .mini-notification {
       position: fixed;
@@ -634,6 +620,20 @@
     .mini-notification.show {
       opacity: 1;
       transform: translateX(-50%) translateY(-10px);
+    }
+
+    /* Close Button */
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
     }
 
     /* Responsive Adjustments */
@@ -1447,6 +1447,15 @@
         
         // Show verification message
         verificationMessage.style.display = 'block';
+        
+        // Sign out the user immediately after registration
+        await auth.signOut();
+        
+        // Redirect to main site after short delay
+        setTimeout(() => {
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        }, 2000);
+        
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
