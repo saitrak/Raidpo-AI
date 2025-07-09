@@ -275,23 +275,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-        // --- IMPORTANT ---
-        // Your Firebase config object. These keys are meant to be public.
-        // Secure your app using Firebase Security Rules in your Firebase console, not by hiding these keys.
         const firebaseConfig = {
-            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", // Replace with your actual API key
+            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
             authDomain: "raidpo-ai-3c84b.firebaseapp.com",
             projectId: "raidpo-ai-3c84b",
             storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
             messagingSenderId: "41213161184",
             appId: "1:41213161184:web:58604fc48f2c026f5aaa85"
         };
-
-        // Initialize Firebase
+    
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-
-        // --- DOM Elements ---
+    
         const verificationContainer = document.getElementById('verificationContainer');
         const verificationTitle = document.getElementById('verificationTitle');
         const verificationMessage = document.getElementById('verificationMessage');
@@ -302,66 +297,59 @@
         const actionButton = document.getElementById('actionButton');
         const buttonText = document.getElementById('buttonText');
         const buttonSpinner = document.getElementById('buttonSpinner');
-        
-        // --- Configuration ---
-        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app"; // URL to redirect after success/failure
+    
+        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app";
         let countdownInterval;
-
-        // --- UI Update Functions ---
+        let countdownSeconds = 5;
+    
         function updateProgress(percent, message) {
             progressBar.style.width = `${percent}%`;
             verificationStatus.textContent = message;
         }
-
+    
         function showSuccessState() {
             clearInterval(countdownInterval);
             verificationContainer.classList.add('success-state');
-            
             innerCircle.innerHTML = `
                 <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                     <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                     <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>`;
-            
             verificationTitle.textContent = "Verification Complete!";
             verificationMessage.textContent = "Your email address has been successfully verified. Welcome aboard!";
             updateProgress(100, "Email verified successfully!");
-            
             buttonText.textContent = "Continue to Dashboard";
             actionButton.classList.remove('hidden');
             actionButton.disabled = false;
             actionButton.onclick = () => redirectToHomepage(true);
-
-            // Start countdown for automatic redirect
-            let seconds = 5;
-            countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
-            countdownInterval = setInterval(() => {
-                seconds--;
-                if (seconds > 0) {
-                    countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+    
+            countdownEl.textContent = `You will be redirected in ${countdownSeconds} seconds...`;
+            countdownInterval = setInterval(async () => {
+                countdownSeconds--;
+                if (countdownSeconds > 0) {
+                    countdownEl.textContent = `You will be redirected in ${countdownSeconds} seconds...`;
                 } else {
                     countdownEl.textContent = 'Redirecting...';
+                    clearInterval(countdownInterval);
+                    await autoLoginIfEmailLink();
                     redirectToHomepage(false);
                 }
             }, 1000);
         }
-
+    
         function showFailureState(title, message, status) {
             clearInterval(countdownInterval);
             verificationContainer.classList.add('failure-state');
-            
             innerCircle.innerHTML = '<div class="cross-icon"></div>';
-            
             verificationTitle.textContent = title;
             verificationMessage.textContent = message;
             updateProgress(100, status);
-            
             buttonText.textContent = 'Go to Login Page';
             actionButton.classList.remove('hidden');
             actionButton.disabled = false;
             actionButton.onclick = () => window.location.href = HOMEPAGE_URL;
         }
-        
+    
         function redirectToHomepage(isButtonClick) {
             if (isButtonClick) {
                 clearInterval(countdownInterval);
@@ -370,35 +358,27 @@
             buttonText.classList.add('hidden');
             buttonSpinner.classList.remove('hidden');
             actionButton.disabled = true;
-
+    
             setTimeout(() => {
                 window.location.href = HOMEPAGE_URL;
             }, 1000);
         }
-
-        // --- Core Verification Logic ---
+    
         function getActionCodeFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('oobCode');
         }
-
+    
         async function handleEmailVerification(actionCode) {
             try {
                 updateProgress(33, "Checking verification code...");
                 await auth.applyActionCode(actionCode);
-                
                 updateProgress(66, "Email confirmed. Updating your account...");
-                
-                // Ensure user is reloaded to get the latest emailVerified status
                 const user = auth.currentUser;
-                if(user) await user.reload();
-
-                // Small delay to let the UI update and feel smooth
+                if (user) await user.reload();
                 setTimeout(showSuccessState, 750);
-
             } catch (error) {
                 console.error("Email verification error:", error.code, error.message);
-                
                 switch (error.code) {
                     case 'auth/expired-action-code':
                         showFailureState("Link Expired", "This verification link is no longer valid. Please log in to your account to get a new one.", "Verification link has expired.");
@@ -418,17 +398,27 @@
                 }
             }
         }
-
-        // --- Page Load Handler ---
+    
+        async function autoLoginIfEmailLink() {
+            const email = localStorage.getItem('emailForSignIn');
+            if (auth.isSignInWithEmailLink(window.location.href) && email) {
+                try {
+                    await auth.signInWithEmailLink(email, window.location.href);
+                    localStorage.removeItem('emailForSignIn');
+                    console.log("Auto-login successful!");
+                } catch (e) {
+                    console.error("Auto-login failed:", e.message);
+                }
+            }
+        }
+    
         document.addEventListener('DOMContentLoaded', () => {
             updateProgress(10, "Initializing verification...");
             const actionCode = getActionCodeFromUrl();
-            
+    
             if (actionCode) {
-                // Primary flow: A verification code is in the URL.
                 handleEmailVerification(actionCode);
             } else {
-                // Fallback flow: No code. Check auth state for users who land here directly.
                 updateProgress(50, "Checking session status...");
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
