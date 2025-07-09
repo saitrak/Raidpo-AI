@@ -590,6 +590,14 @@
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
+    /* Error Message */
+    .error-message {
+      color: #ff6f61;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
     /* Close Button */
     .close-button {
       position: absolute;
@@ -602,6 +610,30 @@
       background: none;
       border: none;
       padding: 5px;
+    }
+
+    /* Mini Notification */
+    .mini-notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff6f61;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .mini-notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
     }
 
     /* Responsive Adjustments */
@@ -618,6 +650,11 @@
       .method-right, .auth-right {
         height: 70%;
         padding: 1.5rem;
+      }
+
+      .mini-notification {
+        width: 90%;
+        bottom: 10px;
       }
     }
 
@@ -730,12 +767,14 @@
           <div class="form-group">
             <label for="loginEmail">Email</label>
             <input type="text" id="loginEmail" placeholder="Enter your email" required>
+            <div class="error-message" id="loginEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="loginPasswordError"></div>
           </div>
           
           <button id="loginBtn" class="auth-btn">Login</button>
@@ -749,17 +788,20 @@
           <div class="form-group">
             <label for="signupUsername">Username</label>
             <input type="text" id="signupUsername" placeholder="Choose a username" required>
+            <div class="error-message" id="signupUsernameError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupEmail">Email</label>
             <input type="email" id="signupEmail" placeholder="Enter your email" required>
+            <div class="error-message" id="signupEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupPassword">Password</label>
             <input type="password" id="signupPassword" placeholder="Create a password" required>
             <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupPasswordError"></div>
             <div class="password-requirements" id="signupPasswordRequirements">
               <div class="requirement" id="req-length">
                 <i class="fas fa-times"></i>
@@ -780,6 +822,7 @@
             <label for="signupConfirmPassword">Confirm Password</label>
             <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
             <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+            <div class="error-message" id="signupConfirmPasswordError"></div>
           </div>
           
           <button id="signupBtn" class="auth-btn">Sign Up</button>
@@ -795,9 +838,9 @@
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
-      <div class="requirements-title">Please fix the following issues</div>
+      <div class="requirements-title">Please fill these requirements</div>
       <ul class="requirements-list" id="requirementsList">
-        <!-- Will be populated dynamically by JavaScript -->
+        <!-- Will be populated dynamically -->
       </ul>
       <div class="countdown-bar">
         <div class="countdown-progress" id="countdownProgress"></div>
@@ -812,13 +855,16 @@
     <button id="verificationCloseBtn">Close</button>
   </div>
 
+  <!-- Mini Notification -->
+  <div class="mini-notification" id="miniNotification"></div>
+
   <script>
     // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
       authDomain: "raidpo-ai-3c84b.firebaseapp.com",
       projectId: "raidpo-ai-3c84b",
-      storageBucket: "raidpo-ai-3c84b.appspot.com", // Corrected domain
+      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
       messagingSenderId: "41213161184",
       appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
       measurementId: "G-7MBZHVFCZR"
@@ -864,7 +910,16 @@
     const requirementsOverlay = document.getElementById('requirementsOverlay');
     const requirementsList = document.getElementById('requirementsList');
     const countdownProgress = document.getElementById('countdownProgress');
-    
+    const miniNotification = document.getElementById('miniNotification');
+
+    // Error message elements
+    const loginEmailError = document.getElementById('loginEmailError');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    const signupUsernameError = document.getElementById('signupUsernameError');
+    const signupEmailError = document.getElementById('signupEmailError');
+    const signupPasswordError = document.getElementById('signupPasswordError');
+    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
+
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
@@ -873,215 +928,634 @@
     // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaWidgetId;
+    let recaptchaCompleted = false;
 
-    // The full list of user-friendly error messages
+    // Custom error messages mapping
     const errorMessages = {
+      // Email/Password Auth Errors
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
       "auth/user-disabled": "This account has been disabled. Contact support.",
       "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.",
       "auth/email-already-in-use": "Email already exists. Use a different one.",
       "auth/operation-not-allowed": "Email/password login is disabled.",
-      "auth/weak-password": "Password is too weak. Please use at least 6 characters.",
+      "auth/weak-password": "Password too weak. Use at least 6 characters.",
       "auth/missing-email": "Email is required.",
       "auth/missing-password": "Password is required.",
+
+      // General & API Errors
       "auth/invalid-api-key": "Invalid API key. Please check your configuration.",
-      "auth/app-not-authorized": "This app is not authorized to use Firebase Authentication.",
+      "auth/app-not-authorized": "App not authorized for this Firebase project.",
       "auth/network-request-failed": "Network error. Check your internet connection.",
       "auth/too-many-requests": "Too many attempts. Please try again later.",
-      "auth/internal-error": "An internal error occurred. Please try again.",
-      "auth/timeout": "The request timed out. Please try again.",
-      "auth/popup-blocked": "Popup blocked by browser. Please allow popups for this site.",
-      "auth/popup-closed-by-user": "Login popup was closed before completion.",
-      "auth/unauthorized-domain": "This domain is not authorized for OAuth operations.",
-      "auth/account-exists-with-different-credential": "An account already exists with this email, but with a different sign-in method.",
-      "auth/requires-recent-login": "This action is sensitive and requires recent authentication. Please log in again.",
+      "auth/internal-error": "Something went wrong. Please try again.",
+      "auth/timeout": "Request timed out. Try again.",
+
+      // Custom Token Errors
+      "auth/invalid-custom-token": "Custom token is invalid.",
+      "auth/custom-token-mismatch": "Custom token does not match project.",
+
+      // Popup / OAuth Errors
+      "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
+      "auth/popup-closed-by-user": "Popup closed before login completed.",
+      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
+
+      // Phone Auth Errors
+      "auth/invalid-phone-number": "Invalid phone number format.",
+      "auth/missing-phone-number": "Phone number is required.",
+      "auth/quota-exceeded": "SMS quota exceeded. Try later.",
+      "auth/captcha-check-failed": "Captcha check failed. Try again.",
+      "auth/missing-verification-code": "Verification code is required.",
+      "auth/invalid-verification-code": "Invalid verification code.",
+      "auth/missing-verification-id": "Missing verification ID.",
+      "auth/invalid-verification-id": "Invalid verification ID.",
+
+      // Credential Errors
+      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "auth/credential-already-in-use": "Credential already linked with another account.",
+      "auth/invalid-credential": "Invalid login credential.",
+      "auth/missing-app-credential": "Missing phone app credential.",
+      "auth/invalid-app-credential": "Invalid app credential. Try again.",
+
+      // User Session Errors
+      "auth/requires-recent-login": "Please log in again to perform this action.",
+      "auth/invalid-user-token": "Session expired. Please log in again.",
+      "auth/null-user": "No user session found.",
+      "auth/user-mismatch": "Login does not match current user.",
+
+      // Linking Errors
+      "auth/provider-already-linked": "Account already linked with this provider.",
+      "auth/no-such-provider": "Account is not linked with this provider.",
+
+      // Continue URL Errors
+      "auth/invalid-continue-uri": "Continue URL is not valid.",
+      "auth/unauthorized-continue-uri": "Continue URL is not whitelisted.",
+
+      // App Issues
+      "auth/app-deleted": "App instance was deleted.",
+      "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
+      
+      // Default error
       "default": "Something went wrong. Please try again."
     };
 
-    /**
-     * Translates a Firebase error object into a user-friendly message.
-     * @param {Error} error The error object from Firebase.
-     * @returns {string} A user-friendly error message.
-     */
+    // Show mini notification
+    function showMiniNotification(message, duration = 3000) {
+      miniNotification.textContent = message;
+      miniNotification.classList.add('show');
+      
+      setTimeout(() => {
+        miniNotification.classList.remove('show');
+      }, duration);
+    }
+
+    // Get friendly error message
     function getErrorMessage(error) {
-      // Check if the error code exists in our predefined list
-      if (error && error.code && errorMessages[error.code]) {
-        return errorMessages[error.code];
-      }
-      // Fallback to the default message for any unlisted errors
-      return errorMessages['default'];
+      const code = error.code || '';
+      return errorMessages[code] || errorMessages['default'];
     }
 
-    /**
-     * The NEW Centralized Error Handler.
-     * It logs the technical error for debugging and shows a friendly message to the user.
-     * @param {Error} error The error object from a try/catch block.
-     */
-    function handleAuthError(error) {
-      // THIS IS THE MOST IMPORTANT PART FOR DEBUGGING.
-      // It will print the full technical error to the browser's developer console (F12).
-      console.error("Firebase Auth Error:", error);
-
-      const friendlyMessage = getErrorMessage(error);
-      showRequirementsMenu([friendlyMessage]);
+    // Show error message
+    function showError(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
     }
 
-    // reCAPTCHA callbacks
+    // Hide error message
+    function hideError(element) {
+      element.textContent = '';
+      element.style.display = 'none';
+    }
+
+    // Clear all error messages
+    function clearAllErrors() {
+      hideError(loginEmailError);
+      hideError(loginPasswordError);
+      hideError(signupUsernameError);
+      hideError(signupEmailError);
+      hideError(signupPasswordError);
+      hideError(signupConfirmPasswordError);
+    }
+
+    // reCAPTCHA load callback
     function onRecaptchaLoad() {
-      if (document.getElementById('securityRecaptcha') && typeof grecaptcha !== 'undefined' && grecaptcha.render) {
-        recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-          sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-          callback: () => {
-            challengeComplete.style.display = 'block';
-            setTimeout(() => {
-              securityChallenge.style.display = 'none';
-              methodSelectorPage.style.display = 'block';
-            }, 1000);
-          }
-        });
+      // Initialize reCAPTCHA when the API is loaded
+      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+        callback: onSecurityRecaptchaComplete,
+        'expired-callback': onRecaptchaExpired,
+        'error-callback': onRecaptchaError
+      });
+    }
+
+    // reCAPTCHA completion callback
+    function onSecurityRecaptchaComplete(token) {
+      recaptchaCompleted = true;
+      challengeComplete.style.display = 'block';
+      
+      // After completing reCAPTCHA, show method selector page after short delay
+      setTimeout(() => {
+        securityChallenge.style.display = 'none';
+        methodSelectorPage.style.display = 'block';
+      }, 1000);
+    }
+
+    // reCAPTCHA expired callback
+    function onRecaptchaExpired() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
       }
     }
 
-    // Initial page load logic
+    // reCAPTCHA error callback
+    function onRecaptchaError() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
+
+    // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         loadingScreen.style.display = 'none';
+        
         if (user) {
+          // User is signed in, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
+          // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
-          onRecaptchaLoad();
+          
+          // Initialize reCAPTCHA if not already loaded
+          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+            onRecaptchaLoad();
+          }
         }
       });
     }, 3000);
 
-    // Navigation and UI Listeners
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    // Close button functionality
+    closeButton.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
+
     backToMethods.addEventListener('click', () => {
       authPage.style.display = 'none';
       methodSelectorPage.style.display = 'block';
     });
+
+    // Method selector buttons
     emailMethodBtn.addEventListener('click', () => {
       methodSelectorPage.style.display = 'none';
       authPage.style.display = 'block';
     });
 
-    // --- OAUTH METHODS USING THE NEW HANDLER ---
     googleMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider).catch(handleAuthError);
+      auth.signInWithPopup(googleProvider)
+        .then((result) => {
+          // Google auth successful, handled by auth state change
+          // Display name and photo URL are automatically set from Google profile
+        })
+        .catch(error => {
+          showMiniNotification(getErrorMessage(error));
+        });
     });
 
     githubMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(githubProvider).catch(handleAuthError);
+      auth.signInWithPopup(githubProvider)
+        .then((result) => {
+          // GitHub auth successful, handled by auth state change
+          const user = result.user;
+          const additionalUserInfo = result.additionalUserInfo;
+          
+          // Set display name from GitHub username if available
+          if (user && additionalUserInfo && !user.displayName) {
+            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
+            if (displayName) {
+              return user.updateProfile({
+                displayName: displayName
+              });
+            }
+          }
+        })
+        .catch(error => {
+          showMiniNotification(getErrorMessage(error));
+        });
     });
 
-    // --- UTILITY AND VALIDATION FUNCTIONS ---
+    // Update requirement status
     function updateRequirement(element, isValid) {
-      if (!element) return;
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       const icon = element.querySelector('i');
-      if (icon) icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      }
     }
 
-    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-    function isValidUsername(username) { return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username); }
+    // Check email validity
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Check username validity
+    function isValidUsername(username) {
+      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check password validity
     function isValidPassword(password) {
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
+      
+      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
+      
       return hasLength && hasUppercase && hasLowercase;
     }
 
+    // Check if passwords match
+    function checkPasswordMatch() {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      
+      if (password && confirmPassword) {
+        return password === confirmPassword;
+      }
+      return false;
+    }
+
+    // Show requirements menu
     function showRequirementsMenu(requirements) {
-      if (countdownTimer) clearTimeout(countdownTimer);
+      // Clear any existing timer
+      if (countdownTimer) {
+        clearTimeout(countdownTimer);
+      }
+      
+      // Reset animation
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
+      
+      // Force reflow to reset animation
       void countdownProgress.offsetWidth;
+      
+      // Re-enable transition
       countdownProgress.style.transition = 'width 3s linear';
-      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
+      
+      // Populate requirements list
+      requirementsList.innerHTML = '';
+      requirements.forEach(req => {
+        const li = document.createElement('li');
+        li.className = 'requirement-item invalid';
+        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
+        requirementsList.appendChild(li);
+      });
+      
+      // Show overlay and menu
       requirementsOverlay.classList.add('active');
-      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
-      countdownTimer = setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
+      
+      // Start countdown animation
+      setTimeout(() => {
+        countdownProgress.style.width = '100%';
+      }, 10);
+      
+      // Set timer to hide after 3 seconds
+      countdownTimer = setTimeout(() => {
+        hideRequirementsMenu();
+      }, 3000);
     }
 
-    function togglePasswordVisibility(input, toggle) {
-      input.type = input.type === 'password' ? 'text' : 'password';
-      toggle.querySelector('i').classList.toggle('fa-eye-slash');
+    // Hide requirements menu
+    function hideRequirementsMenu() {
+      requirementsOverlay.classList.remove('active');
     }
 
-    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
-    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
-    toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
-    toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
+    // Toggle password visibility
+    function togglePasswordVisibility(inputElement, toggleElement) {
+      const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
+      inputElement.setAttribute('type', type);
+      const icon = toggleElement.querySelector('i');
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    }
 
-    // Tab Switching Logic
+    // Show password requirements when password field is focused
+    signupPassword.addEventListener('focus', () => {
+      signupPasswordRequirements.style.display = 'block';
+    });
+
+    // Hide password requirements when password field is blurred (if not empty)
+    signupPassword.addEventListener('blur', () => {
+      if (signupPassword.value === '') {
+        signupPasswordRequirements.style.display = 'none';
+      }
+    });
+
+    // Setup password toggles
+    toggleLoginPassword.addEventListener('click', () => {
+      togglePasswordVisibility(loginPassword, toggleLoginPassword);
+    });
+
+    toggleSignupPassword.addEventListener('click', () => {
+      togglePasswordVisibility(signupPassword, toggleSignupPassword);
+    });
+
+    toggleConfirmPassword.addEventListener('click', () => {
+      togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword);
+    });
+
+    // Auth Tab Switching
     authTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        const isLogin = tab.dataset.tab === 'login';
-        loginForm.classList.toggle('active', isLogin);
-        signupForm.classList.toggle('active', !isLogin);
+        
+        if (tab.dataset.tab === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          signupForm.classList.add('active');
+        }
+        
+        // Clear all errors when switching tabs
+        clearAllErrors();
       });
     });
-    switchToSignup.addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
-    switchToLogin.addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
-    verificationCloseBtn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
 
-    // Input Validation
+    // Switch between login and signup
+    switchToSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[1].click();
+    });
+
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[0].click();
+    });
+
+    // Close verification message
+    verificationCloseBtn.addEventListener('click', () => {
+      verificationMessage.style.display = 'none';
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
+
+    // Validate login inputs
     function validateLoginInputs() {
+      let isValid = true;
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
       const errors = [];
-      if (!loginEmail.value.trim()) errors.push('Email is required');
-      else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
-      if (!loginPassword.value.trim()) errors.push('Password is required');
-      if (errors.length > 0) { showRequirementsMenu(errors); return false; }
-      return true;
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
     }
 
+    // Validate signup inputs
     function validateSignupInputs() {
+      let isValid = true;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
       const errors = [];
-      if (!signupUsername.value.trim()) errors.push('Username is required');
-      else if (!isValidUsername(signupUsername.value.trim())) errors.push('Username must be 3+ characters (letters, numbers, _)');
-      if (!signupEmail.value.trim()) errors.push('Email is required');
-      else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
-      if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
-      if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
-      if (errors.length > 0) { showRequirementsMenu(errors); return false; }
-      return true;
+      
+      // Validate username
+      if (!username) {
+        errors.push('Username is required');
+        isValid = false;
+      } else if (!isValidUsername(username)) {
+        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
+        isValid = false;
+      }
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      } else if (!isValidPassword(password)) {
+        errors.push('Password must meet all requirements');
+        isValid = false;
+      }
+      
+      // Validate confirm password
+      if (!confirmPassword) {
+        errors.push('Please confirm your password');
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        errors.push('Passwords do not match');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
     }
 
-    // --- EMAIL/PASSWORD METHODS USING THE NEW HANDLER ---
+    // Email Login
     loginBtn.addEventListener('click', async () => {
-      if (!validateLoginInputs()) return;
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      // Validate inputs
+      if (!validateLoginInputs()) {
+        return;
+      }
+      
       try {
-        await auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginPassword.value.trim());
+        // Attempt to sign in
+        await auth.signInWithEmailAndPassword(email, password);
+        
+        // Login successful, handled by auth state change
       } catch (error) {
-        handleAuthError(error);
+        // Show appropriate error message
+        showMiniNotification(getErrorMessage(error));
       }
     });
 
+    // Email Sign Up
     signupBtn.addEventListener('click', async () => {
-      if (!validateSignupInputs()) return;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      
+      // Validate inputs
+      if (!validateSignupInputs()) {
+        return;
+      }
+      
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(signupEmail.value.trim(), signupPassword.value.trim());
-        await userCredential.user.updateProfile({ displayName: signupUsername.value.trim() });
-        await userCredential.user.sendEmailVerification();
+        // First check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods.length > 0) {
+          // Email already exists
+          showMiniNotification('Email already exists. Use a different one.');
+          return;
+        }
+        
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        // Update display name
+        await userCredential.user.updateProfile({
+          displayName: username
+        });
+        
+        // Send email verification
+        await userCredential.user.sendEmailVerification({
+          url: window.location.origin,
+          handleCodeInApp: true
+        });
+        
+        // Show verification message
         verificationMessage.style.display = 'block';
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
+        
+        // Reset password requirements
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
+        
       } catch (error) {
-        handleAuthError(error);
+        showMiniNotification(getErrorMessage(error));
       }
     });
+
+    // Input validation listeners
+    signupUsername.addEventListener('input', () => {
+      const username = signupUsername.value.trim();
+      if (!username) {
+        // Error only shown in requirements menu
+      } else if (!isValidUsername(username)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    signupEmail.addEventListener('input', () => {
+      const email = signupEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmail(email)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    signupPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      if (!password) {
+        showError(signupPasswordError, 'Password is required');
+      } else if (!isValidPassword(password)) {
+        // Error only shown in requirements menu
+      } else {
+        hideError(signupPasswordError);
+      }
+    });
+
+    signupConfirmPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      if (!confirmPassword) {
+        // Error only shown in requirements menu
+      } else if (password !== confirmPassword) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginEmail.addEventListener('input', () => {
+      const email = loginEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmail(email)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginPassword.addEventListener('input', () => {
+      const password = loginPassword.value;
+      if (!password) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    // Enable click-and-drag scrolling for forms
+    const authRight = document.querySelector('.auth-right');
+    let isDragging = false;
+    let startY;
+    let scrollTop;
+
+    authRight.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.pageY - authRight.offsetTop;
+      scrollTop = authRight.scrollTop;
+      authRight.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const y = e.pageY - authRight.offsetTop;
+      const walk = (y - startY) * 2;
+      authRight.scrollTop = scrollTop - walk;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      authRight.style.cursor = 'default';
+    });
+
+    // Enable keyboard scrolling
+    authRight.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        authRight.scrollBy(0, -50);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        authRight.scrollBy(0, 50);
+      }
+    });
+
+    // Make the form focusable for keyboard scrolling
+    authRight.setAttribute('tabindex', '0');
+    authRight.focus();
   </script>
 </body>
 </html>
