@@ -590,7 +590,7 @@
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
-    /* Error Message */
+    /* Error Message (for inline validation, not used for Firebase errors) */
     .error-message {
       color: #ff6f61;
       font-size: 0.8rem;
@@ -738,14 +738,12 @@
           <div class="form-group">
             <label for="loginEmail">Email</label>
             <input type="text" id="loginEmail" placeholder="Enter your email" required>
-            <div class="error-message" id="loginEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
             <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="loginPasswordError"></div>
           </div>
           
           <button id="loginBtn" class="auth-btn">Login</button>
@@ -759,20 +757,17 @@
           <div class="form-group">
             <label for="signupUsername">Username</label>
             <input type="text" id="signupUsername" placeholder="Choose a username" required>
-            <div class="error-message" id="signupUsernameError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupEmail">Email</label>
             <input type="email" id="signupEmail" placeholder="Enter your email" required>
-            <div class="error-message" id="signupEmailError"></div>
           </div>
           
           <div class="form-group">
             <label for="signupPassword">Password</label>
             <input type="password" id="signupPassword" placeholder="Create a password" required>
             <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="signupPasswordError"></div>
             <div class="password-requirements" id="signupPasswordRequirements">
               <div class="requirement" id="req-length">
                 <i class="fas fa-times"></i>
@@ -793,7 +788,6 @@
             <label for="signupConfirmPassword">Confirm Password</label>
             <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
             <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="signupConfirmPasswordError"></div>
           </div>
           
           <button id="signupBtn" class="auth-btn">Sign Up</button>
@@ -809,9 +803,9 @@
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
-      <div class="requirements-title">Please fill these requirements</div>
+      <div class="requirements-title">Please fix the following issues</div>
       <ul class="requirements-list" id="requirementsList">
-        <!-- Will be populated dynamically -->
+        <!-- Will be populated dynamically by JavaScript -->
       </ul>
       <div class="countdown-bar">
         <div class="countdown-progress" id="countdownProgress"></div>
@@ -878,15 +872,7 @@
     const requirementsOverlay = document.getElementById('requirementsOverlay');
     const requirementsList = document.getElementById('requirementsList');
     const countdownProgress = document.getElementById('countdownProgress');
-
-    // Error message elements
-    const loginEmailError = document.getElementById('loginEmailError');
-    const loginPasswordError = document.getElementById('loginPasswordError');
-    const signupUsernameError = document.getElementById('signupUsernameError');
-    const signupEmailError = document.getElementById('signupEmailError');
-    const signupPasswordError = document.getElementById('signupPasswordError');
-    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
-
+    
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
@@ -897,7 +883,8 @@
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
 
-    // Custom error messages mapping
+    // === THIS IS THE CORE OF YOUR CUSTOM ERROR HANDLING ===
+    // This object maps Firebase's internal error codes to your desired user-friendly messages.
     const errorMessages = {
       // Email/Password Auth Errors
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
@@ -962,47 +949,27 @@
       "auth/app-deleted": "App instance was deleted.",
       "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
       
-      // Default error
+      // Default error for any unlisted codes
       "default": "Something went wrong. Please try again."
     };
 
-    // Get friendly error message
+    // This function takes a Firebase error object and returns your custom message.
     function getErrorMessage(error) {
       const code = error.code || '';
       return errorMessages[code] || errorMessages['default'];
     }
-
-    // Show error message
-    function showError(element, message) {
-      element.textContent = message;
-      element.style.display = 'block';
-    }
-
-    // Hide error message
-    function hideError(element) {
-      element.textContent = '';
-      element.style.display = 'none';
-    }
-
-    // Clear all error messages
-    function clearAllErrors() {
-      hideError(loginEmailError);
-      hideError(loginPasswordError);
-      hideError(signupUsernameError);
-      hideError(signupEmailError);
-      hideError(signupPasswordError);
-      hideError(signupConfirmPasswordError);
-    }
+    // =======================================================
 
     // reCAPTCHA load callback
     function onRecaptchaLoad() {
-      // Initialize reCAPTCHA when the API is loaded
-      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-        callback: onSecurityRecaptchaComplete,
-        'expired-callback': onRecaptchaExpired,
-        'error-callback': onRecaptchaError
-      });
+      if (document.getElementById('securityRecaptcha')) {
+        recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+          sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+          callback: onSecurityRecaptchaComplete,
+          'expired-callback': onRecaptchaExpired,
+          'error-callback': onRecaptchaError
+        });
+      }
     }
 
     // reCAPTCHA completion callback
@@ -1010,52 +977,39 @@
       recaptchaCompleted = true;
       challengeComplete.style.display = 'block';
       
-      // After completing reCAPTCHA, show method selector page after short delay
       setTimeout(() => {
         securityChallenge.style.display = 'none';
         methodSelectorPage.style.display = 'block';
       }, 1000);
     }
 
-    // reCAPTCHA expired callback
     function onRecaptchaExpired() {
       recaptchaCompleted = false;
       challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) {
-        grecaptcha.reset(recaptchaWidgetId);
-      }
+      if (recaptchaWidgetId !== undefined) grecaptcha.reset(recaptchaWidgetId);
     }
 
-    // reCAPTCHA error callback
     function onRecaptchaError() {
       recaptchaCompleted = false;
       challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) {
-        grecaptcha.reset(recaptchaWidgetId);
-      }
+      showRequirementsMenu(["reCAPTCHA failed. Please try again."]);
     }
 
-    // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         loadingScreen.style.display = 'none';
         
         if (user) {
-          // User is signed in, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
-          
-          // Initialize reCAPTCHA if not already loaded
-          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
+          if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
             onRecaptchaLoad();
           }
         }
       });
     }, 3000);
 
-    // Close button functionality
     closeButton.addEventListener('click', () => {
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
@@ -1065,7 +1019,6 @@
       methodSelectorPage.style.display = 'block';
     });
 
-    // Method selector buttons
     emailMethodBtn.addEventListener('click', () => {
       methodSelectorPage.style.display = 'none';
       authPage.style.display = 'block';
@@ -1074,10 +1027,10 @@
     googleMethodBtn.addEventListener('click', () => {
       auth.signInWithPopup(googleProvider)
         .then((result) => {
-          // Google auth successful, handled by auth state change
-          // Display name and photo URL are automatically set from Google profile
+          // Success is handled by onAuthStateChanged
         })
         .catch(error => {
+          // Use the custom error system
           showRequirementsMenu([getErrorMessage(error)]);
         });
     });
@@ -1085,27 +1038,16 @@
     githubMethodBtn.addEventListener('click', () => {
       auth.signInWithPopup(githubProvider)
         .then((result) => {
-          // GitHub auth successful, handled by auth state change
-          const user = result.user;
-          const additionalUserInfo = result.additionalUserInfo;
-          
-          // Set display name from GitHub username if available
-          if (user && additionalUserInfo && !user.displayName) {
-            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
-            if (displayName) {
-              return user.updateProfile({
-                displayName: displayName
-              });
-            }
-          }
+          // Success is handled by onAuthStateChanged
         })
         .catch(error => {
+          // Use the custom error system
           showRequirementsMenu([getErrorMessage(error)]);
         });
     });
 
-    // Update requirement status
     function updateRequirement(element, isValid) {
+      if (!element) return;
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       const icon = element.querySelector('i');
@@ -1114,23 +1056,19 @@
       }
     }
 
-    // Check email validity
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // Check username validity
     function isValidUsername(username) {
       return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     }
 
-    // Check password validity
     function isValidPassword(password) {
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
-      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
@@ -1138,35 +1076,15 @@
       return hasLength && hasUppercase && hasLowercase;
     }
 
-    // Check if passwords match
-    function checkPasswordMatch() {
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
-      
-      if (password && confirmPassword) {
-        return password === confirmPassword;
-      }
-      return false;
-    }
-
-    // Show requirements menu
+    // This function displays errors (both for validation and from Firebase) in your requirements menu.
     function showRequirementsMenu(requirements) {
-      // Clear any existing timer
-      if (countdownTimer) {
-        clearTimeout(countdownTimer);
-      }
+      if (countdownTimer) clearTimeout(countdownTimer);
       
-      // Reset animation
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
-      
-      // Force reflow to reset animation
       void countdownProgress.offsetWidth;
-      
-      // Re-enable transition
       countdownProgress.style.transition = 'width 3s linear';
       
-      // Populate requirements list
       requirementsList.innerHTML = '';
       requirements.forEach(req => {
         const li = document.createElement('li');
@@ -1175,26 +1093,21 @@
         requirementsList.appendChild(li);
       });
       
-      // Show overlay and menu
       requirementsOverlay.classList.add('active');
       
-      // Start countdown animation
       setTimeout(() => {
         countdownProgress.style.width = '100%';
       }, 10);
       
-      // Set timer to hide after 3 seconds
       countdownTimer = setTimeout(() => {
         hideRequirementsMenu();
       }, 3000);
     }
 
-    // Hide requirements menu
     function hideRequirementsMenu() {
       requirementsOverlay.classList.remove('active');
     }
 
-    // Toggle password visibility
     function togglePasswordVisibility(inputElement, toggleElement) {
       const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
       inputElement.setAttribute('type', type);
@@ -1203,51 +1116,28 @@
       icon.classList.toggle('fa-eye-slash');
     }
 
-    // Show password requirements when password field is focused
     signupPassword.addEventListener('focus', () => {
       signupPasswordRequirements.style.display = 'block';
     });
-
-    // Hide password requirements when password field is blurred (if not empty)
-    signupPassword.addEventListener('blur', () => {
-      if (signupPassword.value === '') {
-        signupPasswordRequirements.style.display = 'none';
-      }
+    signupPassword.addEventListener('input', () => {
+      isValidPassword(signupPassword.value);
     });
 
-    // Setup password toggles
-    toggleLoginPassword.addEventListener('click', () => {
-      togglePasswordVisibility(loginPassword, toggleLoginPassword);
-    });
+    toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
+    toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
+    toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
 
-    toggleSignupPassword.addEventListener('click', () => {
-      togglePasswordVisibility(signupPassword, toggleSignupPassword);
-    });
-
-    toggleConfirmPassword.addEventListener('click', () => {
-      togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword);
-    });
-
-    // Auth Tab Switching
     authTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         
-        if (tab.dataset.tab === 'login') {
-          loginForm.classList.add('active');
-          signupForm.classList.remove('active');
-        } else {
-          loginForm.classList.remove('active');
-          signupForm.classList.add('active');
-        }
-        
-        // Clear all errors when switching tabs
-        clearAllErrors();
+        const isLogin = tab.dataset.tab === 'login';
+        loginForm.classList.toggle('active', isLogin);
+        signupForm.classList.toggle('active', !isLogin);
       });
     });
 
-    // Switch between login and signup
     switchToSignup.addEventListener('click', (e) => {
       e.preventDefault();
       authTabs[1].click();
@@ -1258,261 +1148,77 @@
       authTabs[0].click();
     });
 
-    // Close verification message
     verificationCloseBtn.addEventListener('click', () => {
       verificationMessage.style.display = 'none';
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
-    // Validate login inputs
     function validateLoginInputs() {
-      let isValid = true;
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
       const errors = [];
+      if (!loginEmail.value.trim()) errors.push('Email is required');
+      else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
+      if (!loginPassword.value.trim()) errors.push('Password is required');
       
-      // Validate email
-      if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email');
-        isValid = false;
-      }
-      
-      // Validate password
-      if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-      }
-      
-      if (!isValid) {
+      if (errors.length > 0) {
         showRequirementsMenu(errors);
+        return false;
       }
-      
-      return isValid;
+      return true;
     }
 
-    // Validate signup inputs
     function validateSignupInputs() {
-      let isValid = true;
-      const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
-      const confirmPassword = signupConfirmPassword.value.trim();
       const errors = [];
+      if (!signupUsername.value.trim()) errors.push('Username is required');
+      else if (!isValidUsername(signupUsername.value.trim())) errors.push('Username must be 3+ characters (letters, numbers, _)');
+      if (!signupEmail.value.trim()) errors.push('Email is required');
+      else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
+      if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
+      if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
       
-      // Validate username
-      if (!username) {
-        errors.push('Username is required');
-        isValid = false;
-      } else if (!isValidUsername(username)) {
-        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
-        isValid = false;
-      }
-      
-      // Validate email
-      if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email');
-        isValid = false;
-      }
-      
-      // Validate password
-      if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-      } else if (!isValidPassword(password)) {
-        errors.push('Password must meet all requirements');
-        isValid = false;
-      }
-      
-      // Validate confirm password
-      if (!confirmPassword) {
-        errors.push('Please confirm your password');
-        isValid = false;
-      } else if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
-        isValid = false;
-      }
-      
-      if (!isValid) {
+      if (errors.length > 0) {
         showRequirementsMenu(errors);
+        return false;
       }
-      
-      return isValid;
+      return true;
     }
 
-    // Email Login
     loginBtn.addEventListener('click', async () => {
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
-      // Validate inputs
-      if (!validateLoginInputs()) {
-        return;
-      }
+      if (!validateLoginInputs()) return;
       
       try {
-        // Attempt to sign in
-        await auth.signInWithEmailAndPassword(email, password);
-        
-        // Login successful, handled by auth state change
+        await auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginPassword.value.trim());
+        // Success is handled by onAuthStateChanged
       } catch (error) {
-        // Show appropriate error message
+        // Here, the specific error message from your list is shown
         showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
-    // Email Sign Up
     signupBtn.addEventListener('click', async () => {
-      const username = signupUsername.value.trim();
+      if (!validateSignupInputs()) return;
+      
       const email = signupEmail.value.trim();
       const password = signupPassword.value.trim();
-      const confirmPassword = signupConfirmPassword.value.trim();
-      
-      // Validate inputs
-      if (!validateSignupInputs()) {
-        return;
-      }
-      
+      const username = signupUsername.value.trim();
+
       try {
-        // First check if email exists
-        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-        
-        if (signInMethods.length > 0) {
-          // Email already exists
-          showRequirementsMenu(['Email already exists. Use a different one.']);
-          return;
-        }
-        
-        // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await userCredential.user.updateProfile({ displayName: username });
+        await userCredential.user.sendEmailVerification();
         
-        // Update display name
-        await userCredential.user.updateProfile({
-          displayName: username
-        });
-        
-        // Send email verification
-        await userCredential.user.sendEmailVerification({
-          url: window.location.origin,
-          handleCodeInApp: true
-        });
-        
-        // Show verification message
         verificationMessage.style.display = 'block';
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
-        
-        // Reset password requirements
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
         
       } catch (error) {
+        // Here, the specific error message from your list is shown
         showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
-    // Input validation listeners
-    signupUsername.addEventListener('input', () => {
-      const username = signupUsername.value.trim();
-      if (!username) {
-        // Error only shown in requirements menu
-      } else if (!isValidUsername(username)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    signupEmail.addEventListener('input', () => {
-      const email = signupEmail.value.trim();
-      if (!email) {
-        // Error only shown in requirements menu
-      } else if (!isValidEmail(email)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    signupPassword.addEventListener('input', () => {
-      const password = signupPassword.value;
-      if (!password) {
-        showError(signupPasswordError, 'Password is required');
-      } else if (!isValidPassword(password)) {
-        // Error only shown in requirements menu
-      } else {
-        hideError(signupPasswordError);
-      }
-    });
-
-    signupConfirmPassword.addEventListener('input', () => {
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
-      if (!confirmPassword) {
-        // Error only shown in requirements menu
-      } else if (password !== confirmPassword) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    loginEmail.addEventListener('input', () => {
-      const email = loginEmail.value.trim();
-      if (!email) {
-        // Error only shown in requirements menu
-      } else if (!isValidEmail(email)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    loginPassword.addEventListener('input', () => {
-      const password = loginPassword.value;
-      if (!password) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    // Enable click-and-drag scrolling for forms
-    const authRight = document.querySelector('.auth-right');
-    let isDragging = false;
-    let startY;
-    let scrollTop;
-
-    authRight.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.pageY - authRight.offsetTop;
-      scrollTop = authRight.scrollTop;
-      authRight.style.cursor = 'grabbing';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const y = e.pageY - authRight.offsetTop;
-      const walk = (y - startY) * 2;
-      authRight.scrollTop = scrollTop - walk;
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-      authRight.style.cursor = 'default';
-    });
-
-    // Enable keyboard scrolling
-    authRight.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        authRight.scrollBy(0, -50);
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        authRight.scrollBy(0, 50);
-      }
-    });
-
-    // Make the form focusable for keyboard scrolling
-    authRight.setAttribute('tabindex', '0');
-    authRight.focus();
   </script>
 </body>
 </html>
