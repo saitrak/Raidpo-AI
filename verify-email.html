@@ -144,6 +144,7 @@
             font-size: 14px;
             color: #666;
             margin-bottom: 30px;
+            min-height: 21px; /* Reserve space to prevent layout shift */
         }
 
         .countdown {
@@ -151,7 +152,7 @@
             font-weight: 500;
             color: var(--primary);
             margin-bottom: 20px;
-            height: 21px; /* Reserve space to prevent layout shift */
+            min-height: 21px; /* Reserve space */
         }
         
         .action-button {
@@ -178,53 +179,19 @@
             cursor: wait;
         }
         
-        .success-state .inner-circle {
-            background-color: var(--success);
-            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
-        }
+        .success-state .inner-circle { background-color: var(--success); box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4); }
+        .success-state .circle { border-color: rgba(0, 184, 148, 0.2); animation: none; }
+        .success-state .progress-bar { background: linear-gradient(90deg, var(--success), var(--secondary)); }
+        .success-state .action-button { background: linear-gradient(90deg, var(--success), var(--secondary)); box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4); }
         
-        .success-state .circle {
-            border-color: rgba(0, 184, 148, 0.2);
-            animation: none;
-        }
+        .failure-state .inner-circle { background-color: var(--danger); box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4); }
+        .failure-state .circle { border-color: rgba(255, 118, 117, 0.2); animation: none; }
+        .failure-state .progress-bar { background: linear-gradient(90deg, var(--danger), #e84393); }
+        .failure-state .action-button { background: linear-gradient(90deg, var(--danger), #e84393); box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4); }
         
-        .success-state .progress-bar {
-            background: linear-gradient(90deg, var(--success), var(--secondary));
-        }
-
-        .success-state .action-button {
-             background: linear-gradient(90deg, var(--success), var(--secondary));
-             box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
-        }
+        .hidden { display: none; }
         
-        .failure-state .inner-circle {
-            background-color: var(--danger);
-            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
-        }
-        
-        .failure-state .circle {
-            border-color: rgba(255, 118, 117, 0.2);
-            animation: none;
-        }
-        
-        .failure-state .progress-bar {
-            background: linear-gradient(90deg, var(--danger), #e84393);
-        }
-
-        .failure-state .action-button {
-            background: linear-gradient(90deg, var(--danger), #e84393);
-            box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
         .checkmark { width: 40px; height: 40px; }
         .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--white); fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
@@ -275,11 +242,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-        // --- IMPORTANT ---
-        // Your Firebase config object. These keys are meant to be public.
-        // Secure your app using Firebase Security Rules in your Firebase console, not by hiding these keys.
         const firebaseConfig = {
-            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", // Replace with your actual API key
+            apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
             authDomain: "raidpo-ai-3c84b.firebaseapp.com",
             projectId: "raidpo-ai-3c84b",
             storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
@@ -291,159 +255,142 @@
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // --- DOM Elements ---
-        const verificationContainer = document.getElementById('verificationContainer');
-        const verificationTitle = document.getElementById('verificationTitle');
-        const verificationMessage = document.getElementById('verificationMessage');
-        const progressBar = document.getElementById('progressBar');
-        const verificationStatus = document.getElementById('verificationStatus');
-        const innerCircle = document.querySelector('.inner-circle');
-        const countdownEl = document.getElementById('countdown');
-        const actionButton = document.getElementById('actionButton');
-        const buttonText = document.getElementById('buttonText');
-        const buttonSpinner = document.getElementById('buttonSpinner');
+        // DOM Elements
+        const ui = {
+            container: document.getElementById('verificationContainer'),
+            title: document.getElementById('verificationTitle'),
+            message: document.getElementById('verificationMessage'),
+            progressBar: document.getElementById('progressBar'),
+            status: document.getElementById('verificationStatus'),
+            innerCircle: document.querySelector('.inner-circle'),
+            countdown: document.getElementById('countdown'),
+            actionButton: document.getElementById('actionButton'),
+            buttonText: document.getElementById('buttonText'),
+            buttonSpinner: document.getElementById('buttonSpinner')
+        };
         
-        // --- Configuration ---
-        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app"; // URL to redirect after success/failure
+        const HOMEPAGE_URL = "https://raidpo-ai.netlify.app";
         let countdownInterval;
 
-        // --- UI Update Functions ---
-        function updateProgress(percent, message) {
-            progressBar.style.width = `${percent}%`;
-            verificationStatus.textContent = message;
+        // UI Update Functions
+        function updateProgress(percent, statusText) {
+            ui.progressBar.style.width = `${percent}%`;
+            ui.status.textContent = statusText;
         }
 
         function showSuccessState() {
             clearInterval(countdownInterval);
-            verificationContainer.classList.add('success-state');
-            
-            innerCircle.innerHTML = `
+            ui.container.classList.add('success-state');
+            ui.innerCircle.innerHTML = `
                 <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                     <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
                     <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>`;
+            ui.title.textContent = "Success! You're In!";
+            ui.message.textContent = "Your email is verified and you are now signed in. Welcome to Raidpo-AI!";
+            updateProgress(100, "Account activated successfully!");
             
-            verificationTitle.textContent = "Verification Complete!";
-            verificationMessage.textContent = "Your email address has been successfully verified. Welcome aboard!";
-            updateProgress(100, "Email verified successfully!");
-            
-            buttonText.textContent = "Continue to Dashboard";
-            actionButton.classList.remove('hidden');
-            actionButton.disabled = false;
-            actionButton.onclick = () => redirectToHomepage(true);
+            ui.buttonText.textContent = "Continue to Dashboard";
+            ui.actionButton.classList.remove('hidden');
+            ui.actionButton.disabled = false;
+            ui.actionButton.onclick = () => redirectToHomepage(true);
 
-            // Start countdown for automatic redirect
             let seconds = 5;
-            countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+            ui.countdown.textContent = `Redirecting you in ${seconds} seconds...`;
             countdownInterval = setInterval(() => {
                 seconds--;
                 if (seconds > 0) {
-                    countdownEl.textContent = `You will be redirected in ${seconds} seconds...`;
+                    ui.countdown.textContent = `Redirecting you in ${seconds} seconds...`;
                 } else {
-                    countdownEl.textContent = 'Redirecting...';
                     redirectToHomepage(false);
                 }
             }, 1000);
         }
 
-        function showFailureState(title, message, status) {
+        function showFailureState(title, message, status, buttonText = "Go to Login Page") {
             clearInterval(countdownInterval);
-            verificationContainer.classList.add('failure-state');
-            
-            innerCircle.innerHTML = '<div class="cross-icon"></div>';
-            
-            verificationTitle.textContent = title;
-            verificationMessage.textContent = message;
+            ui.container.classList.add('failure-state');
+            ui.innerCircle.innerHTML = '<div class="cross-icon"></div>';
+            ui.title.textContent = title;
+            ui.message.textContent = message;
             updateProgress(100, status);
             
-            buttonText.textContent = 'Go to Login Page';
-            actionButton.classList.remove('hidden');
-            actionButton.disabled = false;
-            actionButton.onclick = () => window.location.href = HOMEPAGE_URL;
+            ui.buttonText.textContent = buttonText;
+            ui.actionButton.classList.remove('hidden');
+            ui.actionButton.disabled = false;
+            ui.actionButton.onclick = () => window.location.href = HOMEPAGE_URL;
         }
         
         function redirectToHomepage(isButtonClick) {
             if (isButtonClick) {
                 clearInterval(countdownInterval);
-                countdownEl.textContent = '';
             }
-            buttonText.classList.add('hidden');
-            buttonSpinner.classList.remove('hidden');
-            actionButton.disabled = true;
-
-            setTimeout(() => {
-                window.location.href = HOMEPAGE_URL;
-            }, 1000);
+            ui.countdown.textContent = 'Redirecting...';
+            ui.buttonText.classList.add('hidden');
+            ui.buttonSpinner.classList.remove('hidden');
+            ui.actionButton.disabled = true;
+            setTimeout(() => window.location.href = HOMEPAGE_URL, 1000);
         }
 
-        // --- Core Verification Logic ---
-        function getActionCodeFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('oobCode');
-        }
+        // Core Logic
+        async function handleVerification() {
+            const actionCode = new URLSearchParams(window.location.search).get('oobCode');
 
-        async function handleEmailVerification(actionCode) {
+            if (!actionCode) {
+                showFailureState("Invalid Link", "No verification code was found. Please use the link from your email.", "Missing verification code.");
+                return;
+            }
+
             try {
-                updateProgress(33, "Checking verification code...");
+                updateProgress(33, "Confirming verification code...");
                 await auth.applyActionCode(actionCode);
-                
-                updateProgress(66, "Email confirmed. Updating your account...");
-                
-                // Ensure user is reloaded to get the latest emailVerified status
-                const user = auth.currentUser;
-                if(user) await user.reload();
+                updateProgress(66, "Email confirmed. Securing your session...");
 
-                // Small delay to let the UI update and feel smooth
-                setTimeout(showSuccessState, 750);
-
+                // Now, check the auth state. Because persistence was set to 'local'
+                // in the main app, Firebase should find the user's session.
+                const unsubscribe = auth.onAuthStateChanged(async (user) => {
+                    unsubscribe(); // We only need to run this once.
+                    
+                    if (user) {
+                        // User is found! Reload to get the latest `emailVerified` status.
+                        await user.reload();
+                        if (user.emailVerified) {
+                            // The complete success case!
+                            showSuccessState();
+                        } else {
+                            // This is an unlikely edge case where verification happened but the user object didn't update.
+                            showFailureState("Verification Issue", "Your email was verified, but we couldn't confirm your session. Please try logging in.", "Session confirmation failed.");
+                        }
+                    } else {
+                        // This happens if the user was never logged in on this browser, or cleared their cache.
+                        // The email is verified, but we can't log them in automatically.
+                        showFailureState(
+                            "Email Verified!",
+                            "Your email has been successfully verified. Please proceed to the login page to sign in to your account.",
+                            "Ready to log in.",
+                            "Proceed to Login"
+                        );
+                    }
+                });
             } catch (error) {
-                console.error("Email verification error:", error.code, error.message);
-                
+                console.error("Verification Error:", error);
                 switch (error.code) {
                     case 'auth/expired-action-code':
-                        showFailureState("Link Expired", "This verification link is no longer valid. Please log in to your account to get a new one.", "Verification link has expired.");
+                        showFailureState("Link Expired", "This verification link is no longer valid. Please log in to get a new one.", "Verification link has expired.");
                         break;
                     case 'auth/invalid-action-code':
                         showFailureState("Invalid Link", "This verification link is invalid or has already been used. Please log in to get a new one.", "Invalid verification link.");
                         break;
-                    case 'auth/user-disabled':
-                        showFailureState("Account Disabled", "This account has been disabled by an administrator.", "Account disabled.");
-                        break;
-                    case 'auth/user-not-found':
-                        showFailureState("User Not Found", "There is no user corresponding to this verification link.", "User not found.");
-                        break;
                     default:
-                        showFailureState("Verification Failed", "An unexpected error occurred. Please try again or contact support.", "An error occurred.");
+                        showFailureState("Verification Failed", "An unexpected error occurred. Please try again or go to the login page.", "An error occurred.");
                         break;
                 }
             }
         }
 
-        // --- Page Load Handler ---
         document.addEventListener('DOMContentLoaded', () => {
-            updateProgress(10, "Initializing verification...");
-            const actionCode = getActionCodeFromUrl();
-            
-            if (actionCode) {
-                // Primary flow: A verification code is in the URL.
-                handleEmailVerification(actionCode);
-            } else {
-                // Fallback flow: No code. Check auth state for users who land here directly.
-                updateProgress(50, "Checking session status...");
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        await user.reload();
-                        if (user.emailVerified) {
-                            verificationMessage.textContent = "Your email is already verified. Redirecting you...";
-                            showSuccessState();
-                        } else {
-                            showFailureState("Email Not Verified", "Your email has not been verified yet. Please use the link sent to your inbox, or log in to receive a new one.", "Action required.");
-                        }
-                    } else {
-                        showFailureState("No Verification Link Found", "Please use the link we sent to your email address. If the link has expired, log in to your account to get a new one.", "Waiting for verification link.");
-                    }
-                });
-            }
+            updateProgress(10, "Initializing...");
+            handleVerification();
         });
     </script>
 </body>
