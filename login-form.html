@@ -1216,7 +1216,7 @@
         li.className = 'requirement-item invalid';
         
         // Special handling for email domain message
-        if (req.includes('valid email from an allowed domain')) {
+        if (req.includes('valid allowed email domain')) {
           li.innerHTML = `
             <i class="fas fa-times"></i>
             <span>
@@ -1416,13 +1416,6 @@
       }
       
       try {
-        // Check if account exists
-        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-        if (signInMethods.length === 0) {
-          showRequirementsMenu(['No account found with this email. Please register first.']);
-          return;
-        }
-        
         // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
