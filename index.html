@@ -529,6 +529,63 @@
       margin-bottom: 1rem;
     }
 
+    /* Verification Note Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none; /* Hidden by default */
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background-color: #1a1a1a;
+      padding: 2rem 3rem;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      border: 1px solid #333;
+      color: #fff;
+    }
+
+    .modal-content h3 {
+      font-size: 1.8rem;
+      color: #ff6f61;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content p {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .modal-close-btn {
+      padding: 0.8rem 2rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .modal-close-btn:hover {
+      background-color: #ff3b2f;
+      transform: scale(1.05);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .hero-content h1 {
@@ -845,6 +902,16 @@
     </div>
   </div>
 
+  <!-- Verification Note Modal -->
+  <div class="modal-overlay" id="verificationModal">
+    <div class="modal-content">
+      <h3>Verify Your Email</h3>
+      <p>A verification email has been sent to your account. Please check your inbox and follow the instructions to complete the process.</p>
+      <button class="modal-close-btn" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
+
+
   <script>
     // Firebase Configuration
     const firebaseConfig = {
@@ -890,10 +957,45 @@
     const toolsUsed = document.getElementById('toolsUsed');
     const toolLinks = document.querySelectorAll('.tool-card a');
     const loginButton = document.getElementById('loginButton');
+    const verificationModal = document.getElementById('verificationModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
 
     // Track tools used
     let toolsUsedCount = 0;
     let profileMenuTimeout;
+
+    // --- Modal Logic ---
+    function showVerificationModal() {
+        if (verificationModal) {
+            verificationModal.style.display = 'flex';
+        }
+    }
+
+    function hideVerificationModal() {
+        if (verificationModal) {
+            verificationModal.style.display = 'none';
+            // Remove the hash from the URL without reloading the page
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+    }
+
+    function checkUrlForNote() {
+        if (window.location.hash === '#note') {
+            showVerificationModal();
+        }
+    }
+    
+    // Event listeners for closing the modal
+    modalCloseBtn.addEventListener('click', hideVerificationModal);
+    verificationModal.addEventListener('click', (event) => {
+        // Close modal only if the overlay itself is clicked, not the content inside
+        if (event.target === verificationModal) {
+            hideVerificationModal();
+        }
+    });
+
+    // --- End Modal Logic ---
+
 
     // Show profile info on hover/click
     userAvatar.addEventListener('mouseenter', () => {
@@ -912,7 +1014,7 @@
       if (userProfileInfo.classList.contains('active')) {
         profileMenuTimeout = setTimeout(() => {
           userProfileInfo.classList.remove('active');
-        }, 800); // Changed from 1500 to 800
+        }, 800);
       }
     });
 
@@ -920,7 +1022,7 @@
       if (userProfileInfo.classList.contains('active')) {
         profileMenuTimeout = setTimeout(() => {
           userProfileInfo.classList.remove('active');
-        }, 800); // Changed from 1500 to 800
+        }, 800);
       }
     });
 
@@ -932,7 +1034,7 @@
     userProfileInfo.addEventListener('mouseleave', () => {
       profileMenuTimeout = setTimeout(() => {
         userProfileInfo.classList.remove('active');
-      }, 800); // Changed from 1500 to 800
+      }, 800);
     });
 
     // Update user profile with photo if available
@@ -1051,8 +1153,12 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-      // Loading screen will be hidden after auth check + 3 seconds
+      // Check for #note hash on initial load
+      checkUrlForNote();
     });
+
+    // Add event listener for hash changes after the page has loaded
+    window.addEventListener('hashchange', checkUrlForNote);
   </script>
 </body>
 </html>
