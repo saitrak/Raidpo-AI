@@ -422,6 +422,11 @@
     .auth-btn:hover {
       background-color: #ff3b2f;
     }
+    
+    .auth-btn:disabled {
+        background-color: #555;
+        cursor: not-allowed;
+    }
 
     .password-requirements {
       display: none;
@@ -548,46 +553,6 @@
       background-color: #ff6f61;
       width: 0%;
       transition: width 3s linear;
-    }
-
-    /* Verification Message */
-    .verification-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      z-index: 1000;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      display: none;
-    }
-
-    .verification-message h2 {
-      margin-bottom: 1rem;
-      color: #ff6f61;
-      font-size: clamp(1.2rem, 5vw, 1.5rem);
-    }
-
-    .verification-message p {
-      margin-bottom: 1.5rem;
-      color: #ccc;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
-
-    .verification-message button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     /* Error Message */
@@ -848,13 +813,6 @@
     </div>
   </div>
 
-  <!-- Verification Message -->
-  <div class="verification-message" id="verificationMessage">
-    <h2>Verify Your Email</h2>
-    <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
-    <button id="verificationCloseBtn">Close</button>
-  </div>
-
   <!-- Mini Notification -->
   <div class="mini-notification" id="miniNotification"></div>
 
@@ -902,8 +860,6 @@
     const authTabs = document.querySelectorAll('.auth-tab');
     const switchToSignup = document.getElementById('switchToSignup');
     const switchToLogin = document.getElementById('switchToLogin');
-    const verificationMessage = document.getElementById('verificationMessage');
-    const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
     const challengeComplete = document.getElementById('challengeComplete');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
@@ -1083,19 +1039,11 @@
       auth.onAuthStateChanged(user => {
         loadingScreen.style.display = 'none';
         
-        if (user) {
-          // Check if email is verified before allowing access
-          if (user.emailVerified) {
-            // User is signed in and verified, redirect to homepage
-            window.location.href = 'https://raidpo-ai.netlify.app/';
-          } else {
-            // User is signed in but not verified, sign them out
-            auth.signOut();
-            // Show security challenge
-            securityChallenge.style.display = 'flex';
-          }
+        if (user && user.emailVerified) { // Check for user AND email verification
+          // User is signed in AND verified, redirect to homepage
+          window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          // User is not signed in, show security challenge
+          // User is not signed in OR not verified, show the login flow
           securityChallenge.style.display = 'flex';
           
           // Initialize reCAPTCHA if not already loaded
@@ -1126,7 +1074,6 @@
       auth.signInWithPopup(googleProvider)
         .then((result) => {
           // Google auth successful, handled by auth state change
-          // Display name and photo URL are automatically set from Google profile
         })
         .catch(error => {
           showMiniNotification(getErrorMessage(error));
@@ -1140,7 +1087,6 @@
           const user = result.user;
           const additionalUserInfo = result.additionalUserInfo;
           
-          // Set display name from GitHub username if available
           if (user && additionalUserInfo && !user.displayName) {
             const displayName = additionalUserInfo.username || user.email?.split('@')[0];
             if (displayName) {
@@ -1181,7 +1127,6 @@
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
       
-      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
@@ -1189,35 +1134,15 @@
       return hasLength && hasUppercase && hasLowercase;
     }
 
-    // Check if passwords match
-    function checkPasswordMatch() {
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
-      
-      if (password && confirmPassword) {
-        return password === confirmPassword;
-      }
-      return false;
-    }
-
     // Show requirements menu
     function showRequirementsMenu(requirements) {
-      // Clear any existing timer
-      if (countdownTimer) {
-        clearTimeout(countdownTimer);
-      }
+      if (countdownTimer) clearTimeout(countdownTimer);
       
-      // Reset animation
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
-      
-      // Force reflow to reset animation
       void countdownProgress.offsetWidth;
-      
-      // Re-enable transition
       countdownProgress.style.transition = 'width 3s linear';
       
-      // Populate requirements list
       requirementsList.innerHTML = '';
       requirements.forEach(req => {
         const li = document.createElement('li');
@@ -1226,21 +1151,17 @@
         requirementsList.appendChild(li);
       });
       
-      // Show overlay and menu
       requirementsOverlay.classList.add('active');
       
-      // Start countdown animation
       setTimeout(() => {
         countdownProgress.style.width = '100%';
       }, 10);
       
-      // Set timer to hide after 3 seconds
       countdownTimer = setTimeout(() => {
         hideRequirementsMenu();
       }, 3000);
     }
 
-    // Hide requirements menu
     function hideRequirementsMenu() {
       requirementsOverlay.classList.remove('active');
     }
@@ -1254,30 +1175,19 @@
       icon.classList.toggle('fa-eye-slash');
     }
 
-    // Show password requirements when password field is focused
     signupPassword.addEventListener('focus', () => {
       signupPasswordRequirements.style.display = 'block';
     });
 
-    // Hide password requirements when password field is blurred (if not empty)
     signupPassword.addEventListener('blur', () => {
       if (signupPassword.value === '') {
         signupPasswordRequirements.style.display = 'none';
       }
     });
 
-    // Setup password toggles
-    toggleLoginPassword.addEventListener('click', () => {
-      togglePasswordVisibility(loginPassword, toggleLoginPassword);
-    });
-
-    toggleSignupPassword.addEventListener('click', () => {
-      togglePasswordVisibility(signupPassword, toggleSignupPassword);
-    });
-
-    toggleConfirmPassword.addEventListener('click', () => {
-      togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword);
-    });
+    toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
+    toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
+    toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
 
     // Auth Tab Switching
     authTabs.forEach(tab => {
@@ -1285,20 +1195,13 @@
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         
-        if (tab.dataset.tab === 'login') {
-          loginForm.classList.add('active');
-          signupForm.classList.remove('active');
-        } else {
-          loginForm.classList.remove('active');
-          signupForm.classList.add('active');
-        }
+        document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
+        document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
         
-        // Clear all errors when switching tabs
         clearAllErrors();
       });
     });
 
-    // Switch between login and signup
     switchToSignup.addEventListener('click', (e) => {
       e.preventDefault();
       authTabs[1].click();
@@ -1309,12 +1212,6 @@
       authTabs[0].click();
     });
 
-    // Close verification message
-    verificationCloseBtn.addEventListener('click', () => {
-      verificationMessage.style.display = 'none';
-      window.location.href = 'https://raidpo-ai.netlify.app/';
-    });
-
     // Validate login inputs
     function validateLoginInputs() {
       let isValid = true;
@@ -1322,7 +1219,6 @@
       const password = loginPassword.value.trim();
       const errors = [];
       
-      // Validate email
       if (!email) {
         errors.push('Email is required');
         isValid = false;
@@ -1331,16 +1227,12 @@
         isValid = false;
       }
       
-      // Validate password
       if (!password) {
         errors.push('Password is required');
         isValid = false;
       }
       
-      if (!isValid) {
-        showRequirementsMenu(errors);
-      }
-      
+      if (!isValid) showRequirementsMenu(errors);
       return isValid;
     }
 
@@ -1353,16 +1245,14 @@
       const confirmPassword = signupConfirmPassword.value.trim();
       const errors = [];
       
-      // Validate username
       if (!username) {
         errors.push('Username is required');
         isValid = false;
       } else if (!isValidUsername(username)) {
-        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
+        errors.push('Username must be 3+ chars (letters, numbers, underscores)');
         isValid = false;
       }
       
-      // Validate email
       if (!email) {
         errors.push('Email is required');
         isValid = false;
@@ -1371,7 +1261,6 @@
         isValid = false;
       }
       
-      // Validate password
       if (!password) {
         errors.push('Password is required');
         isValid = false;
@@ -1380,7 +1269,6 @@
         isValid = false;
       }
       
-      // Validate confirm password
       if (!confirmPassword) {
         errors.push('Please confirm your password');
         isValid = false;
@@ -1389,155 +1277,84 @@
         isValid = false;
       }
       
-      if (!isValid) {
-        showRequirementsMenu(errors);
-      }
-      
+      if (!isValid) showRequirementsMenu(errors);
       return isValid;
     }
 
     // Email Login
     loginBtn.addEventListener('click', async () => {
+      if (!validateLoginInputs()) return;
+      
       const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
-      // Validate inputs
-      if (!validateLoginInputs()) {
-        return;
-      }
-      
       try {
-        // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        
-        // Check if email is verified
-        if (!user.emailVerified) {
-          // Sign out the user if email is not verified
+
+        if (user && !user.emailVerified) {
+          showMiniNotification('Please verify your email before logging in.');
           await auth.signOut();
-          showMiniNotification('Please verify your email before logging in. Check your inbox for the verification link.');
-          return;
         }
+        // If verified, onAuthStateChanged will handle the redirect.
         
-        // Login successful, handled by auth state change
       } catch (error) {
-        // Show appropriate error message
         showMiniNotification(getErrorMessage(error));
       }
     });
 
     // Email Sign Up
     signupBtn.addEventListener('click', async () => {
+      // Helper function to reset the button's state
+      function resetSignupButton() {
+          signupBtn.disabled = false;
+          signupBtn.textContent = 'Sign Up';
+      }
+
+      // Set button to "Registering..." state immediately
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Registering...';
+
+      // Validate inputs. If invalid, reset button and stop.
+      if (!validateSignupInputs()) {
+          resetSignupButton();
+          return;
+      }
+
       const username = signupUsername.value.trim();
       const email = signupEmail.value.trim();
       const password = signupPassword.value.trim();
-      const confirmPassword = signupConfirmPassword.value.trim();
-      
-      // Validate inputs
-      if (!validateSignupInputs()) {
-        return;
-      }
       
       try {
-        // First check if email exists
+        // Check if email already exists
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-        
         if (signInMethods.length > 0) {
-          // Email already exists
           showMiniNotification('Email already exists. Use a different one.');
+          resetSignupButton();
           return;
         }
         
-        // Create user
+        // Create user, update profile, and send verification email
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        // Update display name
-        await user.updateProfile({
-          displayName: username
-        });
-        
-        // Send email verification
-        await user.sendEmailVerification({
-          url: window.location.origin,
+        await userCredential.user.updateProfile({ displayName: username });
+        await userCredential.user.sendEmailVerification({
+          url: 'https://raidpo-ai.netlify.app/',
           handleCodeInApp: true
         });
         
-        // Show verification message
-        verificationMessage.style.display = 'block';
-        
-        // Sign out the user immediately after registration
+        // Sign out user so they must verify, then redirect
         await auth.signOut();
-        
-        // Reset form
-        signupForm.reset();
-        signupPasswordRequirements.style.display = 'none';
-        
-        // Reset password requirements
-        updateRequirement(reqLength, false);
-        updateRequirement(reqUppercase, false);
-        updateRequirement(reqLowercase, false);
+        window.location.href = 'https://raidpo-ai.netlify.app/';
         
       } catch (error) {
+        // On any error, show message and reset button
         showMiniNotification(getErrorMessage(error));
+        resetSignupButton();
       }
     });
 
-    // Input validation listeners
-    signupUsername.addEventListener('input', () => {
-      const username = signupUsername.value.trim();
-      if (!username) {
-        // Error only shown in requirements menu
-      } else if (!isValidUsername(username)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    signupEmail.addEventListener('input', () => {
-      const email = signupEmail.value.trim();
-      if (!email) {
-        // Error only shown in requirements menu
-      } else if (!isValidEmail(email)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    signupPassword.addEventListener('input', () => {
-      const password = signupPassword.value;
-      if (!password) {
-        showError(signupPasswordError, 'Password is required');
-      } else if (!isValidPassword(password)) {
-        // Error only shown in requirements menu
-      } else {
-        hideError(signupPasswordError);
-      }
-    });
-
-    signupConfirmPassword.addEventListener('input', () => {
-      const password = signupPassword.value;
-      const confirmPassword = signupConfirmPassword.value;
-      if (!confirmPassword) {
-        // Error only shown in requirements menu
-      } else if (password !== confirmPassword) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    loginEmail.addEventListener('input', () => {
-      const email = loginEmail.value.trim();
-      if (!email) {
-        // Error only shown in requirements menu
-      } else if (!isValidEmail(email)) {
-        // Error only shown in requirements menu
-      }
-    });
-
-    loginPassword.addEventListener('input', () => {
-      const password = loginPassword.value;
-      if (!password) {
-        // Error only shown in requirements menu
-      }
-    });
+    // Input validation listeners for real-time feedback in requirements list
+    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
 
     // Enable click-and-drag scrolling for forms
     const authRight = document.querySelector('.auth-right');
@@ -1564,21 +1381,6 @@
       isDragging = false;
       authRight.style.cursor = 'default';
     });
-
-    // Enable keyboard scrolling
-    authRight.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        authRight.scrollBy(0, -50);
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        authRight.scrollBy(0, 50);
-      }
-    });
-
-    // Make the form focusable for keyboard scrolling
-    authRight.setAttribute('tabindex', '0');
-    authRight.focus();
   </script>
 </body>
 </html>
