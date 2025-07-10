@@ -1431,31 +1431,22 @@
           return;
         }
         
-        // Create user
+        // Create temporary user with email and password
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        
-        // Update display name
-        await userCredential.user.updateProfile({
-          displayName: username
-        });
         
         // Send email verification
         await userCredential.user.sendEmailVerification({
-          url: window.location.origin,
+          url: 'https://raidpo-ai.netlify.app/',
           handleCodeInApp: true
         });
         
         // Show verification message
         verificationMessage.style.display = 'block';
         
-        // Sign out the user immediately after registration
-        await auth.signOut();
+        // Immediately delete the user (since we don't want them registered until verified)
+        await userCredential.user.delete();
         
-        // Redirect to main site after short delay
-        setTimeout(() => {
-          window.location.href = 'https://raidpo-ai.netlify.app/';
-        }, 2000);
-        
+        // Reset form
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
@@ -1463,6 +1454,11 @@
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
+        
+        // Redirect to main site after short delay
+        setTimeout(() => {
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        }, 2000);
         
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
