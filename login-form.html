@@ -868,465 +868,211 @@
     const countdownProgress = document.getElementById('countdownProgress');
     const miniNotification = document.getElementById('miniNotification');
 
-    // Error message elements
-    const loginEmailError = document.getElementById('loginEmailError');
-    const loginPasswordError = document.getElementById('loginPasswordError');
-    const signupUsernameError = document.getElementById('signupUsernameError');
-    const signupEmailError = document.getElementById('signupEmailError');
-    const signupPasswordError = document.getElementById('signupPasswordError');
-    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
-
-    // Password requirement elements
-    const reqLength = document.getElementById('req-length');
-    const reqUppercase = document.getElementById('req-uppercase');
-    const reqLowercase = document.getElementById('req-lowercase');
-
-    // Countdown timer for requirements menu
+    // State Flags
     let countdownTimer;
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
+    let isRegistering = false; // Flag to prevent UI flash on registration
 
     // Custom error messages mapping
     const errorMessages = {
-      // Email/Password Auth Errors
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
       "auth/user-disabled": "This account has been disabled. Contact support.",
       "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.",
       "auth/email-already-in-use": "Email already exists. Use a different one.",
-      "auth/operation-not-allowed": "Email/password login is disabled.",
       "auth/weak-password": "Password too weak. Use at least 6 characters.",
-      "auth/missing-email": "Email is required.",
-      "auth/missing-password": "Password is required.",
-
-      // General & API Errors
-      "auth/invalid-api-key": "Invalid API key. Please check your configuration.",
-      "auth/app-not-authorized": "App not authorized for this Firebase project.",
       "auth/network-request-failed": "Network error. Check your internet connection.",
       "auth/too-many-requests": "Too many attempts. Please try again later.",
-      "auth/internal-error": "Something went wrong. Please try again.",
-      "auth/timeout": "Request timed out. Try again.",
-
-      // Custom Token Errors
-      "auth/invalid-custom-token": "Custom token is invalid.",
-      "auth/custom-token-mismatch": "Custom token does not match project.",
-
-      // Popup / OAuth Errors
       "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
       "auth/popup-closed-by-user": "Popup closed before login completed.",
-      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
-
-      // Phone Auth Errors
-      "auth/invalid-phone-number": "Invalid phone number format.",
-      "auth/missing-phone-number": "Phone number is required.",
-      "auth/quota-exceeded": "SMS quota exceeded. Try later.",
-      "auth/captcha-check-failed": "Captcha check failed. Try again.",
-      "auth/missing-verification-code": "Verification code is required.",
-      "auth/invalid-verification-code": "Invalid verification code.",
-      "auth/missing-verification-id": "Missing verification ID.",
-      "auth/invalid-verification-id": "Invalid verification ID.",
-
-      // Credential Errors
       "auth/account-exists-with-different-credential": "Account exists with another login method.",
-      "auth/credential-already-in-use": "Credential already linked with another account.",
-      "auth/invalid-credential": "Invalid login credential.",
-      "auth/missing-app-credential": "Missing phone app credential.",
-      "auth/invalid-app-credential": "Invalid app credential. Try again.",
-
-      // User Session Errors
-      "auth/requires-recent-login": "Please log in again to perform this action.",
-      "auth/invalid-user-token": "Session expired. Please log in again.",
-      "auth/null-user": "No user session found.",
-      "auth/user-mismatch": "Login does not match current user.",
-
-      // Linking Errors
-      "auth/provider-already-linked": "Account already linked with this provider.",
-      "auth/no-such-provider": "Account is not linked with this provider.",
-
-      // Continue URL Errors
-      "auth/invalid-continue-uri": "Continue URL is not valid.",
-      "auth/unauthorized-continue-uri": "Continue URL is not whitelisted.",
-
-      // App Issues
-      "auth/app-deleted": "App instance was deleted.",
-      "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
-      
-      // Default error
       "default": "Something went wrong. Please try again."
     };
 
-    // Show mini notification
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
       miniNotification.classList.add('show');
-      
-      setTimeout(() => {
-        miniNotification.classList.remove('show');
-      }, duration);
+      setTimeout(() => miniNotification.classList.remove('show'), duration);
     }
 
-    // Get friendly error message
     function getErrorMessage(error) {
-      const code = error.code || '';
-      return errorMessages[code] || errorMessages['default'];
+      return errorMessages[error.code] || errorMessages['default'];
     }
 
-    // Show error message
-    function showError(element, message) {
-      element.textContent = message;
-      element.style.display = 'block';
-    }
-
-    // Hide error message
-    function hideError(element) {
-      element.textContent = '';
-      element.style.display = 'none';
-    }
-
-    // Clear all error messages
-    function clearAllErrors() {
-      hideError(loginEmailError);
-      hideError(loginPasswordError);
-      hideError(signupUsernameError);
-      hideError(signupEmailError);
-      hideError(signupPasswordError);
-      hideError(signupConfirmPasswordError);
-    }
-
-    // reCAPTCHA load callback
     function onRecaptchaLoad() {
-      // Initialize reCAPTCHA when the API is loaded
-      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-        callback: onSecurityRecaptchaComplete,
-        'expired-callback': onRecaptchaExpired,
-        'error-callback': onRecaptchaError
-      });
-    }
-
-    // reCAPTCHA completion callback
-    function onSecurityRecaptchaComplete(token) {
-      recaptchaCompleted = true;
-      challengeComplete.style.display = 'block';
-      
-      // After completing reCAPTCHA, show method selector page after short delay
-      setTimeout(() => {
-        securityChallenge.style.display = 'none';
-        methodSelectorPage.style.display = 'block';
-      }, 1000);
-    }
-
-    // reCAPTCHA expired callback
-    function onRecaptchaExpired() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) {
-        grecaptcha.reset(recaptchaWidgetId);
+      if (!recaptchaWidgetId) {
+        recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+          sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+          callback: () => {
+            recaptchaCompleted = true;
+            challengeComplete.style.display = 'block';
+            setTimeout(() => {
+              securityChallenge.style.display = 'none';
+              methodSelectorPage.style.display = 'block';
+            }, 1000);
+          },
+          'expired-callback': () => recaptchaCompleted = false,
+          'error-callback': () => recaptchaCompleted = false
+        });
       }
     }
 
-    // reCAPTCHA error callback
-    function onRecaptchaError() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId) {
-        grecaptcha.reset(recaptchaWidgetId);
-      }
-    }
-
-    // Show loading screen for 3 seconds and check auth state
-    setTimeout(() => {
-      auth.onAuthStateChanged(user => {
-        loadingScreen.style.display = 'none';
-        
-        if (user && user.emailVerified) { // Check for user AND email verification
-          // User is signed in AND verified, redirect to homepage
-          window.location.href = 'https://raidpo-ai.netlify.app/';
-        } else {
-          // User is not signed in OR not verified, show the login flow
-          securityChallenge.style.display = 'flex';
-          
-          // Initialize reCAPTCHA if not already loaded
-          if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
-            onRecaptchaLoad();
-          }
+    // Auth State Change Listener
+    auth.onAuthStateChanged(user => {
+      if (user && user.emailVerified) {
+        window.location.href = 'https://raidpo-ai.netlify.app/';
+      } else {
+        // IMPORTANT: Do not show security challenge if we are in the middle of registration
+        if (!isRegistering) {
+            loadingScreen.style.display = 'none';
+            securityChallenge.style.display = 'flex';
+            if (typeof grecaptcha !== 'undefined') onRecaptchaLoad();
         }
-      });
-    }, 3000);
-
-    // Close button functionality
-    closeButton.addEventListener('click', () => {
-      window.location.href = 'https://raidpo-ai.netlify.app/';
+      }
     });
 
+    // Initial load, handled by onAuthStateChanged after a delay to show spinner
+    setTimeout(() => {
+        if (auth.currentUser === null && !isRegistering) {
+             loadingScreen.style.display = 'none';
+             securityChallenge.style.display = 'flex';
+             if (typeof grecaptcha !== 'undefined') onRecaptchaLoad();
+        }
+    }, 3000);
+
+
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => {
       authPage.style.display = 'none';
       methodSelectorPage.style.display = 'block';
     });
-
-    // Method selector buttons
     emailMethodBtn.addEventListener('click', () => {
       methodSelectorPage.style.display = 'none';
       authPage.style.display = 'block';
     });
 
-    googleMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider)
-        .then((result) => {
-          // Google auth successful, handled by auth state change
-        })
-        .catch(error => {
-          showMiniNotification(getErrorMessage(error));
-        });
-    });
+    function handleOAuth(provider) {
+        auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
+    }
+    googleMethodBtn.addEventListener('click', () => handleOAuth(googleProvider));
+    githubMethodBtn.addEventListener('click', () => handleOAuth(githubProvider));
 
-    githubMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(githubProvider)
-        .then((result) => {
-          // GitHub auth successful, handled by auth state change
-          const user = result.user;
-          const additionalUserInfo = result.additionalUserInfo;
-          
-          if (user && additionalUserInfo && !user.displayName) {
-            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
-            if (displayName) {
-              return user.updateProfile({
-                displayName: displayName
-              });
-            }
-          }
-        })
-        .catch(error => {
-          showMiniNotification(getErrorMessage(error));
-        });
-    });
-
-    // Update requirement status
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       const icon = element.querySelector('i');
-      if (icon) {
-        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
-      }
+      if (icon) icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
 
-    // Check email validity
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    // Check username validity
-    function isValidUsername(username) {
-      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
-    }
-
-    // Check password validity
+    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function isValidUsername(username) { return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username); }
     function isValidPassword(password) {
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
-      
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
-      
       return hasLength && hasUppercase && hasLowercase;
     }
 
-    // Show requirements menu
     function showRequirementsMenu(requirements) {
       if (countdownTimer) clearTimeout(countdownTimer);
-      
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
       void countdownProgress.offsetWidth;
       countdownProgress.style.transition = 'width 3s linear';
-      
-      requirementsList.innerHTML = '';
-      requirements.forEach(req => {
-        const li = document.createElement('li');
-        li.className = 'requirement-item invalid';
-        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-        requirementsList.appendChild(li);
-      });
-      
+      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
-      
-      setTimeout(() => {
-        countdownProgress.style.width = '100%';
-      }, 10);
-      
-      countdownTimer = setTimeout(() => {
-        hideRequirementsMenu();
-      }, 3000);
+      setTimeout(() => countdownProgress.style.width = '100%', 10);
+      countdownTimer = setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
     }
 
-    function hideRequirementsMenu() {
-      requirementsOverlay.classList.remove('active');
+    function togglePasswordVisibility(input, toggle) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      toggle.querySelector('i').classList.toggle('fa-eye');
+      toggle.querySelector('i').classList.toggle('fa-eye-slash');
     }
 
-    // Toggle password visibility
-    function togglePasswordVisibility(inputElement, toggleElement) {
-      const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
-      inputElement.setAttribute('type', type);
-      const icon = toggleElement.querySelector('i');
-      icon.classList.toggle('fa-eye');
-      icon.classList.toggle('fa-eye-slash');
-    }
-
-    signupPassword.addEventListener('focus', () => {
-      signupPasswordRequirements.style.display = 'block';
-    });
-
-    signupPassword.addEventListener('blur', () => {
-      if (signupPassword.value === '') {
-        signupPasswordRequirements.style.display = 'none';
-      }
-    });
-
+    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
+    signupPassword.addEventListener('blur', () => { if (signupPassword.value === '') signupPasswordRequirements.style.display = 'none'; });
     toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
     toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
     toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
 
-    // Auth Tab Switching
     authTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
         document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
         document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
-        
-        clearAllErrors();
       });
     });
 
-    switchToSignup.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[1].click();
-    });
+    switchToSignup.addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
+    switchToLogin.addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
 
-    switchToLogin.addEventListener('click', (e) => {
-      e.preventDefault();
-      authTabs[0].click();
-    });
-
-    // Validate login inputs
     function validateLoginInputs() {
-      let isValid = true;
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
       const errors = [];
-      
-      if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email');
-        isValid = false;
+      if (!loginEmail.value.trim()) errors.push('Email is required');
+      else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
+      if (!loginPassword.value.trim()) errors.push('Password is required');
+      if (errors.length > 0) {
+        showRequirementsMenu(errors);
+        return false;
       }
-      
-      if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-      }
-      
-      if (!isValid) showRequirementsMenu(errors);
-      return isValid;
+      return true;
     }
 
-    // Validate signup inputs
     function validateSignupInputs() {
-      let isValid = true;
-      const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
-      const confirmPassword = signupConfirmPassword.value.trim();
       const errors = [];
-      
-      if (!username) {
-        errors.push('Username is required');
-        isValid = false;
-      } else if (!isValidUsername(username)) {
-        errors.push('Username must be 3+ chars (letters, numbers, underscores)');
-        isValid = false;
+      if (!signupUsername.value.trim()) errors.push('Username is required');
+      else if (!isValidUsername(signupUsername.value.trim())) errors.push('Username must be 3+ chars (letters, numbers, underscores)');
+      if (!signupEmail.value.trim()) errors.push('Email is required');
+      else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
+      if (!signupPassword.value) errors.push('Password is required');
+      else if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
+      if (!signupConfirmPassword.value) errors.push('Please confirm your password');
+      else if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
+      if (errors.length > 0) {
+        showRequirementsMenu(errors);
+        return false;
       }
-      
-      if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-      } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email');
-        isValid = false;
-      }
-      
-      if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-      } else if (!isValidPassword(password)) {
-        errors.push('Password must meet all requirements');
-        isValid = false;
-      }
-      
-      if (!confirmPassword) {
-        errors.push('Please confirm your password');
-        isValid = false;
-      } else if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
-        isValid = false;
-      }
-      
-      if (!isValid) showRequirementsMenu(errors);
-      return isValid;
+      return true;
     }
 
-    // Email Login
     loginBtn.addEventListener('click', async () => {
       if (!validateLoginInputs()) return;
-      
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      
       try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-
-        if (user && !user.emailVerified) {
+        const userCredential = await auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginPassword.value.trim());
+        if (userCredential.user && !userCredential.user.emailVerified) {
           showMiniNotification('Please verify your email before logging in.');
           await auth.signOut();
         }
-        // If verified, onAuthStateChanged will handle the redirect.
-        
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
       }
     });
 
-    // Email Sign Up
     signupBtn.addEventListener('click', async () => {
-      // Helper function to reset the button's state
-      function resetSignupButton() {
-          signupBtn.disabled = false;
-          signupBtn.textContent = 'Sign Up';
-      }
-
-      // Set button to "Registering..." state immediately
+      isRegistering = true; // Set the flag to prevent UI flash
       signupBtn.disabled = true;
       signupBtn.textContent = 'Registering...';
 
-      // Validate inputs. If invalid, reset button and stop.
+      function resetSignupButton() {
+          signupBtn.disabled = false;
+          signupBtn.textContent = 'Sign Up';
+          isRegistering = false; // Reset flag on failure
+      }
+
       if (!validateSignupInputs()) {
           resetSignupButton();
           return;
       }
-
-      const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value.trim();
       
+      const email = signupEmail.value.trim();
       try {
-        // Check if email already exists
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
         if (signInMethods.length > 0) {
           showMiniNotification('Email already exists. Use a different one.');
@@ -1334,53 +1080,20 @@
           return;
         }
         
-        // Create user, update profile, and send verification email
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.updateProfile({ displayName: username });
-        await userCredential.user.sendEmailVerification({
-          url: 'https://raidpo-ai.netlify.app/',
-          handleCodeInApp: true
-        });
+        const userCredential = await auth.createUserWithEmailAndPassword(email, signupPassword.value);
+        await userCredential.user.updateProfile({ displayName: signupUsername.value.trim() });
+        await userCredential.user.sendEmailVerification({ url: 'https://raidpo-ai.netlify.app/' });
         
-        // Sign out user so they must verify, then redirect
         await auth.signOut();
         window.location.href = 'https://raidpo-ai.netlify.app/';
         
       } catch (error) {
-        // On any error, show message and reset button
         showMiniNotification(getErrorMessage(error));
         resetSignupButton();
       }
     });
 
-    // Input validation listeners for real-time feedback in requirements list
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-
-    // Enable click-and-drag scrolling for forms
-    const authRight = document.querySelector('.auth-right');
-    let isDragging = false;
-    let startY;
-    let scrollTop;
-
-    authRight.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.pageY - authRight.offsetTop;
-      scrollTop = authRight.scrollTop;
-      authRight.style.cursor = 'grabbing';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const y = e.pageY - authRight.offsetTop;
-      const walk = (y - startY) * 2;
-      authRight.scrollTop = scrollTop - walk;
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-      authRight.style.cursor = 'default';
-    });
   </script>
 </body>
 </html>
