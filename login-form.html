@@ -852,7 +852,6 @@
   <div class="verification-message" id="verificationMessage">
     <h2>Verify Your Email</h2>
     <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
-    <p>You will be redirected to our verification note page.</p>
     <button id="verificationCloseBtn">Close</button>
   </div>
 
@@ -1085,14 +1084,8 @@
         loadingScreen.style.display = 'none';
         
         if (user) {
-          // Only allow access if email is verified
-          if (user.emailVerified) {
-            window.location.href = 'https://raidpo-ai.netlify.app/';
-          } else {
-            // If not verified, sign out and show auth page
-            auth.signOut();
-            securityChallenge.style.display = 'flex';
-          }
+          // User is signed in, redirect to homepage
+          window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
@@ -1311,8 +1304,7 @@
     // Close verification message
     verificationCloseBtn.addEventListener('click', () => {
       verificationMessage.style.display = 'none';
-      // Redirect to verification note page
-      window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
+      window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
     // Validate login inputs
@@ -1409,12 +1401,11 @@
       try {
         // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
         
         // Check if email is verified
-        if (!user.emailVerified) {
+        if (!userCredential.user.emailVerified) {
           await auth.signOut();
-          showMiniNotification('Please verify your email before logging in. Check your inbox for the verification link.');
+          showMiniNotification('Please verify your email before logging in.');
           return;
         }
         
@@ -1455,7 +1446,7 @@
           displayName: username
         });
         
-        // Send email verification with custom redirect URL
+        // Send email verification
         await userCredential.user.sendEmailVerification({
           url: 'https://raidpo-ai.netlify.app/verify-note',
           handleCodeInApp: true
