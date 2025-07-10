@@ -1400,11 +1400,18 @@
       
       try {
         // Attempt to sign in
-        await auth.signInWithEmailAndPassword(email, password);
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+
+        // Check if the user's email is verified
+        if (userCredential.user && !userCredential.user.emailVerified) {
+          // If not verified, inform the user and sign them out to prevent redirection
+          showMiniNotification('Please verify your email before logging in. Check your inbox.');
+          await auth.signOut();
+        } 
+        // If the user is verified, the onAuthStateChanged listener will handle the redirect.
         
-        // Login successful, handled by auth state change
       } catch (error) {
-        // Show appropriate error message
+        // Show appropriate error message for failed login attempts
         showMiniNotification(getErrorMessage(error));
       }
     });
@@ -1448,10 +1455,14 @@
         // Show verification message
         verificationMessage.style.display = 'block';
         
-        // Sign out the user immediately after registration
+        // Sign out the user immediately after registration so they are not logged in
         await auth.signOut();
         
-        // Reset form
+        // Redirect to main site after short delay
+        setTimeout(() => {
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        }, 2000);
+        
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
