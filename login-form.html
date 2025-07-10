@@ -41,16 +41,6 @@
       color: inherit;
     }
 
-    /* Text selection color */
-    ::selection {
-      background: #ff6f61;
-      color: white;
-    }
-    ::-moz-selection {
-      background: #ff6f61;
-      color: white;
-    }
-
     /* Loading Screen */
     .loading-screen {
       position: fixed;
@@ -887,30 +877,6 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
-    // Allowed email domains
-    const ALLOWED_EMAIL_DOMAINS = [
-      'gmail.com',
-      'yahoo.com',
-      'outlook.com',
-      'hotmail.com',
-      'icloud.com',
-      'aol.com',
-      'protonmail.com',
-      'mail.com',
-      'yandex.com',
-      'zoho.com',
-      'live.com',
-      'msn.com',
-      'gmx.com',
-      'tutanota.com',
-      'hey.com',
-      'fastmail.com',
-      'inbox.com',
-      'rocketmail.com',
-      'me.com',
-      'rediffmail.com'
-    ];
-
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
     const securityChallenge = document.getElementById('securityChallenge');
@@ -1199,12 +1165,7 @@
 
     // Check email validity
     function isValidEmail(email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) return false;
-      
-      // Check if domain is allowed
-      const domain = email.split('@')[1];
-      return ALLOWED_EMAIL_DOMAINS.includes(domain);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     // Check username validity
@@ -1364,7 +1325,7 @@
         errors.push('Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email from an allowed domain');
+        errors.push('Please enter a valid email');
         isValid = false;
       }
       
@@ -1404,7 +1365,7 @@
         errors.push('Email is required');
         isValid = false;
       } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email from an allowed domain');
+        errors.push('Please enter a valid email');
         isValid = false;
       }
       
@@ -1438,29 +1399,12 @@
       const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
       
-      // Check if fields are filled
-      if (!email || !password) {
-        showRequirementsMenu([
-          !email ? 'Email is required' : '',
-          !password ? 'Password is required' : ''
-        ].filter(Boolean));
-        return;
-      }
-      
-      // Check if email is valid
-      if (!isValidEmail(email)) {
-        showRequirementsMenu(['Please enter a valid email from an allowed domain']);
+      // Validate inputs
+      if (!validateLoginInputs()) {
         return;
       }
       
       try {
-        // Check if account exists
-        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-        if (signInMethods.length === 0) {
-          showRequirementsMenu(['No account found with this email. Please register first.']);
-          return;
-        }
-        
         // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
@@ -1468,14 +1412,14 @@
         // Check if email is verified
         if (!user.emailVerified) {
           await auth.signOut();
-          showRequirementsMenu(['Please verify your email first. Check your inbox for the verification link.']);
+          showMiniNotification('Please verify your email first. Check your inbox for the verification link.');
           return;
         }
         
         // Login successful, handled by auth state change
       } catch (error) {
         // Show appropriate error message
-        showRequirementsMenu([getErrorMessage(error)]);
+        showMiniNotification(getErrorMessage(error));
       }
     });
 
@@ -1497,7 +1441,7 @@
         
         if (signInMethods.length > 0) {
           // Email already exists
-          showRequirementsMenu(['Email already exists. Use a different one.']);
+          showMiniNotification('Email already exists. Use a different one.');
           return;
         }
         
@@ -1531,7 +1475,7 @@
         updateRequirement(reqLowercase, false);
         
       } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
+        showMiniNotification(getErrorMessage(error));
       }
     });
 
