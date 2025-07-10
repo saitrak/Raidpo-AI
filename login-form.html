@@ -422,11 +422,6 @@
     .auth-btn:hover {
       background-color: #ff3b2f;
     }
-    
-    .auth-btn:disabled {
-        background-color: #555;
-        cursor: not-allowed;
-    }
 
     .password-requirements {
       display: none;
@@ -464,6 +459,40 @@
     .auth-footer a {
       color: #ff6f61;
       text-decoration: underline;
+    }
+
+    /* Verification Message - Now placed after the signup form */
+    .verification-container {
+      display: none;
+      background-color: rgba(26, 26, 26, 0.9);
+      padding: 2rem;
+      border-radius: 10px;
+      margin-top: 1.5rem;
+      border: 1px solid #ff6f61;
+      text-align: center;
+    }
+
+    .verification-container h2 {
+      margin-bottom: 1rem;
+      color: #ff6f61;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+    }
+
+    .verification-container p {
+      margin-bottom: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .verification-container button {
+      padding: 0.8rem 1.5rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: clamp(0.9rem, 3vw, 1rem);
     }
 
     /* Requirements Overlay */
@@ -554,46 +583,6 @@
       width: 0%;
       transition: width 3s linear;
     }
-    
-    /* Verification Message */
-    .verification-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      z-index: 1001; /* Higher z-index to appear on top of other content */
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      display: none; /* Initially hidden */
-    }
-
-    .verification-message h2 {
-      margin-bottom: 1rem;
-      color: #ff6f61;
-      font-size: clamp(1.2rem, 5vw, 1.5rem);
-    }
-
-    .verification-message p {
-      margin-bottom: 1.5rem;
-      color: #ccc;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
-
-    .verification-message button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
 
     /* Error Message */
     .error-message {
@@ -614,7 +603,7 @@
       padding: 12px 24px;
       border-radius: 5px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 1002; /* Highest z-index */
+      z-index: 1000;
       opacity: 0;
       transition: opacity 0.3s ease, transform 0.3s ease;
       max-width: 90%;
@@ -832,6 +821,13 @@
           
           <button id="signupBtn" class="auth-btn">Sign Up</button>
           
+          <!-- Verification message now placed here after the signup form -->
+          <div class="verification-container" id="verificationContainer">
+            <h2>Verify Your Email</h2>
+            <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
+            <button id="verificationCloseBtn">Close</button>
+          </div>
+          
           <div class="auth-footer">
             Already have an account? <a href="#" id="switchToLogin">Sign in</a>
           </div>
@@ -851,13 +847,6 @@
         <div class="countdown-progress" id="countdownProgress"></div>
       </div>
     </div>
-  </div>
-  
-  <!-- Verification Message -->
-  <div class="verification-message" id="verificationMessage">
-    <h2>Verify Your Email</h2>
-    <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
-    <button id="verificationCloseBtn">Close</button>
   </div>
 
   <!-- Mini Notification -->
@@ -907,7 +896,7 @@
     const authTabs = document.querySelectorAll('.auth-tab');
     const switchToSignup = document.getElementById('switchToSignup');
     const switchToLogin = document.getElementById('switchToLogin');
-    const verificationMessage = document.getElementById('verificationMessage');
+    const verificationContainer = document.getElementById('verificationContainer');
     const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
     const challengeComplete = document.getElementById('challengeComplete');
@@ -917,35 +906,193 @@
     const countdownProgress = document.getElementById('countdownProgress');
     const miniNotification = document.getElementById('miniNotification');
 
+    // Error message elements
+    const loginEmailError = document.getElementById('loginEmailError');
+    const loginPasswordError = document.getElementById('loginPasswordError');
+    const signupUsernameError = document.getElementById('signupUsernameError');
+    const signupEmailError = document.getElementById('signupEmailError');
+    const signupPasswordError = document.getElementById('signupPasswordError');
+    const signupConfirmPasswordError = document.getElementById('signupConfirmPasswordError');
+
     // Password requirement elements
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
 
+    // Countdown timer for requirements menu
     let countdownTimer;
     let recaptchaWidgetId;
     let recaptchaCompleted = false;
 
     // Custom error messages mapping
-    const errorMessages = { "auth/invalid-email": "Invalid email format. Please enter a valid email.", "auth/user-disabled": "This account has been disabled. Contact support.", "auth/user-not-found": "No account found with this email.", "auth/wrong-password": "Incorrect password. Try again.", "auth/email-already-in-use": "Email already exists. Use a different one.", "auth/operation-not-allowed": "Email/password login is disabled.", "auth/weak-password": "Password too weak. Use at least 6 characters.", "auth/missing-email": "Email is required.", "auth/missing-password": "Password is required.", "auth/network-request-failed": "Network error. Check your internet connection.", "auth/too-many-requests": "Too many attempts. Please try again later.", "auth/popup-blocked": "Popup blocked. Allow popups in your browser.", "auth/popup-closed-by-user": "Popup closed before login completed.", "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "auth/requires-recent-login": "Please log in again to perform this action.", "default": "Something went wrong. Please try again." };
+    const errorMessages = {
+      // Email/Password Auth Errors
+      "auth/invalid-email": "Invalid email format. Please enter a valid email.",
+      "auth/user-disabled": "This account has been disabled. Contact support.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password. Try again.",
+      "auth/email-already-in-use": "Email already exists. Use a different one.",
+      "auth/operation-not-allowed": "Email/password login is disabled.",
+      "auth/weak-password": "Password too weak. Use at least 6 characters.",
+      "auth/missing-email": "Email is required.",
+      "auth/missing-password": "Password is required.",
 
-    function showMiniNotification(message, duration = 3000) { miniNotification.textContent = message; miniNotification.classList.add('show'); setTimeout(() => { miniNotification.classList.remove('show'); }, duration); }
-    function getErrorMessage(error) { const code = error.code || ''; return errorMessages[code] || errorMessages['default']; }
+      // General & API Errors
+      "auth/invalid-api-key": "Invalid API key. Please check your configuration.",
+      "auth/app-not-authorized": "App not authorized for this Firebase project.",
+      "auth/network-request-failed": "Network error. Check your internet connection.",
+      "auth/too-many-requests": "Too many attempts. Please try again later.",
+      "auth/internal-error": "Something went wrong. Please try again.",
+      "auth/timeout": "Request timed out. Try again.",
+
+      // Custom Token Errors
+      "auth/invalid-custom-token": "Custom token is invalid.",
+      "auth/custom-token-mismatch": "Custom token does not match project.",
+
+      // Popup / OAuth Errors
+      "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
+      "auth/popup-closed-by-user": "Popup closed before login completed.",
+      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
+
+      // Phone Auth Errors
+      "auth/invalid-phone-number": "Invalid phone number format.",
+      "auth/missing-phone-number": "Phone number is required.",
+      "auth/quota-exceeded": "SMS quota exceeded. Try later.",
+      "auth/captcha-check-failed": "Captcha check failed. Try again.",
+      "auth/missing-verification-code": "Verification code is required.",
+      "auth/invalid-verification-code": "Invalid verification code.",
+      "auth/missing-verification-id": "Missing verification ID.",
+      "auth/invalid-verification-id": "Invalid verification ID.",
+
+      // Credential Errors
+      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "auth/credential-already-in-use": "Credential already linked with another account.",
+      "auth/invalid-credential": "Invalid login credential.",
+      "auth/missing-app-credential": "Missing phone app credential.",
+      "auth/invalid-app-credential": "Invalid app credential. Try again.",
+
+      // User Session Errors
+      "auth/requires-recent-login": "Please log in again to perform this action.",
+      "auth/invalid-user-token": "Session expired. Please log in again.",
+      "auth/null-user": "No user session found.",
+      "auth/user-mismatch": "Login does not match current user.",
+
+      // Linking Errors
+      "auth/provider-already-linked": "Account already linked with this provider.",
+      "auth/no-such-provider": "Account is not linked with this provider.",
+
+      // Continue URL Errors
+      "auth/invalid-continue-uri": "Continue URL is not valid.",
+      "auth/unauthorized-continue-uri": "Continue URL is not whitelisted.",
+
+      // App Issues
+      "auth/app-deleted": "App instance was deleted.",
+      "auth/invalid-emulator-scheme": "Emulator URL must start with http:// or https://.",
+      
+      // Default error
+      "default": "Something went wrong. Please try again."
+    };
+
+    // Show mini notification
+    function showMiniNotification(message, duration = 3000) {
+      miniNotification.textContent = message;
+      miniNotification.classList.add('show');
+      
+      setTimeout(() => {
+        miniNotification.classList.remove('show');
+      }, duration);
+    }
+
+    // Get friendly error message
+    function getErrorMessage(error) {
+      const code = error.code || '';
+      return errorMessages[code] || errorMessages['default'];
+    }
+
+    // Show error message
+    function showError(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    // Hide error message
+    function hideError(element) {
+      element.textContent = '';
+      element.style.display = 'none';
+    }
+
+    // Clear all error messages
+    function clearAllErrors() {
+      hideError(loginEmailError);
+      hideError(loginPasswordError);
+      hideError(signupUsernameError);
+      hideError(signupEmailError);
+      hideError(signupPasswordError);
+      hideError(signupConfirmPasswordError);
+    }
 
     // reCAPTCHA load callback
-    function onRecaptchaLoad() { recaptchaWidgetId = grecaptcha.render('securityRecaptcha', { sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu', callback: onSecurityRecaptchaComplete, 'expired-callback': onRecaptchaExpired, 'error-callback': onRecaptchaError }); }
-    function onSecurityRecaptchaComplete(token) { recaptchaCompleted = true; challengeComplete.style.display = 'block'; setTimeout(() => { securityChallenge.style.display = 'none'; methodSelectorPage.style.display = 'block'; }, 1000); }
-    function onRecaptchaExpired() { recaptchaCompleted = false; challengeComplete.style.display = 'none'; if (recaptchaWidgetId) grecaptcha.reset(recaptchaWidgetId); }
-    function onRecaptchaError() { recaptchaCompleted = false; challengeComplete.style.display = 'none'; if (recaptchaWidgetId) grecaptcha.reset(recaptchaWidgetId); }
+    function onRecaptchaLoad() {
+      // Initialize reCAPTCHA when the API is loaded
+      recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+        sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+        callback: onSecurityRecaptchaComplete,
+        'expired-callback': onRecaptchaExpired,
+        'error-callback': onRecaptchaError
+      });
+    }
+
+    // reCAPTCHA completion callback
+    function onSecurityRecaptchaComplete(token) {
+      recaptchaCompleted = true;
+      challengeComplete.style.display = 'block';
+      
+      // After completing reCAPTCHA, show method selector page after short delay
+      setTimeout(() => {
+        securityChallenge.style.display = 'none';
+        methodSelectorPage.style.display = 'block';
+      }, 1000);
+    }
+
+    // reCAPTCHA expired callback
+    function onRecaptchaExpired() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
+
+    // reCAPTCHA error callback
+    function onRecaptchaError() {
+      recaptchaCompleted = false;
+      challengeComplete.style.display = 'none';
+      if (recaptchaWidgetId) {
+        grecaptcha.reset(recaptchaWidgetId);
+      }
+    }
 
     // Show loading screen for 3 seconds and check auth state
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         loadingScreen.style.display = 'none';
-        if (user && user.emailVerified) {
-          window.location.href = 'https://raidpo-ai.netlify.app/';
+        
+        if (user) {
+          // Check if email is verified before allowing access
+          if (user.emailVerified) {
+            // User is signed in and verified, redirect to homepage
+            window.location.href = 'https://raidpo-ai.netlify.app/';
+          } else {
+            // User is signed in but not verified, sign them out
+            auth.signOut();
+            // Show security challenge
+            securityChallenge.style.display = 'flex';
+          }
         } else {
+          // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
+          
+          // Initialize reCAPTCHA if not already loaded
           if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
             onRecaptchaLoad();
           }
@@ -953,42 +1100,118 @@
       });
     }, 3000);
 
-    closeButton.addEventListener('click', () => { window.location.href = 'https://raidpo-ai.netlify.app/'; });
-    backToMethods.addEventListener('click', () => { authPage.style.display = 'none'; methodSelectorPage.style.display = 'block'; });
-    emailMethodBtn.addEventListener('click', () => { methodSelectorPage.style.display = 'none'; authPage.style.display = 'block'; });
+    // Close button functionality
+    closeButton.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
 
-    function handleOAuth(provider) {
-        auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
-    }
-    googleMethodBtn.addEventListener('click', () => handleOAuth(googleProvider));
-    githubMethodBtn.addEventListener('click', () => handleOAuth(githubProvider));
+    backToMethods.addEventListener('click', () => {
+      authPage.style.display = 'none';
+      methodSelectorPage.style.display = 'block';
+    });
 
+    // Method selector buttons
+    emailMethodBtn.addEventListener('click', () => {
+      methodSelectorPage.style.display = 'none';
+      authPage.style.display = 'block';
+    });
+
+    googleMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider)
+        .then((result) => {
+          // Google auth successful, handled by auth state change
+          // Display name and photo URL are automatically set from Google profile
+        })
+        .catch(error => {
+          showMiniNotification(getErrorMessage(error));
+        });
+    });
+
+    githubMethodBtn.addEventListener('click', () => {
+      auth.signInWithPopup(githubProvider)
+        .then((result) => {
+          // GitHub auth successful, handled by auth state change
+          const user = result.user;
+          const additionalUserInfo = result.additionalUserInfo;
+          
+          // Set display name from GitHub username if available
+          if (user && additionalUserInfo && !user.displayName) {
+            const displayName = additionalUserInfo.username || user.email?.split('@')[0];
+            if (displayName) {
+              return user.updateProfile({
+                displayName: displayName
+              });
+            }
+          }
+        })
+        .catch(error => {
+          showMiniNotification(getErrorMessage(error));
+        });
+    });
+
+    // Update requirement status
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       const icon = element.querySelector('i');
-      if (icon) icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+      }
     }
 
-    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-    function isValidUsername(username) { return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username); }
+    // Check email validity
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
 
+    // Check username validity
+    function isValidUsername(username) {
+      return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check password validity
     function isValidPassword(password) {
       const hasLength = password.length >= 6;
       const hasUppercase = /[A-Z]/.test(password);
       const hasLowercase = /[a-z]/.test(password);
+      
+      // Update password requirements visibility
       updateRequirement(reqLength, hasLength);
       updateRequirement(reqUppercase, hasUppercase);
       updateRequirement(reqLowercase, hasLowercase);
+      
       return hasLength && hasUppercase && hasLowercase;
     }
 
+    // Check if passwords match
+    function checkPasswordMatch() {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      
+      if (password && confirmPassword) {
+        return password === confirmPassword;
+      }
+      return false;
+    }
+
+    // Show requirements menu
     function showRequirementsMenu(requirements) {
-      if (countdownTimer) clearTimeout(countdownTimer);
+      // Clear any existing timer
+      if (countdownTimer) {
+        clearTimeout(countdownTimer);
+      }
+      
+      // Reset animation
       countdownProgress.style.transition = 'none';
       countdownProgress.style.width = '0%';
+      
+      // Force reflow to reset animation
       void countdownProgress.offsetWidth;
+      
+      // Re-enable transition
       countdownProgress.style.transition = 'width 3s linear';
+      
+      // Populate requirements list
       requirementsList.innerHTML = '';
       requirements.forEach(req => {
         const li = document.createElement('li');
@@ -996,105 +1219,360 @@
         li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
         requirementsList.appendChild(li);
       });
+      
+      // Show overlay and menu
       requirementsOverlay.classList.add('active');
-      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
-      countdownTimer = setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
+      
+      // Start countdown animation
+      setTimeout(() => {
+        countdownProgress.style.width = '100%';
+      }, 10);
+      
+      // Set timer to hide after 3 seconds
+      countdownTimer = setTimeout(() => {
+        hideRequirementsMenu();
+      }, 3000);
     }
 
-    function togglePasswordVisibility(input, toggle) { const type = input.type === 'password' ? 'text' : 'password'; input.type = type; toggle.querySelector('i').classList.toggle('fa-eye'); toggle.querySelector('i').classList.toggle('fa-eye-slash'); }
-    signupPassword.addEventListener('focus', () => { signupPasswordRequirements.style.display = 'block'; });
-    signupPassword.addEventListener('blur', () => { if (signupPassword.value === '') signupPasswordRequirements.style.display = 'none'; });
-    toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
-    toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
-    toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
+    // Hide requirements menu
+    function hideRequirementsMenu() {
+      requirementsOverlay.classList.remove('active');
+    }
 
+    // Toggle password visibility
+    function togglePasswordVisibility(inputElement, toggleElement) {
+      const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
+      inputElement.setAttribute('type', type);
+      const icon = toggleElement.querySelector('i');
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    }
+
+    // Show password requirements when password field is focused
+    signupPassword.addEventListener('focus', () => {
+      signupPasswordRequirements.style.display = 'block';
+    });
+
+    // Hide password requirements when password field is blurred (if not empty)
+    signupPassword.addEventListener('blur', () => {
+      if (signupPassword.value === '') {
+        signupPasswordRequirements.style.display = 'none';
+      }
+    });
+
+    // Setup password toggles
+    toggleLoginPassword.addEventListener('click', () => {
+      togglePasswordVisibility(loginPassword, toggleLoginPassword);
+    });
+
+    toggleSignupPassword.addEventListener('click', () => {
+      togglePasswordVisibility(signupPassword, toggleSignupPassword);
+    });
+
+    toggleConfirmPassword.addEventListener('click', () => {
+      togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword);
+    });
+
+    // Auth Tab Switching
     authTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         authTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
-        document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
+        
+        if (tab.dataset.tab === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          signupForm.classList.add('active');
+        }
+        
+        // Clear all errors when switching tabs
+        clearAllErrors();
       });
     });
-    switchToSignup.addEventListener('click', (e) => { e.preventDefault(); authTabs[1].click(); });
-    switchToLogin.addEventListener('click', (e) => { e.preventDefault(); authTabs[0].click(); });
-    
+
+    // Switch between login and signup
+    switchToSignup.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[1].click();
+    });
+
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTabs[0].click();
+    });
+
     // Close verification message
     verificationCloseBtn.addEventListener('click', () => {
-      verificationMessage.style.display = 'none';
+      verificationContainer.style.display = 'none';
       window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
-    function validateLoginInputs() { const email = loginEmail.value.trim(), password = loginPassword.value.trim(), errors = []; if (!email) errors.push('Email is required'); else if (!isValidEmail(email)) errors.push('Please enter a valid email'); if (!password) errors.push('Password is required'); if (errors.length > 0) { showRequirementsMenu(errors); return false; } return true; }
-    function validateSignupInputs() { const username = signupUsername.value.trim(), email = signupEmail.value.trim(), password = signupPassword.value.trim(), confirmPassword = signupConfirmPassword.value.trim(), errors = []; if (!username) errors.push('Username is required'); else if (!isValidUsername(username)) errors.push('Username must be 3+ chars (letters, numbers, underscores)'); if (!email) errors.push('Email is required'); else if (!isValidEmail(email)) errors.push('Please enter a valid email'); if (!password) errors.push('Password is required'); else if (!isValidPassword(password)) errors.push('Password must meet all requirements'); if (!confirmPassword) errors.push('Please confirm your password'); else if (password !== confirmPassword) errors.push('Passwords do not match'); if (errors.length > 0) { showRequirementsMenu(errors); return false; } return true; }
+    // Validate login inputs
+    function validateLoginInputs() {
+      let isValid = true;
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      const errors = [];
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
+    }
 
+    // Validate signup inputs
+    function validateSignupInputs() {
+      let isValid = true;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      const errors = [];
+      
+      // Validate username
+      if (!username) {
+        errors.push('Username is required');
+        isValid = false;
+      } else if (!isValidUsername(username)) {
+        errors.push('Username must be at least 3 characters (letters, numbers, underscores)');
+        isValid = false;
+      }
+      
+      // Validate email
+      if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email');
+        isValid = false;
+      }
+      
+      // Validate password
+      if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+      } else if (!isValidPassword(password)) {
+        errors.push('Password must meet all requirements');
+        isValid = false;
+      }
+      
+      // Validate confirm password
+      if (!confirmPassword) {
+        errors.push('Please confirm your password');
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        errors.push('Passwords do not match');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        showRequirementsMenu(errors);
+      }
+      
+      return isValid;
+    }
+
+    // Email Login
     loginBtn.addEventListener('click', async () => {
-      if (!validateLoginInputs()) return;
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      
+      // Validate inputs
+      if (!validateLoginInputs()) {
+        return;
+      }
+      
       try {
-        const userCredential = await auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginPassword.value.trim());
-        if (userCredential.user && !userCredential.user.emailVerified) {
-          showMiniNotification('Please verify your email before logging in.');
+        // Attempt to sign in
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Check if email is verified
+        if (!user.emailVerified) {
+          // Sign out the user if email is not verified
           await auth.signOut();
+          showMiniNotification('Please verify your email before logging in. Check your inbox for the verification link.');
+          return;
         }
+        
+        // Login successful, handled by auth state change
+      } catch (error) {
+        // Show appropriate error message
+        showMiniNotification(getErrorMessage(error));
+      }
+    });
+
+    // Email Sign Up
+    signupBtn.addEventListener('click', async () => {
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value.trim();
+      const confirmPassword = signupConfirmPassword.value.trim();
+      
+      // Validate inputs
+      if (!validateSignupInputs()) {
+        return;
+      }
+      
+      try {
+        // First check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods.length > 0) {
+          // Email already exists
+          showMiniNotification('Email already exists. Use a different one.');
+          return;
+        }
+        
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Update display name
+        await user.updateProfile({
+          displayName: username
+        });
+        
+        // Send email verification
+        await user.sendEmailVerification({
+          url: window.location.origin,
+          handleCodeInApp: true
+        });
+        
+        // Show verification message
+        verificationContainer.style.display = 'block';
+        
+        // Sign out the user immediately after registration
+        await auth.signOut();
+        
+        // Reset form
+        signupForm.reset();
+        signupPasswordRequirements.style.display = 'none';
+        
+        // Reset password requirements
+        updateRequirement(reqLength, false);
+        updateRequirement(reqUppercase, false);
+        updateRequirement(reqLowercase, false);
+        
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
       }
     });
-    
-    function resetSignupButton() {
-        signupBtn.disabled = false;
-        signupBtn.textContent = 'Sign Up';
-    }
 
-    signupBtn.addEventListener('click', async () => {
-        signupBtn.disabled = true;
-        signupBtn.textContent = 'Registering...';
-
-        if (!validateSignupInputs()) {
-            resetSignupButton();
-            return;
-        }
-
-        const username = signupUsername.value.trim();
-        const email = signupEmail.value.trim();
-        const password = signupPassword.value.trim();
-      
-        try {
-            const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-            if (signInMethods.length > 0) {
-                showMiniNotification('Email already exists. Use a different one.');
-                resetSignupButton();
-                return;
-            }
-        
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            await userCredential.user.updateProfile({ displayName: username });
-            await userCredential.user.sendEmailVerification({ url: 'https://raidpo-ai.netlify.app/', handleCodeInApp: true });
-        
-            await auth.signOut();
-
-            // Show verification message on the current page
-            verificationMessage.style.display = 'block';
-            
-            signupForm.reset();
-            signupPasswordRequirements.style.display = 'none';
-            updateRequirement(reqLength, false);
-            updateRequirement(reqUppercase, false);
-            updateRequirement(reqLowercase, false);
-            resetSignupButton();
-        
-        } catch (error) {
-            showMiniNotification(getErrorMessage(error));
-            resetSignupButton();
-        }
+    // Input validation listeners
+    signupUsername.addEventListener('input', () => {
+      const username = signupUsername.value.trim();
+      if (!username) {
+        // Error only shown in requirements menu
+      } else if (!isValidUsername(username)) {
+        // Error only shown in requirements menu
+      }
     });
 
-    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
+    signupEmail.addEventListener('input', () => {
+      const email = signupEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmail(email)) {
+        // Error only shown in requirements menu
+      }
+    });
 
-    const authRight = document.querySelector('.auth-right'); let isDragging = false; let startY; let scrollTop;
-    authRight.addEventListener('mousedown', (e) => { isDragging = true; startY = e.pageY - authRight.offsetTop; scrollTop = authRight.scrollTop; authRight.style.cursor = 'grabbing'; });
-    document.addEventListener('mousemove', (e) => { if (!isDragging) return; e.preventDefault(); const y = e.pageY - authRight.offsetTop; const walk = (y - startY) * 2; authRight.scrollTop = scrollTop - walk; });
-    document.addEventListener('mouseup', () => { isDragging = false; authRight.style.cursor = 'default'; });
+    signupPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      if (!password) {
+        showError(signupPasswordError, 'Password is required');
+      } else if (!isValidPassword(password)) {
+        // Error only shown in requirements menu
+      } else {
+        hideError(signupPasswordError);
+      }
+    });
+
+    signupConfirmPassword.addEventListener('input', () => {
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      if (!confirmPassword) {
+        // Error only shown in requirements menu
+      } else if (password !== confirmPassword) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginEmail.addEventListener('input', () => {
+      const email = loginEmail.value.trim();
+      if (!email) {
+        // Error only shown in requirements menu
+      } else if (!isValidEmail(email)) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    loginPassword.addEventListener('input', () => {
+      const password = loginPassword.value;
+      if (!password) {
+        // Error only shown in requirements menu
+      }
+    });
+
+    // Enable click-and-drag scrolling for forms
+    const authRight = document.querySelector('.auth-right');
+    let isDragging = false;
+    let startY;
+    let scrollTop;
+
+    authRight.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.pageY - authRight.offsetTop;
+      scrollTop = authRight.scrollTop;
+      authRight.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const y = e.pageY - authRight.offsetTop;
+      const walk = (y - startY) * 2;
+      authRight.scrollTop = scrollTop - walk;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      authRight.style.cursor = 'default';
+    });
+
+    // Enable keyboard scrolling
+    authRight.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        authRight.scrollBy(0, -50);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        authRight.scrollBy(0, 50);
+      }
+    });
+
+    // Make the form focusable for keyboard scrolling
+    authRight.setAttribute('tabindex', '0');
+    authRight.focus();
   </script>
 </body>
 </html>
