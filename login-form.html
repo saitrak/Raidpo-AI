@@ -560,6 +560,46 @@
       transition: width 3s linear;
     }
 
+    /* Verification Message (5th Layer) */
+    .verification-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #1a1a1a;
+      padding: 2rem;
+      border-radius: 10px;
+      z-index: 1000;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    .verification-message h2 {
+      margin-bottom: 1rem;
+      color: #ff6f61;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+    }
+
+    .verification-message p {
+      margin-bottom: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .verification-message button {
+      padding: 0.8rem 1.5rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
     /* Error Message */
     .error-message {
       color: #ff6f61;
@@ -818,6 +858,14 @@
     </div>
   </div>
 
+  <!-- Verification Message (5th Layer) -->
+  <div class="verification-message" id="verificationMessage">
+    <h2>Verify Your Email</h2>
+    <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
+    <p>You won't be able to login until you verify your email address.</p>
+    <button id="verificationCloseBtn">Close</button>
+  </div>
+
   <!-- Mini Notification -->
   <div class="mini-notification" id="miniNotification"></div>
 
@@ -839,7 +887,7 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
-    // Allowed email domains (only for registration)
+    // Allowed email domains
     const ALLOWED_EMAIL_DOMAINS = [
       'gmail.com',
       'yahoo.com',
@@ -889,6 +937,8 @@
     const authTabs = document.querySelectorAll('.auth-tab');
     const switchToSignup = document.getElementById('switchToSignup');
     const switchToLogin = document.getElementById('switchToLogin');
+    const verificationMessage = document.getElementById('verificationMessage');
+    const verificationCloseBtn = document.getElementById('verificationCloseBtn');
     const securityRecaptcha = document.getElementById('securityRecaptcha');
     const challengeComplete = document.getElementById('challengeComplete');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
@@ -1147,19 +1197,14 @@
       }
     }
 
-    // Check email validity (for registration only)
-    function isValidEmailForRegistration(email) {
+    // Check email validity
+    function isValidEmail(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) return false;
       
-      // Check if domain is allowed (only for registration)
+      // Check if domain is allowed
       const domain = email.split('@')[1];
       return ALLOWED_EMAIL_DOMAINS.includes(domain);
-    }
-
-    // Basic email format check (for login)
-    function isValidEmailFormat(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     // Check username validity
@@ -1214,20 +1259,7 @@
       requirements.forEach(req => {
         const li = document.createElement('li');
         li.className = 'requirement-item invalid';
-        
-        // Special handling for email domain message
-        if (req.includes('valid email from an allowed domain')) {
-          li.innerHTML = `
-            <i class="fas fa-times"></i>
-            <span>
-              Please use a valid allowed email domain 
-              <a href="/allowed-email-domains" style="color: #ff6f61; text-decoration: underline;">for more info</a>
-            </span>
-          `;
-        } else {
-          li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
-        }
-        
+        li.innerHTML = `<i class="fas fa-times"></i><span>${req}</span>`;
         requirementsList.appendChild(li);
       });
       
@@ -1314,6 +1346,12 @@
       authTabs[0].click();
     });
 
+    // Close verification message (5th layer)
+    verificationCloseBtn.addEventListener('click', () => {
+      verificationMessage.style.display = 'none';
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
+
     // Validate login inputs
     function validateLoginInputs() {
       let isValid = true;
@@ -1325,8 +1363,8 @@
       if (!email) {
         errors.push('Email is required');
         isValid = false;
-      } else if (!isValidEmailFormat(email)) {
-        errors.push('Please enter a valid email');
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email from an allowed domain');
         isValid = false;
       }
       
@@ -1365,8 +1403,8 @@
       if (!email) {
         errors.push('Email is required');
         isValid = false;
-      } else if (!isValidEmailForRegistration(email)) {
-        errors.push('Please use a valid allowed email domain');
+      } else if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email from an allowed domain');
         isValid = false;
       }
       
@@ -1409,9 +1447,9 @@
         return;
       }
       
-      // Check if email is valid format (no domain restriction for login)
-      if (!isValidEmailFormat(email)) {
-        showRequirementsMenu(['Please enter a valid email']);
+      // Check if email is valid
+      if (!isValidEmail(email)) {
+        showRequirementsMenu(['Please enter a valid email from an allowed domain']);
         return;
       }
       
@@ -1434,8 +1472,7 @@
           return;
         }
         
-        // Login successful - redirect directly to raidpo-ai.netlify.app
-        window.location.href = 'https://raidpo-ai.netlify.app/';
+        // Login successful, handled by auth state change
       } catch (error) {
         // Show appropriate error message
         showRequirementsMenu([getErrorMessage(error)]);
@@ -1474,15 +1511,24 @@
         
         // Send email verification
         await userCredential.user.sendEmailVerification({
-          url: 'https://raidpo-ai.netlify.app/',
+          url: window.location.origin,
           handleCodeInApp: true
         });
+        
+        // Show verification message (5th layer)
+        verificationMessage.style.display = 'block';
         
         // Sign out the user immediately after registration
         await auth.signOut();
         
-        // Redirect directly to raidpo-ai.netlify.app
-        window.location.href = 'https://raidpo-ai.netlify.app/';
+        // Clear the form
+        signupForm.reset();
+        signupPasswordRequirements.style.display = 'none';
+        
+        // Reset password requirements
+        updateRequirement(reqLength, false);
+        updateRequirement(reqUppercase, false);
+        updateRequirement(reqLowercase, false);
         
       } catch (error) {
         showRequirementsMenu([getErrorMessage(error)]);
@@ -1503,7 +1549,7 @@
       const email = signupEmail.value.trim();
       if (!email) {
         // Error only shown in requirements menu
-      } else if (!isValidEmailForRegistration(email)) {
+      } else if (!isValidEmail(email)) {
         // Error only shown in requirements menu
       }
     });
@@ -1533,7 +1579,7 @@
       const email = loginEmail.value.trim();
       if (!email) {
         // Error only shown in requirements menu
-      } else if (!isValidEmailFormat(email)) {
+      } else if (!isValidEmail(email)) {
         // Error only shown in requirements menu
       }
     });
