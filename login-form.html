@@ -156,66 +156,290 @@
     .method-right::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
     .method-right::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
 
-    .method-header { text-align: center; margin-bottom: 2rem; }
-    .method-header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
-    .method-header p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); }
+    .method-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
 
-    .method-btn { width: 100%; padding: 1rem; border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer; transition: background-color 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+    .method-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .method-header p {
+      color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .method-btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 5px;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
     .google-btn { background-color: #4285F4; color: #fff; }
     .github-btn { background-color: #333; color: #fff; }
     .email-btn { background-color: #ff6f61; color: #fff; }
 
-    .or-divider { display: flex; align-items: center; margin: 1.5rem 0; color: #ccc; }
-    .or-divider::before, .or-divider::after { content: ""; flex: 1; border-bottom: 1px solid #333; }
+    .or-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: #ccc;
+    }
+
+    .or-divider::before, .or-divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #333;
+    }
+
     .or-divider::before { margin-right: 1rem; }
     .or-divider::after { margin-left: 1rem; }
 
-    .method-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.7rem, 3vw, 0.8rem); }
-    .method-footer a { color: #ff6f61; text-decoration: underline; }
+    .method-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
+    }
+
+    .method-footer a {
+      color: #ff6f61;
+      text-decoration: underline;
+    }
 
     /* Auth Page */
-    .auth-page { display: none; width: 95vw; height: 90vh; background: linear-gradient(135deg, #ff6f61, #ff3b2f); position: relative; border-radius: 10px; overflow: hidden; z-index: 1000; }
-    .auth-container { display: flex; width: 100%; height: 100%; }
-    .auth-left { flex: 1; background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center; background-size: cover; background-color: #0f0f0f; position: relative; }
-    .back-to-methods { position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: #fff; cursor: pointer; z-index: 100; background: none; border: none; padding: 5px; }
-    .auth-right { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 2rem; background-color: #1a1a1a; overflow-y: auto; }
+    .auth-page {
+      display: none;
+      width: 95vw;
+      height: 90vh;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .auth-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .auth-left {
+      flex: 1;
+      background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
+      background-size: cover;
+      background-color: #0f0f0f;
+      position: relative;
+    }
+
+    .back-to-methods {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
+    .auth-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 2rem;
+      background-color: #1a1a1a;
+      overflow-y: auto;
+    }
 
     .auth-right::-webkit-scrollbar { width: 8px; }
     .auth-right::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
     .auth-right::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
     .auth-right::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
 
-    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
     .auth-header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .auth-header p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); }
-    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #333; }
-    .auth-tab { flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative; font-size: clamp(0.9rem, 3vw, 1rem); }
-    .auth-tab.active { color: #ff6f61; }
-    .auth-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: #ff6f61; }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      cursor: pointer;
+      position: relative;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .auth-tab.active {
+      color: #ff6f61;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #ff6f61;
+    }
+
     .auth-form { display: none; }
     .auth-form.active { display: block; }
-    .form-group { margin-bottom: 1.5rem; position: relative; }
-    .form-group label { display: block; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 3vw, 0.9rem); color: #ccc; }
-    .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #333; border-radius: 5px; background-color: #333; color: #fff; font-size: clamp(0.9rem, 3vw, 1rem); }
-    .form-group input:focus { outline: none; border-color: #ff6f61; }
-    .password-toggle { position: absolute; right: 10px; top: 35px; cursor: pointer; color: #ccc; background: none; border: none; padding: 5px; }
-    .auth-btn { width: 100%; padding: 1rem; background-color: #ff6f61; color: #fff; border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      color: #ccc;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff6f61;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 35px;
+      cursor: pointer;
+      color: #ccc;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
-    .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
-    .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
+
+    .password-requirements {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem);
+      color: #ccc;
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.8rem, 3vw, 0.9rem); }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
     .auth-footer a { color: #ff6f61; text-decoration: underline; }
 
     /* Requirements Overlay */
-    .requirements-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-    .requirements-overlay.active { opacity: 1; pointer-events: all; }
-    .requirements-menu { background-color: #1a1a1a; border: 1px solid #ff6f61; border-radius: 10px; padding: 20px; width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); position: relative; transform: translateY(20px); transition: transform 0.3s ease; }
-    .requirements-overlay.active .requirements-menu { transform: translateY(0); }
-    .requirements-title { font-weight: bold; color: #ff6f61; margin-bottom: 15px; text-align: center; font-size: clamp(1rem, 4vw, 1.2rem); }
+    .requirements-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .requirements-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .requirements-menu {
+      background-color: #1a1a1a;
+      border: 1px solid #ff6f61;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .requirements-overlay.active .requirements-menu {
+      transform: translateY(0);
+    }
+
+    .requirements-title {
+      font-weight: bold;
+      color: #ff6f61;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+    }
+
     .requirements-list { list-style-type: none; padding: 0; margin: 0 0 15px 0; }
     .requirement-item { display: flex; align-items: center; margin-bottom: 10px; font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .requirement-item i { margin-right: 10px; font-size: 0.9rem; min-width: 16px; }
@@ -227,37 +451,101 @@
     /* Verification Message */
     .verification-message {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.97); /* Start slightly smaller */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 4000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .verification-message.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .verification-box {
       background-color: #1a1a1a;
       padding: 2rem;
       border-radius: 10px;
-      z-index: 4000;
       text-align: center;
       max-width: 400px;
       width: 90%;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      display: none; /* Initially hidden */
-      opacity: 0;
-      transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Add transitions */
-    }
-    
-    .verification-message.show {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1); /* Animate to full size */
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
     }
 
-    .verification-message h2 { margin-bottom: 1rem; color: #ff6f61; font-size: clamp(1.2rem, 5vw, 1.5rem); }
-    .verification-message p { margin-bottom: 1.5rem; color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); }
-    .verification-message button { padding: 0.8rem 1.5rem; background-color: #ff6f61; color: #fff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: clamp(0.9rem, 3vw, 1rem); }
+    .verification-message.show .verification-box {
+      transform: scale(1);
+    }
+
+    .verification-box h2 {
+      margin-bottom: 1rem;
+      color: #ff6f61;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+    }
+
+    .verification-box p {
+      margin-bottom: 1.5rem;
+      color: #ccc;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+
+    .verification-box button {
+      padding: 0.8rem 1.5rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+    }
 
     /* Mini Notification */
-    .mini-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #ff6f61; color: white; padding: 12px 24px; border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); z-index: 5000; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; max-width: 90%; text-align: center; pointer-events: none; }
-    .mini-notification.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    .mini-notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ff6f61;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 5000;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .mini-notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-10px);
+    }
 
     /* Close Button */
-    .close-button { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #fff; cursor: pointer; z-index: 100; background: none; border: none; padding: 5px; }
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) { .method-container, .auth-container { flex-direction: column; } .method-left, .auth-left { height: 30%; min-height: 200px; } .method-right, .auth-right { height: 70%; padding: 1.5rem; } .mini-notification { width: 90%; bottom: 10px; } }
@@ -266,12 +554,120 @@
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loadingScreen"><div class="loading-spinner"></div></div>
-  <div class="security-challenge" id="securityChallenge"><div class="challenge-container"><h2 class="challenge-title">Security Challenge</h2><p class="challenge-description">Please complete the security challenge to prove you're human</p><div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="securityRecaptcha"></div><p class="challenge-complete" id="challengeComplete">Challenge completed! Redirecting...</p></div></div>
-  <div class="method-selector-page" id="methodSelectorPage"><button class="close-button" id="closeButton"><i class="fas fa-times"></i></button><div class="method-container"><div class="method-left"></div><div class="method-right"><div class="method-header"><h1>Log in or Register</h1><p>Access powerful AI tools with your account (it's 100% FREE!)</p></div><button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button><button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button><div class="or-divider">or</div><button id="emailMethodBtn" class="method-btn email-btn"><i class="fas fa-envelope"></i> Continue with Email</button><div class="method-footer">By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.</div></div></div></div>
-  <div class="auth-page" id="authPage"><div class="auth-container"><div class="auth-left"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div><div class="auth-right"><div class="auth-header"><h1>Raidpo AI</h1><p>Access powerful AI tools with your account</p></div><div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Sign Up</div></div><div id="loginForm" class="auth-form active"><div class="form-group"><label for="loginEmail">Email</label><input type="text" id="loginEmail" placeholder="Enter your email" required></div><div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div><button id="loginBtn" class="auth-btn">Login</button><div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div></div><div id="signupForm" class="auth-form"><div class="form-group"><label for="signupUsername">Username</label><input type="text" id="signupUsername" placeholder="Choose a username" required></div><div class="form-group"><label for="signupEmail">Email</label><input type="email" id="signupEmail" placeholder="Enter your email" required></div><div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" placeholder="Create a password" required><button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button><div class="password-requirements" id="signupPasswordRequirements"><div class="requirement" id="req-length"><i class="fas fa-times"></i><span>At least 6 characters</span></div><div class="requirement" id="req-uppercase"><i class="fas fa-times"></i><span>At least 1 uppercase letter</span></div><div class="requirement" id="req-lowercase"><i class="fas fa-times"></i><span>At least 1 lowercase letter</span></div></div></div><div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required><button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button></div><button id="signupBtn" class="auth-btn">Sign Up</button><div class="auth-footer">Already have an account? <a href="#" id="switchToLogin">Sign in</a></div></div></div></div></div>
-  <div class="requirements-overlay" id="requirementsOverlay"><div class="requirements-menu"><div class="requirements-title">Please fill these requirements</div><ul class="requirements-list" id="requirementsList"></ul><div class="countdown-bar"><div class="countdown-progress" id="countdownProgress"></div></div></div></div>
-  <div class="verification-message" id="verificationMessage"><h2>Verify Your Email</h2><p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p><button id="verificationCloseBtn">Close</button></div>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Security Challenge Screen -->
+  <div class="security-challenge" id="securityChallenge">
+    <div class="challenge-container">
+      <h2 class="challenge-title">Security Challenge</h2>
+      <p class="challenge-description">Please complete the security challenge to prove you're human</p>
+      <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="securityRecaptcha"></div>
+      <p class="challenge-complete" id="challengeComplete">Challenge completed! Redirecting...</p>
+    </div>
+  </div>
+
+  <!-- Method Selector Page -->
+  <div class="method-selector-page" id="methodSelectorPage">
+    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
+    <div class="method-container">
+      <div class="method-left"></div>
+      <div class="method-right">
+        <div class="method-header">
+          <h1>Log in or Register</h1>
+          <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
+        </div>
+        <button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+        <button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button>
+        <div class="or-divider">or</div>
+        <button id="emailMethodBtn" class="method-btn email-btn"><i class="fas fa-envelope"></i> Continue with Email</button>
+        <div class="method-footer">By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Page -->
+  <div class="auth-page" id="authPage">
+    <div class="auth-container">
+      <div class="auth-left">
+        <button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button>
+      </div>
+      <div class="auth-right">
+        <div class="auth-header">
+          <h1>Raidpo AI</h1>
+          <p>Access powerful AI tools with your account</p>
+        </div>
+        <div class="auth-tabs">
+          <div class="auth-tab active" data-tab="login">Login</div>
+          <div class="auth-tab" data-tab="signup">Sign Up</div>
+        </div>
+        <div id="loginForm" class="auth-form active">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="text" id="loginEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
+          </div>
+          <button id="loginBtn" class="auth-btn">Login</button>
+          <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
+        </div>
+        <div id="signupForm" class="auth-form">
+          <div class="form-group">
+            <label for="signupUsername">Username</label>
+            <input type="text" id="signupUsername" placeholder="Choose a username" required>
+          </div>
+          <div class="form-group">
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="Create a password" required>
+            <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="password-requirements" id="signupPasswordRequirements">
+              <div class="requirement" id="req-length"><i class="fas fa-times"></i><span>At least 6 characters</span></div>
+              <div class="requirement" id="req-uppercase"><i class="fas fa-times"></i><span>At least 1 uppercase letter</span></div>
+              <div class="requirement" id="req-lowercase"><i class="fas fa-times"></i><span>At least 1 lowercase letter</span></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signupConfirmPassword">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
+            <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+          </div>
+          <button id="signupBtn" class="auth-btn">Sign Up</button>
+          <div class="auth-footer">Already have an account? <a href="#" id="switchToLogin">Sign in</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Requirements Overlay -->
+  <div class="requirements-overlay" id="requirementsOverlay">
+    <div class="requirements-menu">
+      <div class="requirements-title">Please fill these requirements</div>
+      <ul class="requirements-list" id="requirementsList"></ul>
+      <div class="countdown-bar">
+        <div class="countdown-progress" id="countdownProgress"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Verification Message -->
+  <div class="verification-message" id="verificationMessage">
+    <div class="verification-box">
+        <h2>Verify Your Email</h2>
+        <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
+        <button id="verificationCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Mini Notification -->
   <div class="mini-notification" id="miniNotification"></div>
 
   <script>
@@ -281,20 +677,72 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
-    const allDOMElements = { loadingScreen: document.getElementById('loadingScreen'), securityChallenge: document.getElementById('securityChallenge'), challengeComplete: document.getElementById('challengeComplete'), methodSelectorPage: document.getElementById('methodSelectorPage'), authPage: document.getElementById('authPage'), closeButton: document.getElementById('closeButton'), backToMethods: document.getElementById('backToMethods'), googleMethodBtn: document.getElementById('googleMethodBtn'), githubMethodBtn: document.getElementById('githubMethodBtn'), emailMethodBtn: document.getElementById('emailMethodBtn'), loginForm: document.getElementById('loginForm'), signupForm: document.getElementById('signupForm'), loginBtn: document.getElementById('loginBtn'), signupBtn: document.getElementById('signupBtn'), loginEmail: document.getElementById('loginEmail'), loginPassword: document.getElementById('loginPassword'), toggleLoginPassword: document.getElementById('toggleLoginPassword'), signupUsername: document.getElementById('signupUsername'), signupEmail: document.getElementById('signupEmail'), signupPassword: document.getElementById('signupPassword'), toggleSignupPassword: document.getElementById('toggleSignupPassword'), signupConfirmPassword: document.getElementById('signupConfirmPassword'), toggleConfirmPassword: document.getElementById('toggleConfirmPassword'), authTabs: document.querySelectorAll('.auth-tab'), switchToSignup: document.getElementById('switchToSignup'), switchToLogin: document.getElementById('switchToLogin'), verificationMessage: document.getElementById('verificationMessage'), verificationCloseBtn: document.getElementById('verificationCloseBtn'), signupPasswordRequirements: document.getElementById('signupPasswordRequirements'), reqLength: document.getElementById('req-length'), reqUppercase: document.getElementById('req-uppercase'), reqLowercase: document.getElementById('req-lowercase'), requirementsOverlay: document.getElementById('requirementsOverlay'), requirementsList: document.getElementById('requirementsList'), countdownProgress: document.getElementById('countdownProgress'), miniNotification: document.getElementById('miniNotification') };
-    let recaptchaWidgetId, countdownTimer;
+    const allDOMElements = {
+        loadingScreen: document.getElementById('loadingScreen'),
+        securityChallenge: document.getElementById('securityChallenge'),
+        challengeComplete: document.getElementById('challengeComplete'),
+        methodSelectorPage: document.getElementById('methodSelectorPage'),
+        authPage: document.getElementById('authPage'),
+        closeButton: document.getElementById('closeButton'),
+        backToMethods: document.getElementById('backToMethods'),
+        googleMethodBtn: document.getElementById('googleMethodBtn'),
+        githubMethodBtn: document.getElementById('githubMethodBtn'),
+        emailMethodBtn: document.getElementById('emailMethodBtn'),
+        loginForm: document.getElementById('loginForm'),
+        signupForm: document.getElementById('signupForm'),
+        loginBtn: document.getElementById('loginBtn'),
+        signupBtn: document.getElementById('signupBtn'),
+        loginEmail: document.getElementById('loginEmail'),
+        loginPassword: document.getElementById('loginPassword'),
+        toggleLoginPassword: document.getElementById('toggleLoginPassword'),
+        signupUsername: document.getElementById('signupUsername'),
+        signupEmail: document.getElementById('signupEmail'),
+        signupPassword: document.getElementById('signupPassword'),
+        toggleSignupPassword: document.getElementById('toggleSignupPassword'),
+        signupConfirmPassword: document.getElementById('signupConfirmPassword'),
+        toggleConfirmPassword: document.getElementById('toggleConfirmPassword'),
+        authTabs: document.querySelectorAll('.auth-tab'),
+        switchToSignup: document.getElementById('switchToSignup'),
+        switchToLogin: document.getElementById('switchToLogin'),
+        verificationMessage: document.getElementById('verificationMessage'),
+        verificationCloseBtn: document.getElementById('verificationCloseBtn'),
+        signupPasswordRequirements: document.getElementById('signupPasswordRequirements'),
+        reqLength: document.getElementById('req-length'),
+        reqUppercase: document.getElementById('req-uppercase'),
+        reqLowercase: document.getElementById('req-lowercase'),
+        requirementsOverlay: document.getElementById('requirementsOverlay'),
+        requirementsList: document.getElementById('requirementsList'),
+        countdownProgress: document.getElementById('countdownProgress'),
+        miniNotification: document.getElementById('miniNotification')
+    };
+
+    let recaptchaWidgetId;
+    let countdownTimer;
+
     const errorMessages = { "auth/invalid-email": "Invalid email format.", "auth/user-disabled": "This account has been disabled.", "auth/user-not-found": "No account found with this email.", "auth/wrong-password": "Incorrect password.", "auth/email-already-in-use": "Email already exists.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked by browser.", "auth/popup-closed-by-user": "Popup closed before completion.", "default": "An unexpected error occurred." };
     const getErrorMessage = (error) => errorMessages[error.code] || errorMessages.default;
     const showMiniNotification = (message, duration = 3000) => { allDOMElements.miniNotification.textContent = message; allDOMElements.miniNotification.classList.add('show'); setTimeout(() => allDOMElements.miniNotification.classList.remove('show'), duration); };
-    
+
     function onRecaptchaLoad() { recaptchaWidgetId = grecaptcha.render('securityRecaptcha', { sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu', callback: onRecaptchaComplete, 'expired-callback': () => grecaptcha.reset(recaptchaWidgetId), 'error-callback': () => grecaptcha.reset(recaptchaWidgetId) }); }
-    function onRecaptchaComplete() { allDOMElements.challengeComplete.style.display = 'block'; setTimeout(() => { allDOMElements.securityChallenge.style.display = 'none'; allDOMElements.methodSelectorPage.style.display = 'block'; }, 1000); }
+    function onRecaptchaComplete() {
+      allDOMElements.challengeComplete.style.display = 'block';
+      setTimeout(() => {
+        allDOMElements.securityChallenge.style.display = 'none';
+        allDOMElements.methodSelectorPage.style.display = 'block';
+      }, 1000);
+    }
 
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         allDOMElements.loadingScreen.style.display = 'none';
-        if (user && user.emailVerified) { window.location.href = 'https://raidpo-ai.netlify.app/'; } 
-        else { allDOMElements.securityChallenge.style.display = 'flex'; if (typeof grecaptcha !== 'undefined' && typeof recaptchaWidgetId === 'undefined') onRecaptchaLoad(); }
+        if (user && user.emailVerified) {
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        } else {
+          allDOMElements.securityChallenge.style.display = 'flex';
+          if (typeof grecaptcha !== 'undefined' && typeof recaptchaWidgetId === 'undefined') {
+            onRecaptchaLoad();
+          }
+        }
       });
     }, 3000);
 
@@ -304,22 +752,29 @@
     allDOMElements.closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     allDOMElements.backToMethods.addEventListener('click', () => { allDOMElements.authPage.style.display = 'none'; allDOMElements.methodSelectorPage.style.display = 'block'; });
     allDOMElements.emailMethodBtn.addEventListener('click', () => { allDOMElements.methodSelectorPage.style.display = 'none'; allDOMElements.authPage.style.display = 'block'; });
-    allDOMElements.verificationCloseBtn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    
+    allDOMElements.verificationCloseBtn.addEventListener('click', () => {
+      window.location.href = 'https://raidpo-ai.netlify.app/';
+    });
 
     const updateRequirement = (el, isValid) => { el.classList.toggle('valid', isValid); el.classList.toggle('invalid', !isValid); el.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times'; };
     const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isValidUsername = (username) => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
-      const { reqLength, reqUppercase, reqLowercase } = allDOMElements;
-      const hasLength = password.length >= 6, hasUppercase = /[A-Z]/.test(password), hasLowercase = /[a-z]/.test(password);
-      updateRequirement(reqLength, hasLength); updateRequirement(reqUppercase, hasUppercase); updateRequirement(reqLowercase, hasLowercase);
+      const hasLength = password.length >= 6;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      updateRequirement(allDOMElements.reqLength, hasLength);
+      updateRequirement(allDOMElements.reqUppercase, hasUppercase);
+      updateRequirement(allDOMElements.reqLowercase, hasLowercase);
       return hasLength && hasUppercase && hasLowercase;
     }
 
     function showRequirementsMenu(requirements) {
       if (countdownTimer) clearTimeout(countdownTimer);
       const { requirementsOverlay, countdownProgress, requirementsList } = allDOMElements;
-      countdownProgress.style.transition = 'none'; countdownProgress.style.width = '0%'; void countdownProgress.offsetWidth;
+      countdownProgress.style.transition = 'none'; countdownProgress.style.width = '0%';
+      void countdownProgress.offsetWidth;
       countdownProgress.style.transition = 'width 3s linear';
       requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
@@ -336,58 +791,80 @@
     allDOMElements.signupPassword.addEventListener('blur', () => { if (allDOMElements.signupPassword.value === '') allDOMElements.signupPasswordRequirements.style.display = 'none'; });
     allDOMElements.signupPassword.addEventListener('input', () => isValidPassword(allDOMElements.signupPassword.value));
 
-    allDOMElements.authTabs.forEach(tab => { tab.addEventListener('click', () => { allDOMElements.authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active'); allDOMElements.loginForm.classList.toggle('active', tab.dataset.tab === 'login'); allDOMElements.signupForm.classList.toggle('active', tab.dataset.tab === 'signup'); }); });
+    allDOMElements.authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        allDOMElements.authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        allDOMElements.loginForm.classList.toggle('active', tab.dataset.tab === 'login');
+        allDOMElements.signupForm.classList.toggle('active', tab.dataset.tab === 'signup');
+      });
+    });
     allDOMElements.switchToSignup.addEventListener('click', (e) => { e.preventDefault(); allDOMElements.authTabs[1].click(); });
     allDOMElements.switchToLogin.addEventListener('click', (e) => { e.preventDefault(); allDOMElements.authTabs[0].click(); });
 
     function validateInputs(isLogin) {
-      const { loginEmail, loginPassword, signupUsername, signupEmail, signupPassword, signupConfirmPassword } = allDOMElements;
-      const errors = [];
-      if (isLogin) {
-        if (!loginEmail.value.trim()) errors.push('Email is required'); else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
-        if (!loginPassword.value.trim()) errors.push('Password is required');
-      } else {
-        if (!signupUsername.value.trim()) errors.push('Username is required'); else if (!isValidUsername(signupUsername.value.trim())) errors.push('Username: 3+ chars (letters, numbers, _)');
-        if (!signupEmail.value.trim()) errors.push('Email is required'); else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
-        if (!signupPassword.value.trim()) errors.push('Password is required'); else if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
-        if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
-      }
-      if (errors.length > 0) { showRequirementsMenu(errors); return false; }
-      return true;
+        const { loginEmail, loginPassword, signupUsername, signupEmail, signupPassword, signupConfirmPassword } = allDOMElements;
+        const errors = [];
+        if (isLogin) {
+            if (!loginEmail.value.trim()) errors.push('Email is required');
+            else if (!isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
+            if (!loginPassword.value.trim()) errors.push('Password is required');
+        } else {
+            if (!signupUsername.value.trim()) errors.push('Username is required');
+            else if (!isValidUsername(signupUsername.value.trim())) errors.push('Username: 3+ chars (letters, numbers, _)');
+            if (!signupEmail.value.trim()) errors.push('Email is required');
+            else if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
+            if (!signupPassword.value.trim()) errors.push('Password is required');
+            else if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
+            if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
+        }
+        if (errors.length > 0) { showRequirementsMenu(errors); return false; }
+        return true;
     }
 
     allDOMElements.loginBtn.addEventListener('click', async () => {
       if (!validateInputs(true)) return;
       try {
         const userCredential = await auth.signInWithEmailAndPassword(allDOMElements.loginEmail.value.trim(), allDOMElements.loginPassword.value.trim());
-        if (!userCredential.user.emailVerified) { showMiniNotification('Please verify your email to log in.'); await auth.signOut(); }
+        if (!userCredential.user.emailVerified) {
+          showMiniNotification('Please verify your email to log in.');
+          await auth.signOut();
+        }
       } catch (error) { showMiniNotification(getErrorMessage(error)); }
     });
 
     allDOMElements.signupBtn.addEventListener('click', async () => {
-      allDOMElements.signupBtn.disabled = true; allDOMElements.signupBtn.textContent = 'Registering...';
+      allDOMElements.signupBtn.disabled = true;
+      allDOMElements.signupBtn.textContent = 'Registering...';
       const resetBtn = () => { allDOMElements.signupBtn.disabled = false; allDOMElements.signupBtn.textContent = 'Sign Up'; };
       
       if (!validateInputs(false)) { resetBtn(); return; }
 
-      const email = allDOMElements.signupEmail.value.trim(), username = allDOMElements.signupUsername.value.trim(), password = allDOMElements.signupPassword.value.trim();
+      const email = allDOMElements.signupEmail.value.trim();
+      const username = allDOMElements.signupUsername.value.trim();
+      const password = allDOMElements.signupPassword.value.trim();
+
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
-        if (methods.length > 0) { showMiniNotification('Email already exists.'); resetBtn(); return; }
+        if (methods.length > 0) {
+          showMiniNotification('Email already exists.');
+          resetBtn();
+          return;
+        }
         
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification({ url: 'https://raidpo-ai.netlify.app/', handleCodeInApp: true });
+        
         await auth.signOut();
         
-        // Show verification message with animation
-        allDOMElements.verificationMessage.style.display = 'block';
-        requestAnimationFrame(() => {
-          allDOMElements.verificationMessage.classList.add('show');
-        });
-        
+        allDOMElements.verificationMessage.classList.add('show');
         resetBtn();
-      } catch (error) { showMiniNotification(getErrorMessage(error)); resetBtn(); }
+
+      } catch (error) {
+        showMiniNotification(getErrorMessage(error));
+        resetBtn();
+      }
     });
   </script>
 </body>
