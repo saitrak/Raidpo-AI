@@ -935,7 +935,7 @@
       // Email/Password Auth Errors
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
       "auth/user-disabled": "This account has been disabled. Contact support.",
-      "auth/user-not-found": "No account found with this email.",
+      "auth/user-not-found": "No account found with this email. Please register first.",
       "auth/wrong-password": "Incorrect password. Try again.",
       "auth/email-already-in-use": "Email already exists. Use a different one.",
       "auth/operation-not-allowed": "Email/password login is disabled.",
@@ -1084,8 +1084,13 @@
         loadingScreen.style.display = 'none';
         
         if (user) {
-          // User is signed in, redirect to homepage
-          window.location.href = 'https://raidpo-ai.netlify.app/';
+          // Only redirect if email is verified
+          if (user.emailVerified) {
+            window.location.href = 'https://raidpo-ai.netlify.app/';
+          } else {
+            // User is not verified, show auth page
+            methodSelectorPage.style.display = 'block';
+          }
         } else {
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
@@ -1400,7 +1405,15 @@
       
       try {
         // Attempt to sign in
-        await auth.signInWithEmailAndPassword(email, password);
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Check if email is verified
+        if (!user.emailVerified) {
+          await auth.signOut();
+          showMiniNotification('Please verify your email first. Check your inbox for the verification link.');
+          return;
+        }
         
         // Login successful, handled by auth state change
       } catch (error) {
@@ -1431,7 +1444,7 @@
           return;
         }
         
-        // Create user
+        // Create user (this will create the account but not verify it)
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         
         // Update display name
