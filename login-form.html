@@ -1084,19 +1084,8 @@
         loadingScreen.style.display = 'none';
         
         if (user) {
-          // Only allow logged in users if they are verified
-          if (user.emailVerified) {
-            window.location.href = 'https://raidpo-ai.netlify.app/';
-          } else {
-            // User is not verified, sign them out and show login
-            auth.signOut();
-            securityChallenge.style.display = 'flex';
-            
-            // Initialize reCAPTCHA if not already loaded
-            if (typeof grecaptcha !== 'undefined' && !recaptchaWidgetId) {
-              onRecaptchaLoad();
-            }
-          }
+          // User is signed in, redirect to homepage
+          window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
@@ -1411,16 +1400,7 @@
       
       try {
         // Attempt to sign in
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        // Check if email is verified
-        if (!user.emailVerified) {
-          // Sign out the user if email is not verified
-          await auth.signOut();
-          showMiniNotification('Please verify your email before logging in. Check your inbox for the verification email.');
-          return;
-        }
+        await auth.signInWithEmailAndPassword(email, password);
         
         // Login successful, handled by auth state change
       } catch (error) {
@@ -1453,15 +1433,14 @@
         
         // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
         
         // Update display name
-        await user.updateProfile({
+        await userCredential.user.updateProfile({
           displayName: username
         });
         
         // Send email verification
-        await user.sendEmailVerification({
+        await userCredential.user.sendEmailVerification({
           url: window.location.origin,
           handleCodeInApp: true
         });
@@ -1472,7 +1451,11 @@
         // Sign out the user immediately after registration
         await auth.signOut();
         
-        // Reset form
+        // Redirect to main site after short delay
+        setTimeout(() => {
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        }, 2000);
+        
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
