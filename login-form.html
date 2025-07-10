@@ -1084,6 +1084,7 @@
         loadingScreen.style.display = 'none';
         
         if (user && user.emailVerified) { // MODIFIED: Check for user AND email verification
+          js\n if (user && !user.emailVerified) {\n auth.signOut();\n showMiniNotification('Please verify your email before logging in.');\n }\n
           // User is signed in AND verified, redirect to homepage
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
