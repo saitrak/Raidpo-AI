@@ -550,46 +550,6 @@
       transition: width 3s linear;
     }
 
-    /* Verification Message */
-    .verification-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      z-index: 1000;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      display: none;
-    }
-
-    .verification-message h2 {
-      margin-bottom: 1rem;
-      color: #ff6f61;
-      font-size: clamp(1.2rem, 5vw, 1.5rem);
-    }
-
-    .verification-message p {
-      margin-bottom: 1.5rem;
-      color: #ccc;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
-
-    .verification-message button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
-
     /* Error Message */
     .error-message {
       color: #ff6f61;
@@ -846,13 +806,6 @@
         <div class="countdown-progress" id="countdownProgress"></div>
       </div>
     </div>
-  </div>
-
-  <!-- Verification Message -->
-  <div class="verification-message" id="verificationMessage">
-    <h2>Verify Your Email</h2>
-    <p>A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.</p>
-    <button id="verificationCloseBtn">Close</button>
   </div>
 
   <!-- Mini Notification -->
@@ -1301,12 +1254,6 @@
       authTabs[0].click();
     });
 
-    // Close verification message
-    verificationCloseBtn.addEventListener('click', () => {
-      verificationMessage.style.display = 'none';
-      window.location.href = 'https://raidpo-ai.netlify.app/';
-    });
-
     // Validate login inputs
     function validateLoginInputs() {
       let isValid = true;
@@ -1431,7 +1378,7 @@
           return;
         }
         
-        // Create user
+        // Create user (this will automatically send verification email)
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         
         // Update display name
@@ -1441,19 +1388,11 @@
         
         // Send email verification
         await userCredential.user.sendEmailVerification({
-          url: window.location.origin,
-          handleCodeInApp: true
+          url: 'https://raidpo-ai.netlify.app/verify-note'
         });
         
-        // Show verification message
-        verificationMessage.style.display = 'block';
-        signupForm.reset();
-        signupPasswordRequirements.style.display = 'none';
-        
-        // Reset password requirements
-        updateRequirement(reqLength, false);
-        updateRequirement(reqUppercase, false);
-        updateRequirement(reqLowercase, false);
+        // Immediately redirect to verify-note page
+        window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
         
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
