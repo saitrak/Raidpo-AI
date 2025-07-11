@@ -22,7 +22,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       color: #fff;
-      background-color: #0f0f0f;
+      background-color: #ff3b2f; /* Main background set to red */
       overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
       display: flex;
@@ -69,7 +69,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #0f0f0f;
+      background-color: #0f0f0f; /* Loading screen background remains dark */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -376,11 +376,6 @@
     <div class="loading-spinner"></div>
   </div>
 
-  <!-- Pre-Redirect Loading Screen -->
-  <div class="loading-screen" id="preRedirectLoader" style="display: none;">
-    <div class="loading-spinner"></div>
-  </div>
-
   <!-- Security Challenge Layer -->
   <div class="form-layer" id="securityChallengeLayer">
     <div class="challenge-container">
@@ -507,7 +502,6 @@
 
     // DOM Elements
     const initialLoadingScreen = document.getElementById('initialLoadingScreen');
-    const preRedirectLoader = document.getElementById('preRedirectLoader');
     const securityChallengeLayer = document.getElementById('securityChallengeLayer');
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
@@ -717,12 +711,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        authLayer.classList.remove('active');
-        preRedirectLoader.style.display = 'flex';
-
+        // Wait 1.5 seconds before redirecting, keeping the button in its "Registering" state.
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-        }, 2000);
+        }, 1500);
 
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
