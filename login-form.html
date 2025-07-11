@@ -91,7 +91,12 @@
       }
     }
 
-    /* Security Challenge Screen */
+    /* Security Challenge Screen - Specific background */
+    #securityChallengeLayer {
+      background-color: #ff3b2f;
+      backdrop-filter: none;
+    }
+
     .challenge-container {
       background-color: #1a1a1a;
       padding: 2rem;
@@ -124,7 +129,7 @@
     /* Method Selector Page & Auth Page shared container */
     .form-box {
       width: 100%;
-      max-width: 950px; /* Max width for two-column layout */
+      max-width: 950px;
       height: 85vh;
       max-height: 650px;
       background: #1a1a1a;
@@ -711,10 +716,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        // Wait 1.5 seconds before redirecting, keeping the button in its "Registering" state.
+        // Wait 0.6 seconds before redirecting
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-        }, 1500);
+        }, 600);
 
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
