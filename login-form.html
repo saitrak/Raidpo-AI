@@ -22,8 +22,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       color: #fff;
-      /* Background is now controlled by JS, default is dark */
-      background-color: #0f0f0f;
+      background-color: #0f0f0f; /* Main background is now dark */
       overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
       display: flex;
@@ -31,7 +30,6 @@
       align-items: center;
       min-height: 100vh;
       padding: 20px;
-      transition: background-color 0.3s ease;
     }
 
     h1, h2, h3 {
@@ -56,6 +54,8 @@
       align-items: center;
       z-index: 1000;
       padding: 20px;
+      /* Default to dark background, matching the body */
+      background-color: #0f0f0f;
     }
 
     .form-layer.active {
@@ -91,15 +91,9 @@
       }
     }
 
-    /* Security Challenge layer lets the body background show through */
+    /* Security Challenge Screen - Specific background */
     #securityChallengeLayer {
-      background-color: transparent;
-    }
-
-    /* Other layers have a semi-transparent overlay for a blurred effect */
-    #methodSelectorLayer, #authLayer {
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
+      background-color: #ff3b2f; /* The only layer with a red background */
     }
 
     .challenge-container {
@@ -530,15 +524,21 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
-    const errorMessages = { "default": "An unexpected error occurred. Please try again.", ... }; // Kept concise for brevity, full list can be used
-
-    /**
-     * Sets the main body background color.
-     * @param {string} color - The CSS color string (e.g., '#ff3b2f').
-     */
-    function setBodyBackground(color) {
-      document.body.style.backgroundColor = color;
-    }
+    const errorMessages = {
+      "auth/invalid-email": "Invalid email format. Please enter a valid email.",
+      "auth/user-disabled": "This account has been disabled. Contact support.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password. Try again.",
+      "auth/email-already-in-use": "Email already exists. Use a different one.",
+      "auth/operation-not-allowed": "Email/password login is disabled.",
+      "auth/weak-password": "Password too weak. Use at least 6 characters.",
+      "auth/network-request-failed": "Network error. Check your internet connection.",
+      "auth/too-many-requests": "Too many attempts. Please try again later.",
+      "auth/popup-blocked": "Popup blocked by browser. Please allow popups.",
+      "auth/popup-closed-by-user": "Login popup was closed before completion.",
+      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "default": "An unexpected error occurred. Please try again."
+    };
 
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
@@ -547,20 +547,7 @@
     }
 
     function getErrorMessage(error) {
-      const fullErrorList = {
-        "auth/invalid-email": "Invalid email format. Please enter a valid email.",
-        "auth/user-disabled": "This account has been disabled. Contact support.",
-        "auth/user-not-found": "No account found with this email.",
-        "auth/wrong-password": "Incorrect password. Try again.",
-        "auth/email-already-in-use": "Email already exists. Use a different one.",
-        "auth/weak-password": "Password too weak. Use at least 6 characters.",
-        "auth/network-request-failed": "Network error. Check your internet connection.",
-        "auth/too-many-requests": "Too many attempts. Please try again later.",
-        "auth/popup-blocked": "Popup blocked by browser. Please allow popups.",
-        "auth/popup-closed-by-user": "Login popup was closed before completion.",
-        "auth/account-exists-with-different-credential": "Account exists with another login method.",
-      };
-      return fullErrorList[error.code] || errorMessages.default;
+      return errorMessages[error.code] || errorMessages['default'];
     }
 
     function onRecaptchaLoad() {
@@ -570,7 +557,6 @@
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
-              setBodyBackground('#0f0f0f'); // Change background to dark
               securityChallengeLayer.classList.remove('active');
               methodSelectorLayer.classList.add('active');
             }, 1000);
@@ -586,7 +572,6 @@
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
-          setBodyBackground('#ff3b2f'); // Change background to red
           securityChallengeLayer.classList.add('active');
         }
       });
@@ -603,7 +588,6 @@
     });
 
     const signInWithProvider = (provider) => {
-      setBodyBackground('#0f0f0f'); // Ensure dark bg during popup
       auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
     };
     googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
