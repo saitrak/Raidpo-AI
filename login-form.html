@@ -29,6 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 20px;
     }
 
     h1, h2, h3 {
@@ -39,6 +40,26 @@
     a {
       text-decoration: none;
       color: inherit;
+    }
+
+    /* Base Layer Styles */
+    .form-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      padding: 20px;
+    }
+
+    .form-layer.active {
+      display: flex; /* Show layer */
     }
 
     /* Loading Screen */
@@ -71,22 +92,6 @@
     }
 
     /* Security Challenge Screen */
-    .security-challenge {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      padding: 20px;
-      z-index: 1000;
-      display: none;
-    }
-
     .challenge-container {
       background-color: #1a1a1a;
       padding: 2rem;
@@ -116,31 +121,34 @@
       display: none;
     }
 
-    /* Method Selector Page */
-    .method-selector-page {
-      display: none;
-      width: 95vw;
-      height: 90vh;
-      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    /* Method Selector Page & Auth Page shared container */
+    .form-box {
+      width: 100%;
+      max-width: 950px; /* Max width for two-column layout */
+      height: 85vh;
+      max-height: 650px;
+      background: #1a1a1a;
       position: relative;
       border-radius: 10px;
       overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-
-    .method-container {
+    
+    .form-container {
       display: flex;
       width: 100%;
       height: 100%;
     }
 
-    .method-left {
+    .form-left-panel {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
       background-size: cover;
       background-color: #0f0f0f;
+      position: relative;
     }
 
-    .method-right {
+    .form-right-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -151,35 +159,35 @@
     }
 
     /* Custom Scrollbar */
-    .method-right::-webkit-scrollbar {
-      width: 8px;
+    .form-right-panel::-webkit-scrollbar { width: 8px; }
+    .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
+    .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
+    .form-right-panel::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
+    
+    .back-to-methods {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
     }
 
-    .method-right::-webkit-scrollbar-track {
-      background: #333;
-      border-radius: 4px;
-    }
-
-    .method-right::-webkit-scrollbar-thumb {
-      background: #ff6f61;
-      border-radius: 4px;
-    }
-
-    .method-right::-webkit-scrollbar-thumb:hover {
-      background: #ff3b2f;
-    }
-
-    .method-header {
+    .method-header, .auth-header {
       text-align: center;
       margin-bottom: 2rem;
     }
-
-    .method-header h1 {
+    
+    .method-header h1, .auth-header h1 {
       font-size: clamp(1.8rem, 5vw, 2.5rem);
       margin-bottom: 0.5rem;
     }
-
-    .method-header p {
+    
+    .method-header p, .auth-header p {
       color: #ccc;
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
@@ -200,20 +208,9 @@
       margin-bottom: 1rem;
     }
 
-    .google-btn {
-      background-color: #4285F4;
-      color: #fff;
-    }
-
-    .github-btn {
-      background-color: #333;
-      color: #fff;
-    }
-
-    .email-btn {
-      background-color: #ff6f61;
-      color: #fff;
-    }
+    .google-btn { background-color: #4285F4; color: #fff; }
+    .github-btn { background-color: #333; color: #fff; }
+    .email-btn { background-color: #ff6f61; color: #fff; }
 
     .or-divider {
       display: flex;
@@ -221,21 +218,11 @@
       margin: 1.5rem 0;
       color: #ccc;
     }
-
-    .or-divider::before,
-    .or-divider::after {
-      content: "";
-      flex: 1;
-      border-bottom: 1px solid #333;
+    .or-divider::before, .or-divider::after {
+      content: ""; flex: 1; border-bottom: 1px solid #333;
     }
-
-    .or-divider::before {
-      margin-right: 1rem;
-    }
-
-    .or-divider::after {
-      margin-left: 1rem;
-    }
+    .or-divider::before { margin-right: 1rem; }
+    .or-divider::after { margin-left: 1rem; }
 
     .method-footer {
       text-align: center;
@@ -243,93 +230,7 @@
       color: #ccc;
       font-size: clamp(0.7rem, 3vw, 0.8rem);
     }
-
-    .method-footer a {
-      color: #ff6f61;
-      text-decoration: underline;
-    }
-
-    /* Auth Page */
-    .auth-page {
-      display: none;
-      width: 95vw;
-      height: 90vh;
-      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .auth-container {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
-
-    .auth-left {
-      flex: 1;
-      background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: cover;
-      background-color: #0f0f0f;
-      position: relative;
-    }
-
-    .back-to-methods {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      z-index: 100;
-      background: none;
-      border: none;
-      padding: 5px;
-    }
-
-    .auth-right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 2rem;
-      background-color: #1a1a1a;
-      overflow-y: auto;
-    }
-
-    /* Custom Scrollbar */
-    .auth-right::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .auth-right::-webkit-scrollbar-track {
-      background: #333;
-      border-radius: 4px;
-    }
-
-    .auth-right::-webkit-scrollbar-thumb {
-      background: #ff6f61;
-      border-radius: 4px;
-    }
-
-    .auth-right::-webkit-scrollbar-thumb:hover {
-      background: #ff3b2f;
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .auth-header h1 {
-      font-size: clamp(1.8rem, 5vw, 2.5rem);
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-header p {
-      color: #ccc;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-    }
+    .method-footer a { color: #ff6f61; text-decoration: underline; }
 
     .auth-tabs {
       display: flex;
@@ -345,456 +246,229 @@
       position: relative;
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
-
-    .auth-tab.active {
-      color: #ff6f61;
-    }
-
+    .auth-tab.active { color: #ff6f61; }
     .auth-tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: #ff6f61;
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 100%; height: 2px; background-color: #ff6f61;
     }
 
-    .auth-form {
-      display: none;
-    }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
 
-    .auth-form.active {
-      display: block;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-
+    .form-group { margin-bottom: 1.5rem; position: relative; }
     .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: clamp(0.8rem, 3vw, 0.9rem);
-      color: #ccc;
+      display: block; margin-bottom: 0.5rem;
+      font-size: clamp(0.8rem, 3vw, 0.9rem); color: #ccc;
     }
-
     .form-group input {
-      width: 100%;
-      padding: 0.8rem;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #333;
-      color: #fff;
+      width: 100%; padding: 0.8rem; border: 1px solid #333;
+      border-radius: 5px; background-color: #333; color: #fff;
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #ff6f61;
-    }
+    .form-group input:focus { outline: none; border-color: #ff6f61; }
 
     .password-toggle {
-      position: absolute;
-      right: 10px;
-      top: 35px;
-      cursor: pointer;
-      color: #ccc;
-      background: none;
-      border: none;
-      padding: 5px;
+      position: absolute; right: 10px; top: 35px; cursor: pointer;
+      color: #ccc; background: none; border: none; padding: 5px;
     }
 
     .auth-btn {
-      width: 100%;
-      padding: 1rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s;
+      width: 100%; padding: 1rem; background-color: #ff6f61;
+      color: #fff; border: none; border-radius: 5px;
+      font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold;
+      cursor: pointer; transition: background-color 0.3s;
     }
-
-    .auth-btn:hover:not(:disabled) {
-      background-color: #ff3b2f;
-    }
-    
-    .auth-btn:disabled {
-      background-color: #555; /* Gray color */
-      color: #aaa;
-      cursor: not-allowed;
-    }
+    .auth-btn:hover { background-color: #ff3b2f; }
+    .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
 
     .password-requirements {
-      display: none;
-      margin-top: 0.5rem;
-      font-size: clamp(0.7rem, 3vw, 0.8rem);
-      color: #ccc;
+      display: none; margin-top: 0.5rem;
+      font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc;
     }
-
-    .requirement {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.3rem;
-    }
-
-    .requirement i {
-      margin-right: 0.5rem;
-      font-size: 0.8rem;
-    }
-
-    .requirement.valid i {
-      color: #4CAF50;
-    }
-
-    .requirement.invalid i {
-      color: #ff6f61;
-    }
+    .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
+    .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
+    .requirement.valid i { color: #4CAF50; }
+    .requirement.invalid i { color: #ff6f61; }
 
     .auth-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      color: #ccc;
-      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      text-align: center; margin-top: 1.5rem;
+      color: #ccc; font-size: clamp(0.8rem, 3vw, 0.9rem);
     }
+    .auth-footer a { color: #ff6f61; text-decoration: underline; }
 
-    .auth-footer a {
-      color: #ff6f61;
-      text-decoration: underline;
-    }
-
-    /* Requirements Overlay */
     .requirements-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.9); display: flex;
+      justify-content: center; align-items: center; z-index: 2000;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     }
-
-    .requirements-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
+    .requirements-overlay.active { opacity: 1; pointer-events: all; }
     .requirements-menu {
-      background-color: #1a1a1a;
-      border: 1px solid #ff6f61;
-      border-radius: 10px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      position: relative;
-      transform: translateY(20px);
-      transition: transform 0.3s ease;
+      background-color: #1a1a1a; border: 1px solid #ff6f61;
+      border-radius: 10px; padding: 20px; width: 90%; max-width: 400px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); position: relative;
+      transform: translateY(20px); transition: transform 0.3s ease;
     }
-
-    .requirements-overlay.active .requirements-menu {
-      transform: translateY(0);
-    }
-
+    .requirements-overlay.active .requirements-menu { transform: translateY(0); }
     .requirements-title {
-      font-weight: bold;
-      color: #ff6f61;
-      margin-bottom: 15px;
-      text-align: center;
-      font-size: clamp(1rem, 4vw, 1.2rem);
+      font-weight: bold; color: #ff6f61; margin-bottom: 15px;
+      text-align: center; font-size: clamp(1rem, 4vw, 1.2rem);
     }
-
-    .requirements-list {
-      list-style-type: none;
-      padding: 0;
-      margin: 0 0 15px 0;
-    }
-
+    .requirements-list { list-style-type: none; padding: 0; margin: 0 0 15px 0; }
     .requirement-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
+      display: flex; align-items: center; margin-bottom: 10px;
       font-size: clamp(0.8rem, 3vw, 0.9rem);
     }
-
-    .requirement-item i {
-      margin-right: 10px;
-      font-size: 0.9rem;
-      min-width: 16px;
-    }
-
-    .requirement-item.valid i {
-      color: #4CAF50;
-    }
-
-    .requirement-item.invalid i {
-      color: #ff6f61;
-    }
-
+    .requirement-item i { margin-right: 10px; font-size: 0.9rem; min-width: 16px; }
+    .requirement-item.valid i { color: #4CAF50; }
+    .requirement-item.invalid i { color: #ff6f61; }
     .countdown-bar {
-      height: 4px;
-      background-color: #333;
-      border-radius: 2px;
-      overflow: hidden;
-      width: 100%;
+      height: 4px; background-color: #333; border-radius: 2px;
+      overflow: hidden; width: 100%;
     }
-
     .countdown-progress {
-      height: 100%;
-      background-color: #ff6f61;
-      width: 0%;
-      transition: width 3s linear;
+      height: 100%; background-color: #ff6f61;
+      width: 0%; transition: width 3s linear;
     }
 
-    /* Error Message */
     .error-message {
-      color: #ff6f61;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-      display: none;
+      color: #ff6f61; font-size: 0.8rem; margin-top: 0.5rem; display: none;
     }
 
-    /* Close Button */
     .close-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      z-index: 100;
-      background: none;
-      border: none;
-      padding: 5px;
+      position: absolute; top: 20px; right: 20px; font-size: 1.5rem;
+      color: #fff; cursor: pointer; z-index: 100; background: none;
+      border: none; padding: 5px;
     }
 
-    /* Mini Notification */
     .mini-notification {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #ff6f61;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      opacity: 0;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background-color: #ff6f61; color: white; padding: 12px 24px;
+      border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 3000; opacity: 0;
       transition: opacity 0.3s ease, transform 0.3s ease;
-      max-width: 90%;
-      text-align: center;
-      pointer-events: none;
+      max-width: 90%; text-align: center; pointer-events: none;
     }
-
-    .mini-notification.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-10px);
-    }
+    .mini-notification.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
-      .method-container, .auth-container {
-        flex-direction: column;
-      }
-      
-      .method-left, .auth-left {
-        height: 30%;
-        min-height: 200px;
-      }
-      
-      .method-right, .auth-right {
-        height: 70%;
-        padding: 1.5rem;
-      }
-
-      .mini-notification {
-        width: 90%;
-        bottom: 10px;
-      }
+      .form-container { flex-direction: column; }
+      .form-left-panel { height: 30%; min-height: 200px; }
+      .form-right-panel { height: 70%; padding: 1.5rem; }
+      .form-box { height: 90vh; max-height: none; }
+      .mini-notification { width: 90%; bottom: 10px; }
     }
-
     @media (max-width: 480px) {
-      .challenge-container, .method-right, .auth-right {
-        padding: 1.5rem;
-      }
-      
-      .method-header h1, .auth-header h1, .challenge-title {
-        margin-bottom: 0.3rem;
-      }
-      
-      .auth-tab {
-        padding: 0.8rem;
-      }
-      
-      .form-group input {
-        padding: 0.7rem;
-      }
-      
-      .auth-btn, .method-btn {
-        padding: 0.8rem;
-      }
-      
-      .requirements-menu {
-        padding: 15px;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .challenge-container, .method-right, .auth-right {
-        padding: 1.2rem;
-      }
-      
-      .auth-tab {
-        padding: 0.6rem;
-      }
+      body { padding: 10px; }
+      .challenge-container, .form-right-panel { padding: 1.5rem; }
+      .method-header h1, .auth-header h1, .challenge-title { margin-bottom: 0.3rem; }
+      .auth-tab { padding: 0.8rem; }
+      .form-group input { padding: 0.7rem; }
+      .auth-btn, .method-btn { padding: 0.8rem; }
+      .requirements-menu { padding: 15px; }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div class="loading-screen" id="loadingScreen">
+  <!-- Initial Loading Screen -->
+  <div class="loading-screen" id="initialLoadingScreen">
     <div class="loading-spinner"></div>
   </div>
 
-  <!-- Security Challenge Screen -->
-  <div class="security-challenge" id="securityChallenge">
+  <!-- Pre-Redirect Loading Screen -->
+  <div class="loading-screen" id="preRedirectLoader" style="display: none;">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Security Challenge Layer -->
+  <div class="form-layer" id="securityChallengeLayer">
     <div class="challenge-container">
       <h2 class="challenge-title">Security Challenge</h2>
       <p class="challenge-description">Please complete the security challenge to prove you're human</p>
-      <div class="g-recaptcha" data-sitekey="6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu" id="securityRecaptcha"></div>
+      <div id="securityRecaptcha"></div>
       <p class="challenge-complete" id="challengeComplete">Challenge completed! Redirecting...</p>
     </div>
   </div>
 
-  <!-- Method Selector Page -->
-  <div class="method-selector-page" id="methodSelectorPage">
-    <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
-    
-    <div class="method-container">
-      <div class="method-left"></div>
-      
-      <div class="method-right">
-        <div class="method-header">
-          <h1>Log in or Register</h1>
-          <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
-        </div>
-        
-        <button id="googleMethodBtn" class="method-btn google-btn">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-        
-        <button id="githubMethodBtn" class="method-btn github-btn">
-          <i class="fab fa-github"></i> Continue with GitHub
-        </button>
-        
-        <div class="or-divider">or</div>
-        
-        <button id="emailMethodBtn" class="method-btn email-btn">
-          <i class="fas fa-envelope"></i> Continue with Email
-        </button>
-        
-        <div class="method-footer">
-          By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
+  <!-- Method Selector Layer -->
+  <div class="form-layer" id="methodSelectorLayer">
+    <div class="form-box">
+      <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
+      <div class="form-container">
+        <div class="form-left-panel"></div>
+        <div class="form-right-panel">
+          <div class="method-header">
+            <h1>Log in or Register</h1>
+            <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
+          </div>
+          <button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+          <button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button>
+          <div class="or-divider">or</div>
+          <button id="emailMethodBtn" class="method-btn email-btn"><i class="fas fa-envelope"></i> Continue with Email</button>
+          <div class="method-footer">
+            By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Auth Page -->
-  <div class="auth-page" id="authPage">
-    <div class="auth-container">
-      <div class="auth-left">
-        <button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button>
-      </div>
-      
-      <div class="auth-right">
-        <div class="auth-header">
-          <h1>Raidpo AI</h1>
-          <p>Access powerful AI tools with your account</p>
+  <!-- Auth Layer -->
+  <div class="form-layer" id="authLayer">
+    <div class="form-box">
+      <div class="form-container">
+        <div class="form-left-panel">
+          <button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button>
         </div>
-        
-        <div class="auth-tabs">
-          <div class="auth-tab active" data-tab="login">Login</div>
-          <div class="auth-tab" data-tab="signup">Sign Up</div>
-        </div>
-        
-        <div id="loginForm" class="auth-form active">
-          <div class="form-group">
-            <label for="loginEmail">Email</label>
-            <input type="text" id="loginEmail" placeholder="Enter your email" required>
-            <div class="error-message" id="loginEmailError"></div>
+        <div class="form-right-panel">
+          <div class="auth-header">
+            <h1>Raidpo AI</h1>
+            <p>Access powerful AI tools with your account</p>
           </div>
-          
-          <div class="form-group">
-            <label for="loginPassword">Password</label>
-            <input type="password" id="loginPassword" placeholder="Enter your password" required>
-            <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="loginPasswordError"></div>
+          <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Login</div>
+            <div class="auth-tab" data-tab="signup">Sign Up</div>
           </div>
-          
-          <button id="loginBtn" class="auth-btn">Login</button>
-          
-          <div class="auth-footer">
-            Don't have an account? <a href="#" id="switchToSignup">Register</a>
+          <div id="loginForm" class="auth-form active">
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="text" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password" required>
+              <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
+            </div>
+            <button id="loginBtn" class="auth-btn">Login</button>
+            <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
-        </div>
-        
-        <div id="signupForm" class="auth-form">
-          <div class="form-group">
-            <label for="signupUsername">Username</label>
-            <input type="text" id="signupUsername" placeholder="Choose a username" required>
-            <div class="error-message" id="signupUsernameError"></div>
-          </div>
-          
-          <div class="form-group">
-            <label for="signupEmail">Email</label>
-            <input type="email" id="signupEmail" placeholder="Enter your email" required>
-            <div class="error-message" id="signupEmailError"></div>
-          </div>
-          
-          <div class="form-group">
-            <label for="signupPassword">Password</label>
-            <input type="password" id="signupPassword" placeholder="Create a password" required>
-            <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="signupPasswordError"></div>
-            <div class="password-requirements" id="signupPasswordRequirements">
-              <div class="requirement" id="req-length">
-                <i class="fas fa-times"></i>
-                <span>At least 6 characters</span>
-              </div>
-              <div class="requirement" id="req-uppercase">
-                <i class="fas fa-times"></i>
-                <span>At least 1 uppercase letter</span>
-              </div>
-              <div class="requirement" id="req-lowercase">
-                <i class="fas fa-times"></i>
-                <span>At least 1 lowercase letter</span>
+          <div id="signupForm" class="auth-form">
+            <div class="form-group">
+              <label for="signupUsername">Username</label>
+              <input type="text" id="signupUsername" placeholder="Choose a username" required>
+            </div>
+            <div class="form-group">
+              <label for="signupEmail">Email</label>
+              <input type="email" id="signupEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+              <label for="signupPassword">Password</label>
+              <input type="password" id="signupPassword" placeholder="Create a password" required>
+              <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+              <div class="password-requirements" id="signupPasswordRequirements">
+                <div class="requirement" id="req-length"><i class="fas fa-times"></i><span>At least 6 characters</span></div>
+                <div class="requirement" id="req-uppercase"><i class="fas fa-times"></i><span>At least 1 uppercase letter</span></div>
+                <div class="requirement" id="req-lowercase"><i class="fas fa-times"></i><span>At least 1 lowercase letter</span></div>
               </div>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="signupConfirmPassword">Confirm Password</label>
-            <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
-            <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
-            <div class="error-message" id="signupConfirmPasswordError"></div>
-          </div>
-          
-          <button id="signupBtn" class="auth-btn">Sign Up</button>
-          
-          <div class="auth-footer">
-            Already have an account? <a href="#" id="switchToLogin">Sign in</a>
+            <div class="form-group">
+              <label for="signupConfirmPassword">Confirm Password</label>
+              <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
+              <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
+            </div>
+            <button id="signupBtn" class="auth-btn">Sign Up</button>
+            <div class="auth-footer">Already have an account? <a href="#" id="switchToLogin">Sign in</a></div>
           </div>
         </div>
       </div>
@@ -805,12 +479,8 @@
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
       <div class="requirements-title">Please fill these requirements</div>
-      <ul class="requirements-list" id="requirementsList">
-        <!-- Will be populated dynamically -->
-      </ul>
-      <div class="countdown-bar">
-        <div class="countdown-progress" id="countdownProgress"></div>
-      </div>
+      <ul class="requirements-list" id="requirementsList"></ul>
+      <div class="countdown-bar"><div class="countdown-progress" id="countdownProgress"></div></div>
     </div>
   </div>
 
@@ -836,10 +506,11 @@
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
     // DOM Elements
-    const loadingScreen = document.getElementById('loadingScreen');
-    const securityChallenge = document.getElementById('securityChallenge');
-    const methodSelectorPage = document.getElementById('methodSelectorPage');
-    const authPage = document.getElementById('authPage');
+    const initialLoadingScreen = document.getElementById('initialLoadingScreen');
+    const preRedirectLoader = document.getElementById('preRedirectLoader');
+    const securityChallengeLayer = document.getElementById('securityChallengeLayer');
+    const methodSelectorLayer = document.getElementById('methodSelectorLayer');
+    const authLayer = document.getElementById('authLayer');
     const closeButton = document.getElementById('closeButton');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
@@ -874,32 +545,23 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
 
-    let countdownTimer;
-    let recaptchaWidgetId;
-    let recaptchaCompleted = false;
+    let countdownTimer, recaptchaWidgetId;
 
-    // Custom error messages mapping
+    // Custom error messages
     const errorMessages = {
-      "auth/invalid-email": "Invalid email format. Please enter a valid email.",
-      "auth/user-disabled": "This account has been disabled. Contact support.",
+      "auth/invalid-email": "Invalid email format.",
       "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.",
-      "auth/email-already-in-use": "Email already exists. Please log in or use a different email.",
-      "auth/operation-not-allowed": "Email/password login is disabled.",
+      "auth/email-already-in-use": "Email already exists. Use a different one.",
       "auth/weak-password": "Password too weak. Use at least 6 characters.",
-      "auth/missing-email": "Email is required.",
-      "auth/missing-password": "Password is required.",
-      "auth/network-request-failed": "Network error. Check your internet connection.",
+      "auth/network-request-failed": "Network error. Check your connection.",
       "auth/too-many-requests": "Too many attempts. Please try again later.",
-      "auth/popup-blocked": "Popup blocked. Allow popups in your browser.",
-      "auth/popup-closed-by-user": "Popup closed before login completed.",
-      "auth/unauthorized-domain": "This domain is not allowed. Check Firebase console.",
-      "auth/account-exists-with-different-credential": "An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.",
-      "auth/requires-recent-login": "This operation is sensitive and requires recent authentication. Please log in again before retrying.",
-      "default": "Something went wrong. Please try again."
+      "auth/popup-blocked": "Popup blocked by browser. Please allow popups.",
+      "auth/popup-closed-by-user": "Login popup was closed before completion.",
+      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "default": "An unexpected error occurred. Please try again."
     };
 
-    // Show mini notification
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
       miniNotification.classList.add('show');
@@ -910,87 +572,74 @@
       return errorMessages[error.code] || errorMessages['default'];
     }
 
+    // reCAPTCHA callbacks
     function onRecaptchaLoad() {
-      if (document.getElementById('securityRecaptcha') && typeof grecaptcha !== 'undefined' && typeof grecaptcha.render === 'function') {
-          recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
-            sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
-            callback: onSecurityRecaptchaComplete,
-            'expired-callback': onRecaptchaExpired,
-            'error-callback': onRecaptchaError
-          });
+      if (securityRecaptcha) {
+        recaptchaWidgetId = grecaptcha.render('securityRecaptcha', {
+          sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
+          callback: () => {
+            challengeComplete.style.display = 'block';
+            setTimeout(() => {
+              securityChallengeLayer.classList.remove('active');
+              methodSelectorLayer.classList.add('active');
+            }, 1000);
+          }
+        });
       }
     }
 
-    function onSecurityRecaptchaComplete() {
-      recaptchaCompleted = true;
-      challengeComplete.style.display = 'block';
-      setTimeout(() => {
-        securityChallenge.style.display = 'none';
-        methodSelectorPage.style.display = 'block';
-      }, 1000);
-    }
-
-    function onRecaptchaExpired() {
-      recaptchaCompleted = false;
-      challengeComplete.style.display = 'none';
-      if (recaptchaWidgetId !== undefined) grecaptcha.reset(recaptchaWidgetId);
-    }
-
-    function onRecaptchaError() {
-      onRecaptchaExpired(); // Treat error same as expiry
-    }
-
+    // Auth State Logic
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
-        loadingScreen.style.display = 'none';
+        initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          if (user && !user.emailVerified) {
-            auth.signOut();
-          }
-          securityChallenge.style.display = 'flex';
-          onRecaptchaLoad(); // Try to load reCAPTCHA here
+          if (user && !user.emailVerified) auth.signOut();
+          securityChallengeLayer.classList.add('active');
         }
       });
     }, 3000);
 
+    // UI Navigation
     closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => {
-      authPage.style.display = 'none';
-      methodSelectorPage.style.display = 'block';
+      authLayer.classList.remove('active');
+      methodSelectorLayer.classList.add('active');
     });
     emailMethodBtn.addEventListener('click', () => {
-      methodSelectorPage.style.display = 'none';
-      authPage.style.display = 'block';
+      methodSelectorLayer.classList.remove('active');
+      authLayer.classList.add('active');
     });
 
-    googleMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider).catch(error => showMiniNotification(getErrorMessage(error)));
-    });
-    githubMethodBtn.addEventListener('click', () => {
-      auth.signInWithPopup(githubProvider).catch(error => showMiniNotification(getErrorMessage(error)));
-    });
+    // Provider Logins
+    const signInWithProvider = (provider) => {
+      auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
+    };
+    googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
+    githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
 
+    // Input Validation
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid);
       element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
-
-    function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-    function isValidUsername(username) { return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username); }
-    
+    const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
-      const hasLength = password.length >= 6;
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      updateRequirement(reqLength, hasLength);
-      updateRequirement(reqUppercase, hasUppercase);
-      updateRequirement(reqLowercase, hasLowercase);
-      return hasLength && hasUppercase && hasLowercase;
+      const checks = {
+        length: password.length >= 6,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password)
+      };
+      updateRequirement(reqLength, checks.length);
+      updateRequirement(reqUppercase, checks.upper);
+      updateRequirement(reqLowercase, checks.lower);
+      return checks.length && checks.upper && checks.lower;
     }
 
+    // Requirements Popup
     function showRequirementsMenu(requirements) {
       if (countdownTimer) clearTimeout(countdownTimer);
       countdownProgress.style.transition = 'none';
@@ -999,104 +648,88 @@
       countdownProgress.style.transition = 'width 3s linear';
       requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
-      setTimeout(() => countdownProgress.style.width = '100%', 10);
+      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       countdownTimer = setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
     }
 
+    // Password Toggle
     function togglePasswordVisibility(input, toggle) {
       input.type = input.type === 'password' ? 'text' : 'password';
-      toggle.querySelector('i').classList.toggle('fa-eye');
       toggle.querySelector('i').classList.toggle('fa-eye-slash');
     }
-
-    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
-    signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     toggleLoginPassword.addEventListener('click', () => togglePasswordVisibility(loginPassword, toggleLoginPassword));
     toggleSignupPassword.addEventListener('click', () => togglePasswordVisibility(signupPassword, toggleSignupPassword));
     toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility(signupConfirmPassword, toggleConfirmPassword));
+    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
+    signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
+    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
+    
+    // Tab Switching
+    authTabs.forEach(tab => tab.addEventListener('click', () => {
+      authTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      loginForm.classList.toggle('active', tab.dataset.tab === 'login');
+      signupForm.classList.toggle('active', tab.dataset.tab === 'signup');
+    }));
+    switchToSignup.addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
+    switchToLogin.addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
 
-    authTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        loginForm.classList.toggle('active', tab.dataset.tab === 'login');
-        signupForm.classList.toggle('active', tab.dataset.tab === 'signup');
-      });
-    });
-
-    switchToSignup.addEventListener('click', (e) => { e.preventDefault(); authTabs[1].click(); });
-    switchToLogin.addEventListener('click', (e) => { e.preventDefault(); authTabs[0].click(); });
-
-    function validateLoginInputs() {
-      const errors = [];
-      if (!loginEmail.value.trim() || !isValidEmail(loginEmail.value.trim())) errors.push('Please enter a valid email');
-      if (!loginPassword.value.trim()) errors.push('Password is required');
-      if (errors.length > 0) showRequirementsMenu(errors);
-      return errors.length === 0;
-    }
-
-    function validateSignupInputs() {
-      const errors = [];
-      if (!isValidUsername(signupUsername.value.trim())) errors.push('Username: 3+ chars (letters, numbers, _)');
-      if (!isValidEmail(signupEmail.value.trim())) errors.push('Please enter a valid email');
-      if (!isValidPassword(signupPassword.value)) errors.push('Password must meet all requirements');
-      if (signupPassword.value !== signupConfirmPassword.value) errors.push('Passwords do not match');
-      if (errors.length > 0) showRequirementsMenu(errors);
-      return errors.length === 0;
-    }
-
+    // Login Logic
     loginBtn.addEventListener('click', async () => {
-      if (!validateLoginInputs()) return;
       const email = loginEmail.value.trim();
       const password = loginPassword.value.trim();
+      if (!email || !password) return showRequirementsMenu(['Email and password are required.']);
+      
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (!userCredential.user.emailVerified) {
-          showMiniNotification("Please verify your email before logging in.");
+          showMiniNotification("Please verify your email to log in.");
           await auth.signOut();
         }
+        // Success handled by onAuthStateChanged
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
       }
     });
 
+    // Registration Logic
     signupBtn.addEventListener('click', async () => {
-        if (!validateSignupInputs()) return;
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value;
+      const confirmPassword = signupConfirmPassword.value;
+      
+      const errors = [];
+      if (!isValidUsername(username)) errors.push('Username: 3+ characters (letters, numbers, _).');
+      if (!isValidEmail(email)) errors.push('Please enter a valid email.');
+      if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
+      if (password !== confirmPassword) errors.push('Passwords do not match.');
+      if (errors.length > 0) return showRequirementsMenu(errors);
 
-        const username = signupUsername.value.trim();
-        const email = signupEmail.value.trim();
-        const password = signupPassword.value.trim();
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Registering...';
 
-        // 1. Change button state. The form remains visible.
-        signupBtn.disabled = true;
-        signupBtn.textContent = 'Registering...';
+      try {
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
 
-        try {
-            // 2. Perform all background operations.
-            const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-            if (signInMethods.length > 0) {
-                throw { code: "auth/email-already-in-use" };
-            }
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await userCredential.user.updateProfile({ displayName: username });
+        await userCredential.user.sendEmailVerification();
+        
+        authLayer.classList.remove('active');
+        preRedirectLoader.style.display = 'flex';
 
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
+        setTimeout(() => {
+          window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
+        }, 2000);
 
-            await user.updateProfile({ displayName: username });
-            await user.sendEmailVerification();
-            
-            // 3. Only redirect after everything is successful.
-            // The browser will now navigate, replacing the current page.
-            window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-
-        } catch (error) {
-            // If anything fails, revert the button to its original state.
-            showMiniNotification(getErrorMessage(error));
-            signupBtn.disabled = false;
-            signupBtn.textContent = 'Sign Up';
-        }
+      } catch (error) {
+        showMiniNotification(getErrorMessage(error));
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Sign Up';
+      }
     });
-
-    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
   </script>
 </body>
 </html>
