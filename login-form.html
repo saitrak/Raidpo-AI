@@ -598,6 +598,20 @@
       display: none;
     }
 
+    /* Close Button */
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 100;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
     /* Mini Notification */
     .mini-notification {
       position: fixed;
@@ -620,20 +634,6 @@
     .mini-notification.show {
       opacity: 1;
       transform: translateX(-50%) translateY(-10px);
-    }
-
-    /* Close Button */
-    .close-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      z-index: 100;
-      background: none;
-      border: none;
-      padding: 5px;
     }
 
     /* Responsive Adjustments */
@@ -1084,8 +1084,15 @@
         loadingScreen.style.display = 'none';
         
         if (user) {
-          // User is signed in, redirect to homepage
-          window.location.href = 'https://raidpo-ai.netlify.app/';
+          // Check if email is verified
+          if (user.emailVerified) {
+            // User is signed in and verified, redirect to homepage
+            window.location.href = 'https://raidpo-ai.netlify.app/';
+          } else {
+            // User is signed in but not verified
+            showMiniNotification("Please verify your email address to continue");
+            auth.signOut();
+          }
         } else {
           // User is not signed in, show security challenge
           securityChallenge.style.display = 'flex';
@@ -1401,15 +1408,16 @@
       try {
         // Attempt to sign in
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
         
         // Check if email is verified
-        if (!userCredential.user.emailVerified) {
+        if (user.emailVerified) {
+          // Login successful, handled by auth state change
+        } else {
+          // Email not verified
           await auth.signOut();
-          showMiniNotification('Please verify your email before logging in.');
-          return;
+          showMiniNotification("Please verify your email address before logging in");
         }
-        
-        // Login successful, handled by auth state change
       } catch (error) {
         // Show appropriate error message
         showMiniNotification(getErrorMessage(error));
@@ -1440,25 +1448,21 @@
         
         // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
         
         // Update display name
-        await userCredential.user.updateProfile({
+        await user.updateProfile({
           displayName: username
         });
         
         // Send email verification
-        await userCredential.user.sendEmailVerification({
-          url: 'https://raidpo-ai.netlify.app/verify-note',
+        await user.sendEmailVerification({
+          url: 'https://raidpo-ai.netlify.app/',
           handleCodeInApp: true
         });
         
         // Show verification message
         verificationMessage.style.display = 'block';
-        
-        // Sign out the user immediately after registration
-        await auth.signOut();
-        
-        // Reset form
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
@@ -1466,6 +1470,9 @@
         updateRequirement(reqLength, false);
         updateRequirement(reqUppercase, false);
         updateRequirement(reqLowercase, false);
+        
+        // Sign out the user (they need to verify email before logging in)
+        await auth.signOut();
         
       } catch (error) {
         showMiniNotification(getErrorMessage(error));
