@@ -1304,7 +1304,7 @@
     // Close verification message
     verificationCloseBtn.addEventListener('click', () => {
       verificationMessage.style.display = 'none';
-      window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
+      window.location.href = 'https://raidpo-ai.netlify.app/';
     });
 
     // Validate login inputs
@@ -1409,7 +1409,7 @@
       }
     });
 
-    // Email Sign Up with Verification
+    // Email Sign Up
     signupBtn.addEventListener('click', async () => {
       const username = signupUsername.value.trim();
       const email = signupEmail.value.trim();
@@ -1431,7 +1431,7 @@
           return;
         }
         
-        // Create temporary user with email and password
+        // Create user
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         
         // Update display name
@@ -1441,17 +1441,12 @@
         
         // Send email verification
         await userCredential.user.sendEmailVerification({
-          url: 'https://raidpo-ai.netlify.app/verify-note',
+          url: window.location.origin,
           handleCodeInApp: true
         });
         
-        // Sign out the temporary user (they'll complete registration after verification)
-        await auth.signOut();
-        
-        // Show verification message and redirect
+        // Show verification message
         verificationMessage.style.display = 'block';
-        
-        // Reset form
         signupForm.reset();
         signupPasswordRequirements.style.display = 'none';
         
