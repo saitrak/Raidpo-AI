@@ -29,7 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      /* Padding removed to prevent background peeking */
     }
 
     h1, h2, h3 {
@@ -360,7 +360,7 @@
       .mini-notification { width: 90%; bottom: 10px; }
     }
     @media (max-width: 480px) {
-      body { padding: 10px; }
+      .form-layer { padding: 10px; }
       .challenge-container, .form-right-panel { padding: 1.5rem; }
       .method-header h1, .auth-header h1, .challenge-title { margin-bottom: 0.3rem; }
       .auth-tab { padding: 0.8rem; }
@@ -524,7 +524,6 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
-    // Original comprehensive error list as requested
     const errorMessages = {
       "auth/invalid-email": "Invalid email format. Please enter a valid email.",
       "auth/user-disabled": "This account has been disabled. Contact support.",
