@@ -22,33 +22,24 @@
     body {
       font-family: 'Poppins', sans-serif;
       color: #fff;
-      background-color: #0f0f0f; /* Main background is now dark */
-      overflow: hidden; /* Prevent scrolling on the body */
+      background-color: #0f0f0f; /* Main background is dark */
+      overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      transition: background-color 0.4s ease; /* Smooth background transition */
+      transition: background-color 0.3s ease; /* Smooth background transition */
     }
 
-    h1, h2, h3 {
-      font-weight: bold;
-      margin: 0;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+    h1, h2, h3 { font-weight: bold; margin: 0; }
+    a { text-decoration: none; color: inherit; }
 
     /* Base Layer Styles */
     .form-layer {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: none;
       justify-content: center;
       align-items: center;
@@ -64,10 +55,8 @@
     /* Loading Screen */
     .loading-screen {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: #0f0f0f;
       display: flex;
       justify-content: center;
@@ -76,8 +65,7 @@
     }
 
     .loading-spinner {
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       border: 5px solid #ff6f61;
       border-radius: 50%;
       border-top-color: transparent;
@@ -105,8 +93,8 @@
 
     /* --- DESKTOP FIRST STYLES (Your Original Design) --- */
     .form-box {
-      width: 95vw;  /* Original desktop width */
-      height: 90vh; /* Original desktop height */
+      width: 95vw;
+      height: 90vh;
       background: #1a1a1a;
       position: relative;
       border-radius: 10px;
@@ -115,11 +103,7 @@
       display: flex;
     }
     
-    .form-container {
-      display: flex;
-      width: 100%;
-      height: 100%;
-    }
+    .form-container { display: flex; width: 100%; height: 100%; }
 
     .form-left-panel {
       flex: 1;
@@ -257,15 +241,15 @@
       .form-box {
         width: 100%;
         max-width: 450px;
-        height: auto; /* Let content determine height */
+        height: auto;
         max-height: 95vh;
-        flex-direction: column; /* Stack image and form vertically */
+        flex-direction: column;
       }
       .form-container {
         flex-direction: column;
       }
       .form-left-panel {
-        flex: 0 0 220px; /* Make image a fixed-height header, increased size */
+        flex: 0 0 220px;
       }
       .form-right-panel {
         flex-grow: 1;
@@ -589,6 +573,9 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
+        // Change background color right before redirect
+        document.body.style.backgroundColor = '#ff3b2f';
+
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
         }, 600);
