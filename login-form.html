@@ -29,7 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      /* The transition property that caused the smooth fade has been REMOVED */
+      transition: background-color 0.4s ease; /* Smooth background transition */
     }
 
     h1, h2, h3 { font-weight: bold; margin: 0; }
@@ -122,13 +122,17 @@
       overflow-y: auto;
     }
 
+    .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
+    .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
+
+
     /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
     .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
     .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
     .form-right-panel::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
     
-    .back-to-methods {
+    .back-to-methods, .back-to-auth {
       position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
     }
@@ -189,6 +193,16 @@
     }
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
+
+    .forgot-password-link {
+        text-align: right;
+        margin: -1rem 0 1.5rem 0;
+    }
+    .forgot-password-link a {
+        color: #ff6f61;
+        text-decoration: underline;
+        font-size: 0.8rem;
+    }
 
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
@@ -326,6 +340,9 @@
               <input type="password" id="loginPassword" placeholder="Enter your password" required>
               <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
             </div>
+            <div class="forgot-password-link">
+                <a href="#" id="forgotPasswordLink">Forgot password?</a>
+            </div>
             <button id="loginBtn" class="auth-btn">Login</button>
             <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
@@ -360,6 +377,32 @@
       </div>
     </div>
   </div>
+
+  <!-- Forgot Password Layer -->
+  <div class="form-layer" id="forgotPasswordLayer">
+      <div class="form-box">
+          <div class="form-container">
+              <div class="form-left-panel">
+                  <button class="back-to-auth" id="backToAuthFromReset"><i class="fas fa-arrow-left"></i></button>
+              </div>
+              <div class="form-right-panel">
+                  <div style="text-align: center;">
+                      <h1>Forgot Password</h1>
+                      <p>Enter your account's email to receive a password reset link.</p>
+                  </div>
+                  <div class="form-group">
+                      <label for="resetEmail">Email</label>
+                      <input type="email" id="resetEmail" placeholder="Enter your email" required>
+                  </div>
+                  <button id="resetPasswordBtn" class="auth-btn">Send Reset Link</button>
+                  <div class="auth-footer">
+                      Remembered your password? <a href="#" id="backToLoginFromReset">Back to Login</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
 
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
@@ -396,6 +439,7 @@
     const securityChallengeLayer = document.getElementById('securityChallengeLayer');
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
+    const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
     const closeButton = document.getElementById('closeButton');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
@@ -410,6 +454,11 @@
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
     const requirementsOverlay = document.getElementById('requirementsOverlay');
     const miniNotification = document.getElementById('miniNotification');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const resetEmail = document.getElementById('resetEmail');
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    const backToAuthFromReset = document.getElementById('backToAuthFromReset');
+    const backToLoginFromReset = document.getElementById('backToLoginFromReset');
 
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
@@ -417,7 +466,6 @@
     
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.",
-      "auth/user-disabled": "This account has been disabled.",
       "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.",
       "auth/email-already-in-use": "Email already exists.",
@@ -429,6 +477,8 @@
       "auth/account-exists-with-different-credential": "Account exists with another login method.",
       "default": "An unexpected error occurred."
     };
+
+    const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
@@ -447,7 +497,7 @@
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
-              document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark
+              document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark permanently
               securityChallengeLayer.classList.remove('active');
               methodSelectorLayer.classList.add('active');
             }, 1000);
@@ -463,21 +513,28 @@
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
-          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red
+          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
           securityChallengeLayer.classList.add('active');
         }
       });
     }, 3000);
 
     closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    backToMethods.addEventListener('click', () => {
-      authLayer.classList.remove('active');
-      methodSelectorLayer.classList.add('active');
-    });
-    emailMethodBtn.addEventListener('click', () => {
-      methodSelectorLayer.classList.remove('active');
-      authLayer.classList.add('active');
-    });
+    
+    // Navigation Functions
+    const showLayer = (layerToShow) => {
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
+            layer.classList.remove('active');
+        });
+        layerToShow.classList.add('active');
+    };
+
+    backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
+    emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
+    forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
+    backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
+    backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
+
 
     const signInWithProvider = (provider) => {
       auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
@@ -490,7 +547,6 @@
       element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
-    const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
       const checks = {
@@ -573,7 +629,6 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        // Change background color right before redirect
         document.body.style.backgroundColor = '#ff3b2f';
 
         setTimeout(() => {
@@ -585,6 +640,24 @@
         signupBtn.disabled = false;
         signupBtn.textContent = 'Sign Up';
       }
+    });
+
+    resetPasswordBtn.addEventListener('click', async () => {
+        const email = resetEmail.value.trim();
+        if (!email) return showMiniNotification("Please enter your email address.");
+        if (!isValidEmail(email)) return showMiniNotification("Please enter a valid email format.");
+
+        resetPasswordBtn.disabled = true;
+        resetPasswordBtn.textContent = 'Sending...';
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
+        } catch (error) {
+            showMiniNotification(getErrorMessage(error));
+            resetPasswordBtn.disabled = false;
+            resetPasswordBtn.textContent = 'Send Reset Link';
+        }
     });
   </script>
 </body>
