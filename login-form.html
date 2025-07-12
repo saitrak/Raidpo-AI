@@ -629,7 +629,7 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        document.body.style.backgroundColor = '#ff3b2f';
+        document.body.style.backgroundColor = '#0f0f0f';
 
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
