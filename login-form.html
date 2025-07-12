@@ -402,7 +402,6 @@
       </div>
   </div>
 
-
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
@@ -565,7 +564,7 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = '';
+      requirementsList.innerHTML = ''; 
       requirements.forEach(req => {
           const li = document.createElement('li');
           li.className = 'requirement-item invalid';
@@ -604,7 +603,10 @@
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      if (!email || !password) return showRequirementsMenu(['Email and password are required.']);
+      const errors = [];
+      if (!email) errors.push('Email is required.');
+      if (!password) errors.push('Password is required.');
+      if(errors.length > 0) return showRequirementsMenu(errors);
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (!userCredential.user.emailVerified) {
@@ -612,7 +614,7 @@
           await auth.signOut();
         }
       } catch (error) {
-        showMiniNotification(getErrorMessage(error));
+        showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
@@ -627,8 +629,8 @@
         if (!isValidEmail(email)) {
             errors.push('Please enter a valid email.');
         } else if (!isAllowedDomain(email.toLowerCase())) {
-            const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
-            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(domainListHTML)}`;
+            const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d}</li>`).join('')}</ul>`;
+            const dataUrl = `data:text/html;charset=utf-8,<!DOCTYPE html><html><head><title>Allowed Domains</title><style>body{font-family:sans-serif;background:%231a1a1a;color:white;padding:20px;}ul{list-style-type:none;padding:0;}li{margin-bottom:5px;}</style></head><body><h3>Allowed Email Providers:</h3>${encodeURIComponent(domainListHTML)}</body></html>`;
             errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
         }
         if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
@@ -641,13 +643,19 @@
 
         try {
             const methods = await auth.fetchSignInMethodsForEmail(email);
-            if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
+            if (methods.length > 0) {
+                 showRequirementsMenu(['Email already exists.']);
+                 signupBtn.disabled = false;
+                 signupBtn.textContent = 'Sign Up';
+                 return;
+            }
 
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             await userCredential.user.updateProfile({ displayName: username });
             await userCredential.user.sendEmailVerification();
-            
-            // This is the restored functionality you requested
+
+            document.body.style.backgroundColor = '#ff3b2f';
+
             setTimeout(() => {
                 window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
             }, 700);
