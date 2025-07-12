@@ -29,7 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      transition: background-color 0.3s ease; /* Smooth background transition */
+      transition: background-color 0.4s ease; /* Smooth background transition */
     }
 
     h1, h2, h3 { font-weight: bold; margin: 0; }
@@ -573,9 +573,6 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        // Change background color right before redirect
-        document.body.style.backgroundColor = '#ff3b2f';
-
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
         }, 600);
