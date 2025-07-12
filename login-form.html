@@ -121,10 +121,9 @@
       background-color: #1a1a1a;
       overflow-y: auto;
     }
-
+    
     .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
-
 
     /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
@@ -194,15 +193,8 @@
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
 
-    .forgot-password-link {
-        text-align: right;
-        margin: -1rem 0 1.5rem 0;
-    }
-    .forgot-password-link a {
-        color: #ff6f61;
-        text-decoration: underline;
-        font-size: 0.8rem;
-    }
+    .forgot-password-link { text-align: right; margin: -1rem 0 1.5rem 0; }
+    .forgot-password-link a { color: #ff6f61; text-decoration: underline; font-size: 0.8rem; }
 
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
@@ -249,13 +241,6 @@
       max-width: 90%; text-align: center; pointer-events: none;
     }
     .mini-notification.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-    
-    /* Allowed domains link style */
-    .allowed-domains-link {
-      color: #ff6f61;
-      text-decoration: underline;
-      cursor: pointer;
-    }
 
     /* --- MOBILE ONLY STYLES --- */
     @media (max-width: 768px) {
@@ -361,9 +346,6 @@
             <div class="form-group">
               <label for="signupEmail">Email</label>
               <input type="email" id="signupEmail" placeholder="Enter your email" required>
-              <div id="emailDomainError" style="display: none; color: #ff6f61; font-size: 0.8rem; margin-top: 0.5rem;">
-                Unallowed email domain. Check <span class="allowed-domains-link" id="showAllowedDomains">allowed email domains</span> for information.
-              </div>
             </div>
             <div class="form-group">
               <label for="signupPassword">Password</label>
@@ -403,9 +385,6 @@
                   <div class="form-group">
                       <label for="resetEmail">Email</label>
                       <input type="email" id="resetEmail" placeholder="Enter your email" required>
-                      <div id="resetEmailDomainError" style="display: none; color: #ff6f61; font-size: 0.8rem; margin-top: 0.5rem;">
-                        Unallowed email domain. Check <span class="allowed-domains-link" id="showAllowedDomainsReset">allowed email domains</span> for information.
-                      </div>
                   </div>
                   <button id="resetPasswordBtn" class="auth-btn">Send Reset Link</button>
                   <div class="auth-footer">
@@ -423,29 +402,6 @@
       <div class="requirements-title">Please fill these requirements</div>
       <ul class="requirements-list" id="requirementsList"></ul>
       <div class="countdown-bar"><div class="countdown-progress" id="countdownProgress"></div></div>
-    </div>
-  </div>
-  
-  <!-- Allowed Domains Overlay -->
-  <div class="requirements-overlay" id="allowedDomainsOverlay">
-    <div class="requirements-menu">
-      <div class="requirements-title">Allowed Email Domains</div>
-      <ul class="requirements-list">
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@gmail.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@yahoo.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@outlook.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@hotmail.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@aol.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@icloud.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@msn.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@ymail.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@live.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@gmx.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@mail.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@protonmail.com</span></li>
-        <li class="requirement-item"><i class="fas fa-check"></i><span>@tutanota.com</span></li>
-      </ul>
-      <div class="countdown-bar"><div class="countdown-progress" id="domainsCountdownProgress"></div></div>
     </div>
   </div>
 
@@ -470,23 +426,6 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
 
-    // Allowed email domains
-    const ALLOWED_EMAIL_DOMAINS = [
-      'gmail.com',
-      'yahoo.com',
-      'outlook.com',
-      'hotmail.com',
-      'aol.com',
-      'icloud.com',
-      'msn.com',
-      'ymail.com',
-      'live.com',
-      'gmx.com',
-      'mail.com',
-      'protonmail.com',
-      'tutanota.com'
-    ];
-
     // DOM Elements
     const initialLoadingScreen = document.getElementById('initialLoadingScreen');
     const securityChallengeLayer = document.getElementById('securityChallengeLayer');
@@ -506,21 +445,24 @@
     const authTabs = document.querySelectorAll('.auth-tab');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
     const requirementsOverlay = document.getElementById('requirementsOverlay');
-    const allowedDomainsOverlay = document.getElementById('allowedDomainsOverlay');
     const miniNotification = document.getElementById('miniNotification');
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const resetEmail = document.getElementById('resetEmail');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const backToAuthFromReset = document.getElementById('backToAuthFromReset');
     const backToLoginFromReset = document.getElementById('backToLoginFromReset');
-    const emailDomainError = document.getElementById('emailDomainError');
-    const resetEmailDomainError = document.getElementById('resetEmailDomainError');
-    const showAllowedDomains = document.getElementById('showAllowedDomains');
-    const showAllowedDomainsReset = document.getElementById('showAllowedDomainsReset');
 
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
+    
+    // --- START NEW ---
+    const allowedDomains = [
+        'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
+        'icloud.com', 'msn.com', 'ymail.com', 'live.com', 'gmx.com',
+        'mail.com', 'protonmail.com', 'tutanota.com'
+    ];
+    // --- END NEW ---
     
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.",
@@ -537,13 +479,12 @@
     };
 
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    
-    // Check if email domain is allowed
-    function isAllowedEmailDomain(email) {
-      if (!isValidEmail(email)) return false;
-      const domain = email.split('@')[1].toLowerCase();
-      return ALLOWED_EMAIL_DOMAINS.includes(domain);
-    }
+    // --- START NEW ---
+    const isAllowedDomain = (email) => {
+        const domain = email.split('@')[1];
+        return allowedDomains.includes(domain?.toLowerCase());
+    };
+    // --- END NEW ---
 
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
@@ -563,8 +504,7 @@
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
               document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark permanently
-              securityChallengeLayer.classList.remove('active');
-              methodSelectorLayer.classList.add('active');
+              showLayer(methodSelectorLayer);
             }, 1000);
           }
         });
@@ -579,14 +519,11 @@
         } else {
           if (user && !user.emailVerified) auth.signOut();
           document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
-          securityChallengeLayer.classList.add('active');
+          showLayer(securityChallengeLayer);
         }
       });
     }, 3000);
 
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    
-    // Navigation Functions
     const showLayer = (layerToShow) => {
         [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
             layer.classList.remove('active');
@@ -594,22 +531,12 @@
         layerToShow.classList.add('active');
     };
 
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
     backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
     backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
-
-    // Show allowed domains overlay
-    function showAllowedDomainsMenu() {
-      const domainsCountdownProgress = document.getElementById('domainsCountdownProgress');
-      allowedDomainsOverlay.classList.add('active');
-      setTimeout(() => { domainsCountdownProgress.style.width = '100%'; }, 10);
-      setTimeout(() => allowedDomainsOverlay.classList.remove('active'), 5000);
-    }
-    
-    showAllowedDomains.addEventListener('click', showAllowedDomainsMenu);
-    showAllowedDomainsReset.addEventListener('click', showAllowedDomainsMenu);
 
     const signInWithProvider = (provider) => {
       auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
@@ -638,6 +565,7 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
+      // Use innerHTML to render the link correctly
       requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
@@ -658,26 +586,6 @@
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
     
-    // Check email domain on input for signup
-    signupEmail.addEventListener('input', () => {
-      const email = signupEmail.value.trim();
-      if (email && !isAllowedEmailDomain(email)) {
-        emailDomainError.style.display = 'block';
-      } else {
-        emailDomainError.style.display = 'none';
-      }
-    });
-    
-    // Check email domain on input for reset password
-    resetEmail.addEventListener('input', () => {
-      const email = resetEmail.value.trim();
-      if (email && !isAllowedEmailDomain(email)) {
-        resetEmailDomainError.style.display = 'block';
-      } else {
-        resetEmailDomainError.style.display = 'none';
-      }
-    });
-
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
@@ -707,10 +615,14 @@
       const email = signupEmail.value.trim();
       const password = signupPassword.value;
       const errors = [];
-      
       if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
-      if (!isValidEmail(email)) errors.push('Please enter a valid email.');
-      if (!isAllowedEmailDomain(email)) errors.push('Email domain not allowed.');
+      if (!isValidEmail(email)) {
+        errors.push('Please enter a valid email.');
+      } else if (!isAllowedDomain(email)) {
+        // --- START NEW ---
+        errors.push('Unallowed email domain, <a href="/allowed-email-domains" target="_blank" style="color: #ff6f61; text-decoration: underline;">check for information</a>');
+        // --- END NEW ---
+      }
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
       if (errors.length > 0) return showRequirementsMenu(errors);
@@ -743,7 +655,6 @@
         const email = resetEmail.value.trim();
         if (!email) return showMiniNotification("Please enter your email address.");
         if (!isValidEmail(email)) return showMiniNotification("Please enter a valid email format.");
-        if (!isAllowedEmailDomain(email)) return showMiniNotification("This email domain is not allowed.");
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
