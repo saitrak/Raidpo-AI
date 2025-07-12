@@ -565,11 +565,10 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = ''; // Clear previous items
+      requirementsList.innerHTML = '';
       requirements.forEach(req => {
           const li = document.createElement('li');
           li.className = 'requirement-item invalid';
-          // Render HTML content directly to support the link
           li.innerHTML = `<i class="fas fa-times"></i> ${req}`; 
           requirementsList.appendChild(li);
       });
@@ -627,7 +626,7 @@
         if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
         if (!isValidEmail(email)) {
             errors.push('Please enter a valid email.');
-        } else if (!isAllowedDomain(email)) {
+        } else if (!isAllowedDomain(email.toLowerCase())) {
             const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
             const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(domainListHTML)}`;
             errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
@@ -647,13 +646,14 @@
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             await userCredential.user.updateProfile({ displayName: username });
             await userCredential.user.sendEmailVerification();
-
+            
+            // This is the restored functionality you requested
             setTimeout(() => {
                 window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-            }, 600);
+            }, 700);
 
         } catch (error) {
-            showMiniNotification(getErrorMessage(error));
+            showRequirementsMenu([getErrorMessage(error)]);
             signupBtn.disabled = false;
             signupBtn.textContent = 'Sign Up';
         }
@@ -661,8 +661,10 @@
 
     resetPasswordBtn.addEventListener('click', async () => {
         const email = resetEmail.value.trim();
-        if (!email) return showMiniNotification("Please enter your email address.");
-        if (!isValidEmail(email)) return showMiniNotification("Please enter a valid email format.");
+        const errors = [];
+        if (!email) errors.push("Please enter your email address.");
+        else if (!isValidEmail(email)) errors.push("Please enter a valid email format.");
+        if(errors.length > 0) return showRequirementsMenu(errors);
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
@@ -671,7 +673,7 @@
             await auth.sendPasswordResetEmail(email);
             window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
-            showMiniNotification(getErrorMessage(error));
+            showRequirementsMenu([getErrorMessage(error)]);
             resetPasswordBtn.disabled = false;
             resetPasswordBtn.textContent = 'Send Reset Link';
         }
