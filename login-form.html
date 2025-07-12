@@ -477,6 +477,12 @@
       "auth/account-exists-with-different-credential": "Account exists with another login method.",
       "default": "An unexpected error occurred."
     };
+        const errorMessages = {
+      ... // existing keys
+      "default": "An unexpected error occurred."
+    };
+
+    let comingFromRegistration = false; // ✅ <— PASTE THIS LINE EXACTLY HERE
 
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -512,9 +518,13 @@
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-          if (user && !user.emailVerified) auth.signOut();
-          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
-          securityChallengeLayer.classList.add('active');
+        if (user && !user.emailVerified) auth.signOut();
+
+        if (!comingFromRegistration) {                         // ✅ NEW
+          document.body.style.backgroundColor = '#ff3b2f';     // ✅ NEW
+          securityChallengeLayer.classList.add('active');      // ✅ NEW
+        }                                                      // ✅ NEW
+
         }
       });
     }, 3000);
@@ -619,6 +629,7 @@
       if (errors.length > 0) return showRequirementsMenu(errors);
 
       signupBtn.disabled = true;
+      comingFromRegistration = true;          
       signupBtn.textContent = 'Registering...';
 
       try {
