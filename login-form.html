@@ -478,6 +478,8 @@
       "default": "An unexpected error occurred."
     };
 
+    let comingFromRegistration = false;
+
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     function showMiniNotification(message, duration = 3000) {
@@ -512,11 +514,15 @@
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
-          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
-          showLayer(securityChallengeLayer);
+          if (!comingFromRegistration) {
+            document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
+            showLayer(securityChallengeLayer);
+          }
         }
       });
     }, 3000);
+
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     
     // Navigation Functions
     const showLayer = (layerToShow) => {
@@ -526,7 +532,6 @@
         layerToShow.classList.add('active');
     };
 
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
@@ -626,6 +631,8 @@
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
+        
+        comingFromRegistration = true;
         
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
