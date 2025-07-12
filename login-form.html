@@ -121,9 +121,10 @@
       background-color: #1a1a1a;
       overflow-y: auto;
     }
-    
+
     .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
+
 
     /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
@@ -193,8 +194,15 @@
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
 
-    .forgot-password-link { text-align: right; margin: -1rem 0 1.5rem 0; }
-    .forgot-password-link a { color: #ff6f61; text-decoration: underline; font-size: 0.8rem; }
+    .forgot-password-link {
+        text-align: right;
+        margin: -1rem 0 1.5rem 0;
+    }
+    .forgot-password-link a {
+        color: #ff6f61;
+        text-decoration: underline;
+        font-size: 0.8rem;
+    }
 
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
@@ -224,8 +232,7 @@
     .requirements-list { list-style-type: none; padding: 0; margin: 0 0 15px 0; }
     .requirement-item { display: flex; align-items: center; margin-bottom: 10px; font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .requirement-item i { margin-right: 10px; font-size: 0.9rem; min-width: 16px; }
-    .requirement-item.valid i { color: #4CAF50; }
-    .requirement-item.invalid i { color: #ff6f61; }
+    
     .countdown-bar { height: 4px; background-color: #333; border-radius: 2px; overflow: hidden; width: 100%; }
     .countdown-progress { height: 100%; background-color: #ff6f61; width: 0%; transition: width 3s linear; }
 
@@ -456,14 +463,6 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
-    // --- START NEW ---
-    const allowedDomains = [
-        'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com',
-        'icloud.com', 'msn.com', 'ymail.com', 'live.com', 'gmx.com',
-        'mail.com', 'protonmail.com', 'tutanota.com'
-    ];
-    // --- END NEW ---
-    
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.",
       "auth/user-not-found": "No account found with this email.",
@@ -478,13 +477,14 @@
       "default": "An unexpected error occurred."
     };
 
+    const allowedDomains = [
+        "@gmail.com", "@yahoo.com", "@outlook.com", "@hotmail.com", "@aol.com",
+        "@icloud.com", "@msn.com", "@ymail.com", "@live.com", "@gmx.com",
+        "@mail.com", "@protonmail.com", "@tutanota.com"
+    ];
+
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    // --- START NEW ---
-    const isAllowedDomain = (email) => {
-        const domain = email.split('@')[1];
-        return allowedDomains.includes(domain?.toLowerCase());
-    };
-    // --- END NEW ---
+    const isAllowedDomain = email => allowedDomains.some(domain => email.endsWith(domain));
 
     function showMiniNotification(message, duration = 3000) {
       miniNotification.textContent = message;
@@ -565,8 +565,15 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      // Use innerHTML to render the link correctly
-      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
+      requirementsList.innerHTML = ''; // Clear previous items
+      requirements.forEach(req => {
+          const li = document.createElement('li');
+          li.className = 'requirement-item invalid';
+          // Render HTML content directly to support the link
+          li.innerHTML = `<i class="fas fa-times"></i> ${req}`; 
+          requirementsList.appendChild(li);
+      });
+      
       requirementsOverlay.classList.add('active');
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
@@ -611,44 +618,45 @@
     });
 
     signupBtn.addEventListener('click', async () => {
-      const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value;
-      const errors = [];
-      if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
-      if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email.');
-      } else if (!isAllowedDomain(email)) {
-        // --- START NEW ---
-        errors.push('Unallowed email domain, <a href="/allowed-email-domains" target="_blank" style="color: #ff6f61; text-decoration: underline;">check for information</a>');
-        // --- END NEW ---
-      }
-      if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
-      if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) return showRequirementsMenu(errors);
+        const username = signupUsername.value.trim();
+        const email = signupEmail.value.trim();
+        const password = signupPassword.value;
+        const confirmPassword = signupConfirmPassword.value;
+        const errors = [];
 
-      signupBtn.disabled = true;
-      signupBtn.textContent = 'Registering...';
+        if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
+        if (!isValidEmail(email)) {
+            errors.push('Please enter a valid email.');
+        } else if (!isAllowedDomain(email)) {
+            const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
+            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(domainListHTML)}`;
+            errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
+        }
+        if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
+        if (password !== confirmPassword) errors.push('Passwords do not match.');
 
-      try {
-        const methods = await auth.fetchSignInMethodsForEmail(email);
-        if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
+        if (errors.length > 0) return showRequirementsMenu(errors);
 
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.updateProfile({ displayName: username });
-        await userCredential.user.sendEmailVerification();
-        
-        document.body.style.backgroundColor = '#ff3b2f';
+        signupBtn.disabled = true;
+        signupBtn.textContent = 'Registering...';
 
-        setTimeout(() => {
-          window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-        }, 600);
+        try {
+            const methods = await auth.fetchSignInMethodsForEmail(email);
+            if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
 
-      } catch (error) {
-        showMiniNotification(getErrorMessage(error));
-        signupBtn.disabled = false;
-        signupBtn.textContent = 'Sign Up';
-      }
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            await userCredential.user.updateProfile({ displayName: username });
+            await userCredential.user.sendEmailVerification();
+
+            setTimeout(() => {
+                window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
+            }, 600);
+
+        } catch (error) {
+            showMiniNotification(getErrorMessage(error));
+            signupBtn.disabled = false;
+            signupBtn.textContent = 'Sign Up';
+        }
     });
 
     resetPasswordBtn.addEventListener('click', async () => {
