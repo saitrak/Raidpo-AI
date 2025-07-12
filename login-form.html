@@ -477,12 +477,6 @@
       "auth/account-exists-with-different-credential": "Account exists with another login method.",
       "default": "An unexpected error occurred."
     };
-        const errorMessages = {
-      ... // existing keys
-      "default": "An unexpected error occurred."
-    };
-
-    let comingFromRegistration = false; // ✅ <— PASTE THIS LINE EXACTLY HERE
 
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -504,8 +498,7 @@
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
               document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark permanently
-              securityChallengeLayer.classList.remove('active');
-              methodSelectorLayer.classList.add('active');
+              showLayer(methodSelectorLayer);
             }, 1000);
           }
         });
@@ -518,18 +511,12 @@
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
-        if (user && !user.emailVerified) auth.signOut();
-
-        if (!comingFromRegistration) {                         // ✅ NEW
-          document.body.style.backgroundColor = '#ff3b2f';     // ✅ NEW
-          securityChallengeLayer.classList.add('active');      // ✅ NEW
-        }                                                      // ✅ NEW
-
+          if (user && !user.emailVerified) auth.signOut();
+          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
+          showLayer(securityChallengeLayer);
         }
       });
     }, 3000);
-
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     
     // Navigation Functions
     const showLayer = (layerToShow) => {
@@ -539,6 +526,7 @@
         layerToShow.classList.add('active');
     };
 
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
@@ -629,7 +617,6 @@
       if (errors.length > 0) return showRequirementsMenu(errors);
 
       signupBtn.disabled = true;
-      comingFromRegistration = true;          
       signupBtn.textContent = 'Registering...';
 
       try {
@@ -640,8 +627,6 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        document.body.style.backgroundColor = '#0f0f0f';
-
         setTimeout(() => {
           window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
         }, 600);
