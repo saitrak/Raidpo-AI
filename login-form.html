@@ -29,6 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      /* The transition property that caused the smooth fade has been REMOVED */
     }
 
     h1, h2, h3 { font-weight: bold; margin: 0; }
@@ -446,7 +447,7 @@
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
-              document.body.style.backgroundColor = '#0f0f0f';
+              document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark
               securityChallengeLayer.classList.remove('active');
               methodSelectorLayer.classList.add('active');
             }, 1000);
@@ -462,7 +463,7 @@
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
-          document.body.style.backgroundColor = '#ff3b2f';
+          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red
           securityChallengeLayer.classList.add('active');
         }
       });
@@ -572,8 +573,7 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         
-        // Remove the background color transition before redirect
-        document.body.style.transition = 'none';
+        // Change background color right before redirect
         document.body.style.backgroundColor = '#ff3b2f';
 
         setTimeout(() => {
