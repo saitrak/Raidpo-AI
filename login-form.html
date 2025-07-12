@@ -29,7 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      transition: background-color 0.4s ease; /* Smooth background transition */
+      transition: background-color 0.4s ease;
     }
 
     h1, h2, h3 { font-weight: bold; margin: 0; }
@@ -48,9 +48,7 @@
       background-color: transparent;
     }
 
-    .form-layer.active {
-      display: flex;
-    }
+    .form-layer.active { display: flex; }
 
     /* Loading Screen */
     .loading-screen {
@@ -72,19 +70,11 @@
       animation: spin 1s linear infinite;
     }
 
-    @keyframes spin {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
     .challenge-container {
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      background-color: #1a1a1a; padding: 2rem; border-radius: 10px;
+      width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center;
     }
     .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
@@ -93,14 +83,9 @@
 
     /* --- DESKTOP FIRST STYLES (Your Original Design) --- */
     .form-box {
-      width: 95vw;
-      height: 90vh;
-      background: #1a1a1a;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
+      width: 95vw; height: 90vh; background: #1a1a1a;
+      position: relative; border-radius: 10px; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex;
     }
     
     .form-container { display: flex; width: 100%; height: 100%; }
@@ -108,25 +93,18 @@
     .form-left-panel {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: cover;
-      position: relative;
+      background-size: cover; position: relative;
     }
 
     .form-right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 2rem;
-      background-color: #1a1a1a;
-      overflow-y: auto;
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: flex-start; padding: 2rem;
+      background-color: #1a1a1a; overflow-y: auto;
     }
 
     .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
 
-
-    /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
     .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
     .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
@@ -194,15 +172,8 @@
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
 
-    .forgot-password-link {
-        text-align: right;
-        margin: -1rem 0 1.5rem 0;
-    }
-    .forgot-password-link a {
-        color: #ff6f61;
-        text-decoration: underline;
-        font-size: 0.8rem;
-    }
+    .forgot-password-link { text-align: right; margin: -1rem 0 1.5rem 0; }
+    .forgot-password-link a { color: #ff6f61; text-decoration: underline; font-size: 0.8rem; }
 
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
@@ -241,37 +212,16 @@
       position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
     }
-    .mini-notification {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background-color: #ff6f61; color: white; padding: 12px 24px;
-      border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      z-index: 3000; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
-      max-width: 90%; text-align: center; pointer-events: none;
-    }
-    .mini-notification.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-
+    
     /* --- MOBILE ONLY STYLES --- */
     @media (max-width: 768px) {
       .form-box {
-        width: 100%;
-        max-width: 450px;
-        height: auto;
-        max-height: 95vh;
-        flex-direction: column;
+        width: 100%; max-width: 450px; height: auto;
+        max-height: 95vh; flex-direction: column;
       }
-      .form-container {
-        flex-direction: column;
-      }
-      .form-left-panel {
-        flex: 0 0 220px;
-      }
-      .form-right-panel {
-        flex-grow: 1;
-      }
-      .mini-notification {
-        width: 90%;
-        bottom: 10px;
-      }
+      .form-container { flex-direction: column; }
+      .form-left-panel { flex: 0 0 220px; }
+      .form-right-panel { flex-grow: 1; }
     }
   </style>
 </head>
@@ -403,7 +353,6 @@
       </div>
   </div>
 
-
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
@@ -412,9 +361,6 @@
       <div class="countdown-bar"><div class="countdown-progress" id="countdownProgress"></div></div>
     </div>
   </div>
-
-  <!-- Mini Notification -->
-  <div class="mini-notification" id="miniNotification"></div>
 
   <script>
     // Firebase Configuration
@@ -453,7 +399,6 @@
     const authTabs = document.querySelectorAll('.auth-tab');
     const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
     const requirementsOverlay = document.getElementById('requirementsOverlay');
-    const miniNotification = document.getElementById('miniNotification');
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const resetEmail = document.getElementById('resetEmail');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
@@ -478,16 +423,25 @@
       "default": "An unexpected error occurred."
     };
 
-    const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const allowedDomains = [
+        '@gmail.com', '@yahoo.com', '@outlook.com', '@hotmail.com', '@aol.com',
+        '@icloud.com', '@msn.com', '@ymail.com', '@live.com', '@gmx.com',
+        '@mail.com', '@protonmail.com', '@tutanota.com'
+    ];
 
-    function showMiniNotification(message, duration = 3000) {
-      miniNotification.textContent = message;
-      miniNotification.classList.add('show');
-      setTimeout(() => miniNotification.classList.remove('show'), duration);
-    }
+    const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     function getErrorMessage(error) {
       return errorMessages[error.code] || errorMessages['default'];
+    }
+
+    function showRequirementsMenu(requirements) {
+      const requirementsList = document.getElementById('requirementsList');
+      const countdownProgress = document.getElementById('countdownProgress');
+      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
+      requirementsOverlay.classList.add('active');
+      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
+      setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
     }
 
     function onRecaptchaLoad() {
@@ -498,8 +452,7 @@
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
               document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark permanently
-              securityChallengeLayer.classList.remove('active');
-              methodSelectorLayer.classList.add('active');
+              showLayer(methodSelectorLayer);
             }, 1000);
           }
         });
@@ -514,14 +467,11 @@
         } else {
           if (user && !user.emailVerified) auth.signOut();
           document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
-          securityChallengeLayer.classList.add('active');
+          showLayer(securityChallengeLayer);
         }
       });
     }, 3000);
 
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    
-    // Navigation Functions
     const showLayer = (layerToShow) => {
         [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
             layer.classList.remove('active');
@@ -529,15 +479,15 @@
         layerToShow.classList.add('active');
     };
 
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
     backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
     backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
 
-
     const signInWithProvider = (provider) => {
-      auth.signInWithPopup(provider).catch(error => showMiniNotification(getErrorMessage(error)));
+      auth.signInWithPopup(provider).catch(error => showRequirementsMenu([getErrorMessage(error)]));
     };
     googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
     githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
@@ -558,15 +508,6 @@
       updateRequirement(reqUppercase, checks.upper);
       updateRequirement(reqLowercase, checks.lower);
       return checks.length && checks.upper && checks.lower;
-    }
-
-    function showRequirementsMenu(requirements) {
-      const requirementsList = document.getElementById('requirementsList');
-      const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
-      requirementsOverlay.classList.add('active');
-      setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
-      setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
     }
 
     function togglePasswordVisibility(input, toggle) {
@@ -599,11 +540,11 @@
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (!userCredential.user.emailVerified) {
-          showMiniNotification("Please verify your email to log in.");
+          showRequirementsMenu(["Please verify your email to log in."]);
           await auth.signOut();
         }
       } catch (error) {
-        showMiniNotification(getErrorMessage(error));
+        showRequirementsMenu([getErrorMessage(error)]);
       }
     });
 
@@ -612,8 +553,12 @@
       const email = signupEmail.value.trim();
       const password = signupPassword.value;
       const errors = [];
+      
+      const isAllowedDomain = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
+
       if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
       if (!isValidEmail(email)) errors.push('Please enter a valid email.');
+      if (email && !isAllowedDomain) errors.push('Unallowed email domain, check for <a href="https://raidpo-ai.netlify.app/allowed-email-domains" target="_blank" style="color:#ff6f61; text-decoration:underline;">information</a>');
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
       if (errors.length > 0) return showRequirementsMenu(errors);
@@ -636,7 +581,7 @@
         }, 600);
 
       } catch (error) {
-        showMiniNotification(getErrorMessage(error));
+        showRequirementsMenu([getErrorMessage(error)]);
         signupBtn.disabled = false;
         signupBtn.textContent = 'Sign Up';
       }
@@ -644,8 +589,8 @@
 
     resetPasswordBtn.addEventListener('click', async () => {
         const email = resetEmail.value.trim();
-        if (!email) return showMiniNotification("Please enter your email address.");
-        if (!isValidEmail(email)) return showMiniNotification("Please enter a valid email format.");
+        if (!email) return showRequirementsMenu(["Please enter your email address."]);
+        if (!isValidEmail(email)) return showRequirementsMenu(["Please enter a valid email format."]);
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
@@ -654,7 +599,7 @@
             await auth.sendPasswordResetEmail(email);
             window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
-            showMiniNotification(getErrorMessage(error));
+            showRequirementsMenu([getErrorMessage(error)]);
             resetPasswordBtn.disabled = false;
             resetPasswordBtn.textContent = 'Send Reset Link';
         }
