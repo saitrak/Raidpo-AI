@@ -402,6 +402,7 @@
       </div>
   </div>
 
+
   <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
@@ -564,7 +565,7 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = ''; 
+      requirementsList.innerHTML = ''; // Clear previous items
       requirements.forEach(req => {
           const li = document.createElement('li');
           li.className = 'requirement-item invalid';
@@ -603,10 +604,7 @@
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      const errors = [];
-      if (!email) errors.push('Email is required.');
-      if (!password) errors.push('Password is required.');
-      if(errors.length > 0) return showRequirementsMenu(errors);
+      if (!email || !password) return showRequirementsMenu(['Email and password are required.']);
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (!userCredential.user.emailVerified) {
@@ -614,7 +612,7 @@
           await auth.signOut();
         }
       } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
+        showMiniNotification(getErrorMessage(error));
       }
     });
 
@@ -628,9 +626,9 @@
         if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
         if (!isValidEmail(email)) {
             errors.push('Please enter a valid email.');
-        } else if (!isAllowedDomain(email.toLowerCase())) {
-            const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d}</li>`).join('')}</ul>`;
-            const dataUrl = `data:text/html;charset=utf-8,<!DOCTYPE html><html><head><title>Allowed Domains</title><style>body{font-family:sans-serif;background:%231a1a1a;color:white;padding:20px;}ul{list-style-type:none;padding:0;}li{margin-bottom:5px;}</style></head><body><h3>Allowed Email Providers:</h3>${encodeURIComponent(domainListHTML)}</body></html>`;
+        } else if (!isAllowedDomain(email)) {
+            const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
+            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(domainListHTML)}`;
             errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
         }
         if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
@@ -642,26 +640,24 @@
         signupBtn.textContent = 'Registering...';
 
         try {
-            const methods = await auth.fetchSignInMethodsForEmail(email);
-            if (methods.length > 0) {
-                 showRequirementsMenu(['Email already exists.']);
-                 signupBtn.disabled = false;
-                 signupBtn.textContent = 'Sign Up';
-                 return;
-            }
+            await auth.fetchSignInMethodsForEmail(email);
 
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             await userCredential.user.updateProfile({ displayName: username });
             await userCredential.user.sendEmailVerification();
-
-            document.body.style.backgroundColor = '#ff3b2f';
-
+            
+            // This is the restored functionality
             setTimeout(() => {
                 window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
             }, 700);
 
         } catch (error) {
-            showRequirementsMenu([getErrorMessage(error)]);
+            // Handle specific "email already exists" case from our fetch check
+            if (error.code === undefined) { // A simple way to check if it's our manual error
+                showRequirementsMenu(['Email already exists. Please use a different one.']);
+            } else {
+                showRequirementsMenu([getErrorMessage(error)]);
+            }
             signupBtn.disabled = false;
             signupBtn.textContent = 'Sign Up';
         }
@@ -672,7 +668,8 @@
         const errors = [];
         if (!email) errors.push("Please enter your email address.");
         else if (!isValidEmail(email)) errors.push("Please enter a valid email format.");
-        if(errors.length > 0) return showRequirementsMenu(errors);
+        
+        if (errors.length > 0) return showRequirementsMenu(errors);
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
