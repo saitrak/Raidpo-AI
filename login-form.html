@@ -463,9 +463,6 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
-    // This flag prevents onAuthStateChanged from firing incorrectly during registration
-    let registrationInProgress = false;
-
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.",
       "auth/user-not-found": "No account found with this email.",
@@ -516,9 +513,6 @@
 
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
-        // This is the fix: Check the flag before executing logic
-        if (registrationInProgress) return;
-
         initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
@@ -571,10 +565,11 @@
     function showRequirementsMenu(requirements) {
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = '';
+      requirementsList.innerHTML = ''; // Clear previous items
       requirements.forEach(req => {
           const li = document.createElement('li');
           li.className = 'requirement-item invalid';
+          // Render HTML content directly to support the link
           li.innerHTML = `<i class="fas fa-times"></i> ${req}`; 
           requirementsList.appendChild(li);
       });
@@ -634,7 +629,7 @@
             errors.push('Please enter a valid email.');
         } else if (!isAllowedDomain(email)) {
             const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
-            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(`<h3>Allowed Domains:</h3>${domainListHTML}`)}`;
+            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(domainListHTML)}`;
             errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
         }
         if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
@@ -642,7 +637,6 @@
 
         if (errors.length > 0) return showRequirementsMenu(errors);
 
-        registrationInProgress = true; // Set the flag to prevent onAuthStateChanged from firing
         signupBtn.disabled = true;
         signupBtn.textContent = 'Registering...';
 
@@ -656,23 +650,19 @@
 
             setTimeout(() => {
                 window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-            }, 700);
+            }, 600);
 
         } catch (error) {
             showMiniNotification(getErrorMessage(error));
             signupBtn.disabled = false;
             signupBtn.textContent = 'Sign Up';
-            registrationInProgress = false; // Reset the flag on error
         }
     });
 
     resetPasswordBtn.addEventListener('click', async () => {
         const email = resetEmail.value.trim();
-        const errors = [];
-        if (!email) errors.push("Please enter your email address.");
-        else if (!isValidEmail(email)) errors.push("Please enter a valid email format.");
-        if(errors.length > 0) return showRequirementsMenu(errors);
-
+        if (!email) return showMiniNotification("Please enter your email address.");
+        if (!isValidEmail(email)) return showMiniNotification("Please enter a valid email format.");
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
