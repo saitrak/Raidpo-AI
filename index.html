@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +23,8 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <!-- ADDED: Firebase Realtime Database SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
   <style>
     /* Loading Screen */
     .loading-screen {
@@ -58,6 +61,7 @@
       color: #fff;
       background-color: #0f0f0f;
       overflow-x: hidden;
+      transition: background-color 0.5s ease;
     }
 
     h1, h2, h3 {
@@ -135,6 +139,7 @@
       padding: 4rem 2rem;
       background-color: #1a1a1a;
       text-align: center;
+      transition: background-color 0.5s ease;
     }
 
     .tool-grid {
@@ -148,7 +153,7 @@
       background-color: #333;
       padding: 2rem;
       border-radius: 20px;
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.3s, box-shadow 0.3s, background-color 0.5s;
       position: relative;
       overflow: hidden;
     }
@@ -211,6 +216,7 @@
       padding: 2rem;
       background-color: #0f0f0f;
       text-align: center;
+      transition: background-color 0.5s ease;
     }
 
     .footer-content {
@@ -250,7 +256,7 @@
     .user-profile {
       position: fixed;
       top: 1rem;
-      right: 1rem;
+      right: 4rem; /* Adjusted for theme selector icon */
       z-index: 100;
       display: flex;
       align-items: center;
@@ -277,12 +283,13 @@
       top: 50px;
       right: 0;
       background-color: #1a1a1a;
-      border-radius: 5px;
+      border-radius: 10px;
       padding: 1rem;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       display: none;
       width: 250px;
       z-index: 101;
+      transition: background-color 0.5s;
     }
 
     .user-profile-info.active {
@@ -321,7 +328,7 @@
     .login-button {
       position: fixed;
       top: 1rem;
-      right: 1rem;
+      right: 4rem; /* Adjusted for theme selector icon */
       z-index: 100;
       padding: 0.5rem 1rem;
       background-color: #ff6f61;
@@ -331,6 +338,165 @@
       cursor: pointer;
       display: none;
     }
+
+    /* --- START: THEME SELECTOR STYLES --- */
+    .theme-selector-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 102;
+        width: 40px;
+        height: 40px;
+        background-color: #333;
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+
+    .theme-selector-toggle:hover {
+        transform: scale(1.1) rotate(15deg);
+        background-color: #ff6f61;
+    }
+    
+    .theme-selector-modal {
+        position: fixed;
+        top: 65px;
+        right: 1rem;
+        background-color: #1f1f1f;
+        border: 1px solid #444;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        z-index: 101;
+        display: none;
+        width: 300px;
+    }
+
+    .theme-selector-modal h3 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #eee;
+    }
+
+    .theme-options {
+        display: flex;
+        justify-content: space-around;
+        gap: 1rem;
+    }
+
+    .theme-option {
+        background: none;
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: border-color 0.3s, transform 0.3s;
+        text-align: center;
+        color: #ddd;
+        font-size: 0.9rem;
+        width: 120px;
+    }
+    .theme-option.active,
+    .theme-option:hover {
+        border-color: #ff6f61;
+        transform: translateY(-5px);
+    }
+
+    .theme-preview {
+        width: 100%;
+        height: 60px;
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .default-preview {
+        background-color: #0f0f0f;
+        background-image: linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%);
+        background-size: 20px 20px;
+    }
+
+    .glass-preview {
+        background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+        position: relative;
+    }
+    .glass-preview::after {
+        content: '';
+        position: absolute;
+        inset: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 3px;
+    }
+    
+    /* --- END: THEME SELECTOR STYLES --- */
+
+    /* --- START: GLASSMORPHISM THEME --- */
+    @keyframes gradient-animation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body.glass-theme {
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1a2a35);
+        background-size: 400% 400%;
+        animation: gradient-animation 15s ease infinite;
+    }
+    
+    body.glass-theme .tool-categories,
+    body.glass-theme footer {
+        background-color: transparent;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.glass-theme .tool-card,
+    body.glass-theme .user-profile-info,
+    body.glass-theme .settings-section,
+    body.glass-theme .profile-section,
+    body.glass-theme .modal-content,
+    body.glass-theme .theme-selector-modal {
+        background: rgba(255, 255, 255, 0.05); /* Slightly transparent background */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+    }
+
+    body.glass-theme .tool-card:hover {
+        box-shadow: 0 10px 20px rgba(161, 140, 209, 0.4);
+        border-color: rgba(251, 194, 235, 0.5);
+    }
+
+    body.glass-theme .tool-card::before {
+        display: none; /* Hide default hover gradient */
+    }
+
+    body.glass-theme .hero {
+        background: transparent;
+    }
+
+    body.glass-theme .hero-content h1, 
+    body.glass-theme .hero-content p {
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    /* --- END: GLASSMORPHISM THEME --- */
+
 
     /* Settings Page */
     .settings-page {
@@ -350,6 +516,7 @@
       padding: 1.5rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
+      transition: background-color 0.5s;
     }
 
     .settings-section h3 {
@@ -478,6 +645,7 @@
       padding: 1.5rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
+      transition: background-color 0.5s;
     }
 
     .profile-section h3 {
@@ -554,6 +722,7 @@
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
       border: 1px solid #333;
       color: #fff;
+      transition: background-color 0.5s;
     }
 
     .modal-content h3 {
@@ -619,6 +788,23 @@
 
   <!-- Homepage (hidden initially) -->
   <div class="homepage" id="homepage">
+    <!-- START: THEME SELECTOR & USER PROFILE AREA -->
+    <div class="theme-selector-toggle" id="themeSelectorToggle" title="Change Theme">
+      <i class="fas fa-palette"></i>
+    </div>
+    <div class="theme-selector-modal" id="themeSelectorModal">
+        <h3>Choose a Theme</h3>
+        <div class="theme-options">
+            <button class="theme-option" data-theme="default">
+                <div class="theme-preview default-preview"></div>
+                <span>Default</span>
+            </button>
+            <button class="theme-option" data-theme="glass">
+                <div class="theme-preview glass-preview"></div>
+                <span>Glassmorphism</span>
+            </button>
+        </div>
+    </div>
     <!-- User Profile -->
     <div class="user-profile" id="userProfile">
       <div class="user-avatar" id="userAvatar">
@@ -631,9 +817,10 @@
         <a href="/account-settings" class="user-profile-link">Account Settings</a>
       </div>
     </div>
-
     <!-- Login Button (shown when not logged in) -->
     <a href="https://raidpo-ai.netlify.app/login-form" class="login-button" id="loginButton">Login</a>
+    <!-- END: THEME SELECTOR & USER PROFILE AREA -->
+
 
     <!-- Hero Section -->
     <section class="hero">
@@ -927,6 +1114,83 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database(); // ADDED: Initialize Realtime Database
+
+    // --- START: THEMER SCRIPT ---
+
+    // Themer DOM Elements
+    const themeSelectorToggle = document.getElementById('themeSelectorToggle');
+    const themeSelectorModal = document.getElementById('themeSelectorModal');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const body = document.body;
+
+    // Toggle theme selector modal
+    themeSelectorToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        themeSelectorModal.style.display = themeSelectorModal.style.display === 'block' ? 'none' : 'block';
+    });
+    
+    // Close modal if clicked outside
+    document.addEventListener('click', (e) => {
+        if (!themeSelectorModal.contains(e.target) && e.target !== themeSelectorToggle) {
+            themeSelectorModal.style.display = 'none';
+        }
+    });
+
+    // Apply the selected theme
+    function applyTheme(themeName) {
+        body.classList.remove('glass-theme'); // Reset first
+        if (themeName === 'glass') {
+            body.classList.add('glass-theme');
+        }
+        // Update active state on buttons
+        themeOptions.forEach(option => {
+            option.classList.toggle('active', option.dataset.theme === themeName);
+        });
+        themeSelectorModal.style.display = 'none'; // Close modal after selection
+    }
+
+    // Save theme preference
+    function saveTheme(themeName) {
+        const user = auth.currentUser;
+        if (user) {
+            // Save to Firebase for logged-in user
+            db.ref(`users/${user.uid}/preferences/theme`).set(themeName);
+        } else {
+            // Save to localStorage for guest user
+            localStorage.setItem('raidpo-theme', themeName);
+        }
+    }
+
+    // Load theme on page load
+    async function loadTheme(user) {
+        let theme = 'default'; // Default theme
+        if (user) {
+            // For logged-in user, try fetching from Firebase
+            const snapshot = await db.ref(`users/${user.uid}/preferences/theme`).get();
+            if (snapshot.exists()) {
+                theme = snapshot.val();
+            }
+        } else {
+            // For guest user, check localStorage
+            const localTheme = localStorage.getItem('raidpo-theme');
+            if (localTheme) {
+                theme = localTheme;
+            }
+        }
+        applyTheme(theme);
+    }
+    
+    // Set up click listeners for theme options
+    themeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const selectedTheme = option.dataset.theme;
+            applyTheme(selectedTheme);
+            saveTheme(selectedTheme);
+        });
+    });
+
+    // --- END: THEMER SCRIPT ---
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
@@ -1010,8 +1274,8 @@
     });
 
     // Hide profile info when clicking outside or mouse leaves
-    document.addEventListener('click', () => {
-      if (userProfileInfo.classList.contains('active')) {
+    document.addEventListener('click', (e) => {
+      if (!userProfileInfo.contains(e.target) && !userAvatar.contains(e.target) && userProfileInfo.classList.contains('active')) {
         profileMenuTimeout = setTimeout(() => {
           userProfileInfo.classList.remove('active');
         }, 800);
@@ -1143,6 +1407,7 @@
     // Check Auth State
     auth.onAuthStateChanged(user => {
       updateUserProfile(user);
+      loadTheme(user); // MODIFIED: Load theme after auth state is known
       
       // After auth check, wait for the full 3 seconds before hiding loading screen
       setTimeout(() => {
