@@ -29,7 +29,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      transition: background-color 0.4s ease;
+      transition: background-color 0.4s ease; /* Smooth background transition */
     }
 
     h1, h2, h3 { font-weight: bold; margin: 0; }
@@ -91,7 +91,7 @@
     .challenge-description { color: #ccc; margin-bottom: 1.5rem; font-size: 1rem; }
     .challenge-complete { color: #4CAF50; font-weight: bold; margin-top: 1rem; display: none; }
 
-    /* --- DESKTOP FIRST STYLES --- */
+    /* --- DESKTOP FIRST STYLES (Your Original Design) --- */
     .form-box {
       width: 95vw;
       height: 90vh;
@@ -124,6 +124,7 @@
 
     .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
+
 
     /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
@@ -194,10 +195,13 @@
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
 
     .forgot-password-link {
-        text-align: right; margin: -1rem 0 1.5rem 0;
+        text-align: right;
+        margin: -1rem 0 1.5rem 0;
     }
     .forgot-password-link a {
-        color: #ff6f61; text-decoration: underline; font-size: 0.8rem;
+        color: #ff6f61;
+        text-decoration: underline;
+        font-size: 0.8rem;
     }
 
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
@@ -274,11 +278,6 @@
   <!-- Initial Loading Screen -->
   <div class="loading-screen" id="initialLoadingScreen">
     <div class="loading-spinner"></div>
-  </div>
-
-  <!-- Post-Registration Loading Screen -->
-  <div class="loading-screen" id="postRegistrationLoader" style="display: none;">
-      <div class="loading-spinner"></div>
   </div>
 
   <!-- Security Challenge Layer -->
@@ -436,7 +435,6 @@
 
     // DOM Elements
     const initialLoadingScreen = document.getElementById('initialLoadingScreen');
-    const postRegistrationLoader = document.getElementById('postRegistrationLoader');
     const securityChallengeLayer = document.getElementById('securityChallengeLayer');
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
@@ -465,6 +463,9 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
+    // This flag prevents onAuthStateChanged from firing incorrectly during registration
+    let registrationInProgress = false;
+
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.",
       "auth/user-not-found": "No account found with this email.",
@@ -497,19 +498,6 @@
     function getErrorMessage(error) {
       return errorMessages[error.code] || errorMessages['default'];
     }
-    
-    const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, postRegistrationLoader].forEach(layer => {
-            layer.classList.remove('active');
-            if (layer.classList.contains('loading-screen')) {
-                layer.style.display = 'none';
-            }
-        });
-        layerToShow.classList.add('active');
-        if (layerToShow.classList.contains('loading-screen')) {
-            layerToShow.style.display = 'flex';
-        }
-    };
 
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
@@ -528,6 +516,9 @@
 
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
+        // This is the fix: Check the flag before executing logic
+        if (registrationInProgress) return;
+
         initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
@@ -538,6 +529,13 @@
         }
       });
     }, 3000);
+
+    const showLayer = (layerToShow) => {
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
+            layer.classList.remove('active');
+        });
+        layerToShow.classList.add('active');
+    };
 
     closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
@@ -636,7 +634,7 @@
             errors.push('Please enter a valid email.');
         } else if (!isAllowedDomain(email)) {
             const domainListHTML = `<ul>${allowedDomains.map(d => `<li>${d.substring(1)}</li>`).join('')}</ul>`;
-            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(`<html><head><title>Allowed Domains</title><style>body{font-family:sans-serif; background:#111; color:#eee; padding:20px;} ul{list-style:none; padding:0;} li{padding:5px 0;}</style></head><body><h2>Allowed Email Providers:</h2>${domainListHTML}</body></html>`)}`;
+            const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(`<h3>Allowed Domains:</h3>${domainListHTML}`)}`;
             errors.push(`Unallowed email domain, check for <a href="${dataUrl}" target="_blank" style="color:#ff6f61; text-decoration:underline;">allowed-email-domains</a>`);
         }
         if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
@@ -644,6 +642,7 @@
 
         if (errors.length > 0) return showRequirementsMenu(errors);
 
+        registrationInProgress = true; // Set the flag to prevent onAuthStateChanged from firing
         signupBtn.disabled = true;
         signupBtn.textContent = 'Registering...';
 
@@ -655,19 +654,15 @@
             await userCredential.user.updateProfile({ displayName: username });
             await userCredential.user.sendEmailVerification();
 
-            signupBtn.disabled = false;
-            signupBtn.textContent = 'Sign Up';
-
-            showLayer(postRegistrationLoader);
-            
             setTimeout(() => {
                 window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-            }, 1500);
+            }, 700);
 
         } catch (error) {
             showMiniNotification(getErrorMessage(error));
             signupBtn.disabled = false;
             signupBtn.textContent = 'Sign Up';
+            registrationInProgress = false; // Reset the flag on error
         }
     });
 
@@ -676,8 +671,8 @@
         const errors = [];
         if (!email) errors.push("Please enter your email address.");
         else if (!isValidEmail(email)) errors.push("Please enter a valid email format.");
-        
         if(errors.length > 0) return showRequirementsMenu(errors);
+
 
         resetPasswordBtn.disabled = true;
         resetPasswordBtn.textContent = 'Sending...';
