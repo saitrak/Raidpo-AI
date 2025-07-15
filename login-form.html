@@ -78,6 +78,7 @@
       border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       display: flex;
     }
+    
     .form-container { display: flex; width: 100%; height: 100%; }
     .form-left-panel {
       flex: 1;
@@ -141,51 +142,43 @@
     
     /* --- Composite Email Input --- */
     .composite-email-input {
-        display: flex;
-        align-items: center;
-        background-color: #333;
-        border: 1px solid #333;
-        border-radius: 5px;
-        padding-right: 0.5rem;
+        display: flex; align-items: stretch; background-color: #333;
+        border: 1px solid #333; border-radius: 5px;
         transition: border-color 0.2s;
     }
-    .composite-email-input:focus-within {
-        border-color: #ff6f61;
-    }
+    .composite-email-input:focus-within { border-color: #ff6f61; }
     .composite-email-input input {
-        flex-grow: 1;
-        border: none;
-        background-color: transparent;
-        padding: 0.8rem;
+        flex-grow: 1; border: none; background-color: transparent;
+        padding: 0.8rem; min-width: 60%;
     }
-    .composite-email-input .email-at-symbol {
-        color: #ccc;
+    .email-at-symbol {
+        display: flex; align-items: center; color: #ccc;
+        padding: 0 0.5rem;
+    }
+    .input-separator {
+        width: 1px; background-color: #555;
+        margin: 8px 0; /* Vertical margin to create line effect */
+    }
+    .select-wrapper {
+        position: relative; flex-basis: 40%;
+        display: flex; align-items: center;
     }
     .composite-email-input select {
-        background-color: transparent;
-        border: none;
-        color: #fff;
-        padding: 0.8rem 0.5rem;
-        cursor: pointer;
-        outline: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        max-width: 40%;
+        background-color: transparent; border: none; color: #fff;
+        padding: 0.8rem 2rem 0.8rem 1rem; /* Padding for text and arrow */
+        cursor: pointer; outline: none; -webkit-appearance: none;
+        -moz-appearance: none; appearance: none;
+        width: 100%; height: 100%;
+        color-scheme: dark; /* Hint for dark UI on dropdown list */
     }
-    /* Simple custom arrow */
-    .select-wrapper {
-        position: relative;
+    .composite-email-input select option {
+        background: #1a1a1a;
+        color: #fff;
     }
     .select-wrapper::after {
-        content: '▼';
-        font-size: 0.6em;
-        color: #ccc;
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
+        content: '▼'; font-size: 0.6em; color: #ccc;
+        position: absolute; right: 1rem; top: 50%;
+        transform: translateY(-50%); pointer-events: none;
     }
 
 
@@ -330,6 +323,7 @@
               <div class="composite-email-input">
                   <input type="text" id="signupEmailLocalPart" placeholder="your-username" autocomplete="off">
                   <span class="email-at-symbol">@</span>
+                  <div class="input-separator"></div>
                   <div class="select-wrapper">
                       <select id="signupEmailDomain"></select>
                   </div>
@@ -406,8 +400,7 @@
       projectId: "raidpo-ai-3c84b",
       storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
       messagingSenderId: "41213161184",
-      appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
-      measurementId: "G-7MBZHVFCZR"
+      appId: "1:41213161184:web:58604fc48f2c026f5aaa85"
     };
 
     // Initialize Firebase
@@ -497,9 +490,6 @@
       auth.onAuthStateChanged(user => {
         initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
-          const peer = new Peer(user.uid, { host: '0.peerjs.com', port: 443, path: '/', secure: true });
-          peer.on('open', id => console.log('PeerJS connection established with ID:', id));
-          peer.on('error', err => console.error('PeerJS error:', err));
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
