@@ -39,7 +39,7 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
-    /* Custom Autofill Styling */
+    /* Fix for browser autofill background color */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus, 
@@ -120,10 +120,19 @@
       transition: background-color 0.3s; display: flex; align-items: center;
       justify-content: center; gap: 0.5rem; margin-bottom: 1rem;
     }
+
+    /* "Continue as..." Button Styles */
+    #lastUserContainer { display: none; margin-bottom: 1.5rem; }
+    .last-user-btn {
+        background-color: #2a2a2a; border: 1px solid #444; gap: 1rem;
+    }
+    .last-user-img { width: 32px; height: 32px; border-radius: 50%; }
+    .last-user-name { font-weight: bold; }
+
+
     .google-btn { background-color: #4285F4; color: #fff; }
     .github-btn { background-color: #333; color: #fff; }
     .email-btn { background-color: #ff6f61; color: #fff; }
-    .continue-as-btn { background-color: #4a4a4a; color: #fff; }
     .or-divider {
       display: flex; align-items: center; margin: 1.5rem 0; color: #ccc;
     }
@@ -170,10 +179,10 @@
     .email-at-symbol { color: #ccc; padding-left: 1rem; }
     .composite-email-input select {
         background-color: transparent; border: none; color: #fff;
-        padding: 0.8rem 2rem 0.8rem 0.5rem;
-        cursor: pointer; outline: none; -webkit-appearance: none;
+        padding: 0.8rem 2rem 0.8rem 0.5rem; cursor: pointer; outline: none; -webkit-appearance: none;
         -moz-appearance: none; appearance: none;
-        width: 100%; height: 100%; color-scheme: dark;
+        width: 100%; height: 100%;
+        color-scheme: dark;
     }
     .composite-email-input select option { background: #1a1a1a; color: #fff; }
     .select-wrapper::after {
@@ -181,8 +190,6 @@
         position: absolute; right: 1rem; top: 50%;
         transform: translateY(-50%); pointer-events: none;
     }
-
-
     .password-toggle {
       position: absolute; right: 10px; top: 35px; cursor: pointer; color: #ccc;
       background: none; border: none; padding: 5px;
@@ -244,12 +251,7 @@
   </style>
 </head>
 <body>
-  <!-- Initial Loading Screen -->
-  <div class="loading-screen" id="initialLoadingScreen">
-    <div class="loading-spinner"></div>
-  </div>
-
-  <!-- Security Challenge Layer -->
+  <div class="loading-screen" id="initialLoadingScreen"><div class="loading-spinner"></div></div>
   <div class="form-layer" id="securityChallengeLayer">
     <div class="challenge-container">
       <h2 class="challenge-title">Security Challenge</h2>
@@ -258,8 +260,6 @@
       <p class="challenge-complete" id="challengeComplete">Challenge completed! Redirecting...</p>
     </div>
   </div>
-
-  <!-- Method Selector Layer -->
   <div class="form-layer" id="methodSelectorLayer">
     <div class="form-box">
       <button class="close-button" id="closeButton"><i class="fas fa-times"></i></button>
@@ -270,86 +270,50 @@
             <h1>Log in or Register</h1>
             <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
           </div>
-          <button id="continueAsBtn" class="method-btn continue-as-btn" style="display: none;">
-            <i class="fas fa-user-circle"></i>
-            <span id="continueAsText">Continue as </span>
-            <span id="continueAsName" style="font-weight: bold;"></span>
-          </button>
+          <div id="lastUserContainer"></div>
           <button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button>
           <button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button>
           <div class="or-divider">or</div>
           <button id="emailMethodBtn" class="method-btn email-btn"><i class="fas fa-envelope"></i> Continue with Email</button>
-          <div class="method-footer">
-            By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>. Read our <a href="/privacy-policy.html">Privacy Policy</a>.
-          </div>
+          <div class="method-footer">By continuing, you agree to Raidpo-AI's <a href="/terms-and-conditions.html">Terms of Conditions</a>.</div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Auth Layer -->
   <div class="form-layer" id="authLayer">
     <div class="form-box">
       <div class="form-container">
-        <div class="form-left-panel">
-          <button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button>
-        </div>
+        <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
-          <div class="auth-header">
-            <h1>Raidpo AI</h1>
-            <p>Access powerful AI tools with your account</p>
-          </div>
+          <div class="auth-header"><h1>Raidpo AI</h1><p>Access powerful AI tools with your account</p></div>
           <div class="auth-tabs">
             <div class="auth-tab active" data-tab="login">Login</div>
             <div class="auth-tab" data-tab="signup">Sign Up</div>
           </div>
           <div id="loginForm" class="auth-form active">
-            <div class="form-group">
-              <label for="loginEmail">Email</label>
-              <input type="email" id="loginEmail" placeholder="Enter your email" required>
-            </div>
-            <div class="form-group">
-              <label for="loginPassword">Password</label>
-              <input type="password" id="loginPassword" placeholder="Enter your password" required>
-              <button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button>
-            </div>
-            <div class="forgot-password-link">
-                <a href="#" id="forgotPasswordLink">Forgot password?</a>
-            </div>
+            <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required></div>
+            <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
+            <div class="forgot-password-link"><a href="#" id="forgotPasswordLink">Forgot password?</a></div>
             <button id="loginBtn" class="auth-btn">Login</button>
             <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
           <div id="signupForm" class="auth-form">
-            <div class="form-group">
-              <label for="signupUsername">Username</label>
-              <input type="text" id="signupUsername" placeholder="Choose a username" required>
-            </div>
-            <div class="form-group">
-              <label for="signupEmailLocalPart">Email</label>
+            <div class="form-group"><label for="signupUsername">Username</label><input type="text" id="signupUsername" placeholder="Choose a username" required></div>
+            <div class="form-group"><label for="signupEmailLocalPart">Email</label>
               <div class="composite-email-input">
                   <input type="text" id="signupEmailLocalPart" placeholder="your-username" autocomplete="off">
                   <div class="input-separator"></div>
-                  <div class="select-wrapper">
-                      <span class="email-at-symbol">@</span>
-                      <select id="signupEmailDomain"></select>
-                  </div>
+                  <div class="select-wrapper"><span class="email-at-symbol">@</span><select id="signupEmailDomain"></select></div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="signupPassword">Password</label>
-              <input type="password" id="signupPassword" placeholder="Create a password" required>
-              <button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" placeholder="Create a password" required><button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
               <div class="password-requirements" id="signupPasswordRequirements">
                 <div class="requirement" id="req-length"><i class="fas fa-times"></i><span>At least 6 characters</span></div>
                 <div class="requirement" id="req-uppercase"><i class="fas fa-times"></i><span>At least 1 uppercase letter</span></div>
                 <div class="requirement" id="req-lowercase"><i class="fas fa-times"></i><span>At least 1 lowercase letter</span></div>
               </div>
             </div>
-            <div class="form-group">
-              <label for="signupConfirmPassword">Confirm Password</label>
-              <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required>
-              <button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button>
-            </div>
+            <div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required><button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button></div>
             <button id="signupBtn" class="auth-btn">Sign Up</button>
             <div class="auth-footer">Already have an account? <a href="#" id="switchToLogin">Sign in</a></div>
           </div>
@@ -357,34 +321,19 @@
       </div>
     </div>
   </div>
-
-  <!-- Forgot Password Layer -->
   <div class="form-layer" id="forgotPasswordLayer">
       <div class="form-box">
           <div class="form-container">
-              <div class="form-left-panel">
-                  <button class="back-to-auth" id="backToAuthFromReset"><i class="fas fa-arrow-left"></i></button>
-              </div>
+              <div class="form-left-panel"><button class="back-to-auth" id="backToAuthFromReset"><i class="fas fa-arrow-left"></i></button></div>
               <div class="form-right-panel">
-                  <div style="text-align: center;">
-                      <h1>Forgot Password</h1>
-                      <p>Enter your account's email to receive a password reset link.</p>
-                  </div>
-                  <div class="form-group">
-                      <label for="resetEmail">Email</label>
-                      <input type="email" id="resetEmail" placeholder="Enter your email" required>
-                  </div>
+                  <div style="text-align: center;"><h1>Forgot Password</h1><p>Enter your account's email to receive a password reset link.</p></div>
+                  <div class="form-group"><label for="resetEmail">Email</label><input type="email" id="resetEmail" placeholder="Enter your email" required></div>
                   <button id="resetPasswordBtn" class="auth-btn">Send Reset Link</button>
-                  <div class="auth-footer">
-                      Remembered your password? <a href="#" id="backToLoginFromReset">Back to Login</a>
-                  </div>
+                  <div class="auth-footer">Remembered your password? <a href="#" id="backToLoginFromReset">Back to Login</a></div>
               </div>
           </div>
       </div>
   </div>
-
-
-  <!-- Requirements Overlay -->
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
       <div class="requirements-title">Please fill these requirements</div>
@@ -394,163 +343,116 @@
   </div>
 
   <script>
-    // Android Font Detection
-    if (/android/i.test(navigator.userAgent)) {
-      document.body.classList.add('android-device');
-    }
-
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
-      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
-      projectId: "raidpo-ai-3c84b",
-      storageBucket: "raidpo-ai-3c84b.firebasestorage.app",
-      messagingSenderId: "41213161184",
-      appId: "1:41213161184:web:58604fc48f2c026f5aaa85"
-    };
-
-    // Initialize Firebase
+    if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
+    const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
-
-    // DOM Elements
-    const initialLoadingScreen = document.getElementById('initialLoadingScreen');
-    const securityChallengeLayer = document.getElementById('securityChallengeLayer');
-    const methodSelectorLayer = document.getElementById('methodSelectorLayer');
-    const authLayer = document.getElementById('authLayer');
-    const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
-    const continueAsBtn = document.getElementById('continueAsBtn');
-    const continueAsName = document.getElementById('continueAsName');
-    const loginEmail = document.getElementById('loginEmail');
-    const signupBtn = document.getElementById('signupBtn');
-    const signupUsername = document.getElementById('signupUsername');
-    const signupEmailLocalPart = document.getElementById('signupEmailLocalPart');
-    const signupEmailDomain = document.getElementById('signupEmailDomain');
-    const signupPassword = document.getElementById('signupPassword');
-    const signupConfirmPassword = document.getElementById('signupConfirmPassword');
-    const authTabs = document.querySelectorAll('.auth-tab');
-    const signupPasswordRequirements = document.getElementById('signupPasswordRequirements');
-    const requirementsOverlay = document.getElementById('requirementsOverlay');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    const resetEmail = document.getElementById('resetEmail');
-    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-    
-    const reqLength = document.getElementById('req-length');
-    const reqUppercase = document.getElementById('req-uppercase');
-    const reqLowercase = document.getElementById('req-lowercase');
-    
-    let isSigningUp = false;
-
-    const errorMessages = {
-      "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found with this email.",
-      "auth/wrong-password": "Incorrect password. Try again.", "auth/email-already-in-use": "Email already exists.",
-      "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error. Check connection.",
-      "auth/too-many-requests": "Too many attempts. Try again later.", "auth/popup-blocked": "Popup blocked by browser.",
-      "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.",
-      "default": "An unexpected error occurred."
+    const dom = {
+        initialLoadingScreen: document.getElementById('initialLoadingScreen'), securityChallengeLayer: document.getElementById('securityChallengeLayer'),
+        methodSelectorLayer: document.getElementById('methodSelectorLayer'), authLayer: document.getElementById('authLayer'),
+        forgotPasswordLayer: document.getElementById('forgotPasswordLayer'), closeButton: document.getElementById('closeButton'),
+        backToMethods: document.getElementById('backToMethods'), googleMethodBtn: document.getElementById('googleMethodBtn'),
+        githubMethodBtn: document.getElementById('githubMethodBtn'), emailMethodBtn: document.getElementById('emailMethodBtn'),
+        signupBtn: document.getElementById('signupBtn'), signupUsername: document.getElementById('signupUsername'),
+        signupEmailLocalPart: document.getElementById('signupEmailLocalPart'), signupEmailDomain: document.getElementById('signupEmailDomain'),
+        signupPassword: document.getElementById('signupPassword'), signupConfirmPassword: document.getElementById('signupConfirmPassword'),
+        authTabs: document.querySelectorAll('.auth-tab'), signupPasswordRequirements: document.getElementById('signupPasswordRequirements'),
+        requirementsOverlay: document.getElementById('requirementsOverlay'), forgotPasswordLink: document.getElementById('forgotPasswordLink'),
+        resetEmail: document.getElementById('resetEmail'), resetPasswordBtn: document.getElementById('resetPasswordBtn'),
+        backToAuthFromReset: document.getElementById('backToAuthFromReset'), backToLoginFromReset: document.getElementById('backToLoginFromReset'),
+        lastUserContainer: document.getElementById('lastUserContainer'), reqLength: document.getElementById('req-length'),
+        reqUppercase: document.getElementById('req-uppercase'), reqLowercase: document.getElementById('req-lowercase')
     };
-
+    let isSigningUp = false;
+    const errorMessages = { "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found.", "auth/wrong-password": "Incorrect password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
     function showFeedback(messages) {
       if (!Array.isArray(messages)) messages = [messages];
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
       requirementsList.innerHTML = messages.map(msg => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${msg}</span></li>`).join('');
-      requirementsOverlay.classList.add('active');
+      dom.requirementsOverlay.classList.add('active');
       countdownProgress.style.transition = 'none'; countdownProgress.style.width = '0%';
       void countdownProgress.offsetWidth;
       countdownProgress.style.transition = 'width 3s linear';
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
-      setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
+      setTimeout(() => { dom.requirementsOverlay.classList.remove('active'); }, 3000);
     }
-
     function getErrorMessage(error) { return errorMessages[error.code] || errorMessages['default']; }
-
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
         grecaptcha.render('securityRecaptcha', {
           sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
-            setTimeout(() => {
-              document.body.style.backgroundColor = '#0f0f0f';
-              checkLastUser();
-              showLayer(methodSelectorLayer);
-            }, 1000);
+            setTimeout(() => { document.body.style.backgroundColor = '#0f0f0f'; showLayer(dom.methodSelectorLayer); }, 1000);
           }
         });
       }
     }
     const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
-            layer.classList.remove('active');
-        });
+        [dom.securityChallengeLayer, dom.methodSelectorLayer, dom.authLayer, dom.forgotPasswordLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
-
+    function displayLastUserButton() {
+        const savedUser = localStorage.getItem('lastUser');
+        if (savedUser) {
+            const userData = JSON.parse(savedUser);
+            const button = document.createElement('button');
+            button.className = 'method-btn last-user-btn';
+            const img = document.createElement('img');
+            img.src = userData.photoURL || 'https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png';
+            img.className = 'last-user-img';
+            const text = document.createElement('span');
+            text.textContent = `Continue as ${userData.displayName || 'last user'}`;
+            text.className = 'last-user-name';
+            button.appendChild(img);
+            button.appendChild(text);
+            button.onclick = () => {
+                const provider = userData.providerId === 'google.com' ? googleProvider : githubProvider;
+                signInWithProvider(provider);
+            };
+            dom.lastUserContainer.appendChild(button);
+            dom.lastUserContainer.style.display = 'block';
+        }
+    }
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         if (isSigningUp) return;
-
-        initialLoadingScreen.style.display = 'none';
+        dom.initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
-          localStorage.setItem('lastUserName', user.displayName);
-          localStorage.setItem('lastUserEmail', user.email);
+          if (user.providerData && user.providerData.length > 0) {
+            const lastUser = { displayName: user.displayName, photoURL: user.photoURL, providerId: user.providerData[0].providerId };
+            localStorage.setItem('lastUser', JSON.stringify(lastUser));
+          }
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
           document.body.style.backgroundColor = '#ff3b2f';
-          showLayer(securityChallengeLayer);
+          showLayer(dom.securityChallengeLayer);
         }
       });
     }, 3000);
-
-    function checkLastUser() {
-        const lastUserName = localStorage.getItem('lastUserName');
-        const lastUserEmail = localStorage.getItem('lastUserEmail');
-
-        if (lastUserName && lastUserEmail) {
-            continueAsName.textContent = lastUserName;
-            continueAsBtn.style.display = 'flex';
-            continueAsBtn.addEventListener('click', () => {
-                showLayer(authLayer);
-                loginEmail.value = lastUserEmail;
-                document.getElementById('loginPassword').focus();
-            });
-        }
-    }
-    
-    const allowedDomains = [
-        'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com',
-        'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com',
-        'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'
-    ];
+    displayLastUserButton();
+    const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com', 'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com', 'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'];
     allowedDomains.forEach(domain => {
         const option = document.createElement('option');
-        option.value = domain;
-        option.textContent = domain;
+        option.value = domain; option.textContent = domain;
         if (domain === 'gmail.com') option.selected = true;
-        signupEmailDomain.appendChild(option);
+        dom.signupEmailDomain.appendChild(option);
     });
-
-    signupEmailLocalPart.addEventListener('keydown', (e) => {
-        if (e.key === '.') { e.preventDefault(); }
-    });
-
-    document.getElementById('closeButton').addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    document.getElementById('backToMethods').addEventListener('click', () => showLayer(methodSelectorLayer));
-    document.getElementById('emailMethodBtn').addEventListener('click', () => showLayer(authLayer));
-    forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
-    document.getElementById('backToAuthFromReset').addEventListener('click', () => showLayer(authLayer));
-    document.getElementById('backToLoginFromReset').addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
-
+    dom.signupEmailLocalPart.addEventListener('keydown', (e) => { if (e.key === '.') { e.preventDefault(); } });
+    dom.closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    dom.backToMethods.addEventListener('click', () => showLayer(dom.methodSelectorLayer));
+    dom.emailMethodBtn.addEventListener('click', () => showLayer(dom.authLayer));
+    dom.forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(dom.forgotPasswordLayer); });
+    dom.backToAuthFromReset.addEventListener('click', () => showLayer(dom.authLayer));
+    dom.backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(dom.authLayer); });
     const signInWithProvider = (provider) => { auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error))); };
-    document.getElementById('googleMethodBtn').addEventListener('click', () => signInWithProvider(googleProvider));
-    document.getElementById('githubMethodBtn').addEventListener('click', () => signInWithProvider(githubProvider));
-
+    dom.googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
+    dom.githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
@@ -558,58 +460,45 @@
     const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
       const checks = { length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password) };
-      updateRequirement(reqLength, checks.length); updateRequirement(reqUppercase, checks.upper);
-      updateRequirement(reqLowercase, checks.lower);
+      updateRequirement(dom.reqLength, checks.length); updateRequirement(dom.reqUppercase, checks.upper);
+      updateRequirement(dom.reqLowercase, checks.lower);
       return checks.length && checks.upper && checks.lower;
     }
-    function togglePasswordVisibility(input, toggle) {
-      input.type = input.type === 'password' ? 'text' : 'password';
-      toggle.querySelector('i').classList.toggle('fa-eye-slash');
-    }
+    function togglePasswordVisibility(input, toggle) { input.type = input.type === 'password' ? 'text' : 'password'; toggle.querySelector('i').classList.toggle('fa-eye-slash'); }
     ['toggleLoginPassword', 'toggleSignupPassword', 'toggleConfirmPassword'].forEach(id => {
         const toggle = document.getElementById(id); const input = toggle.previousElementSibling;
         toggle.addEventListener('click', () => togglePasswordVisibility(input, toggle));
     });
-
-    signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
-    signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
-    signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    
-    authTabs.forEach(tab => tab.addEventListener('click', () => {
-      authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+    dom.signupPassword.addEventListener('focus', () => dom.signupPasswordRequirements.style.display = 'block');
+    dom.signupPassword.addEventListener('blur', () => { if (!dom.signupPassword.value) dom.signupPasswordRequirements.style.display = 'none'; });
+    dom.signupPassword.addEventListener('input', () => isValidPassword(dom.signupPassword.value));
+    dom.authTabs.forEach(tab => tab.addEventListener('click', () => {
+      dom.authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
       document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
     }));
-    document.getElementById('switchToSignup').addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
-    document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
-
+    document.getElementById('switchToSignup').addEventListener('click', e => { e.preventDefault(); dom.authTabs[1].click(); });
+    document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); dom.authTabs[0].click(); });
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
       if (!email || !password) return showFeedback('Email and password are required.');
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        if (!userCredential.user.emailVerified) {
-          showFeedback("Please verify your email to log in."); await auth.signOut();
-        }
+        if (!userCredential.user.emailVerified) { showFeedback("Please verify your email to log in."); await auth.signOut(); }
       } catch (error) { showFeedback(getErrorMessage(error)); }
     });
-
-    signupBtn.addEventListener('click', async () => {
+    dom.signupBtn.addEventListener('click', async () => {
       isSigningUp = true;
-      const localPart = signupEmailLocalPart.value.trim();
-      const domain = signupEmailDomain.value;
-      const email = `${localPart}@${domain}`;
-      const username = signupUsername.value.trim();
-      const password = signupPassword.value;
-      const errors = [];
+      const localPart = dom.signupEmailLocalPart.value.trim(); const domain = dom.signupEmailDomain.value;
+      const email = `${localPart}@${domain}`; const username = dom.signupUsername.value.trim();
+      const password = dom.signupPassword.value; const errors = [];
       if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
       if (!localPart) errors.push('Please enter the first part of your email.');
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
-      if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
+      if (password !== dom.signupConfirmPassword.value) errors.push('Passwords do not match.');
       if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
-
-      signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
+      dom.signupBtn.disabled = true; dom.signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
         if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
@@ -620,21 +509,20 @@
       } catch (error) {
         showFeedback(getErrorMessage(error));
         isSigningUp = false;
-        signupBtn.disabled = false; signupBtn.textContent = 'Sign Up';
+        dom.signupBtn.disabled = false; dom.signupBtn.textContent = 'Sign Up';
       }
     });
-
-    resetPasswordBtn.addEventListener('click', async () => {
-        const email = resetEmail.value.trim();
+    dom.resetPasswordBtn.addEventListener('click', async () => {
+        const email = dom.resetEmail.value.trim();
         if (!email) return showFeedback("Please enter your email address.");
         if (!isValidEmail(email)) return showFeedback("Please enter a valid email format.");
-        resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
+        dom.resetPasswordBtn.disabled = true; dom.resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
             window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
             showFeedback(getErrorMessage(error));
-            resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
+            dom.resetPasswordBtn.disabled = false; dom.resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
   </script>
