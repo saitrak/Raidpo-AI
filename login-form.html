@@ -18,11 +18,14 @@
       margin: 0;
       padding: 0;
     }
+
+    ::selection { background-color: #ff6f61; color: #fff; }
+    ::-moz-selection { background-color: #ff6f61; color: #fff; }
     
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
       color: #fff;
-      background-color: #0f0f0f; /* Main background is dark */
+      background-color: #0f0f0f;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       display: flex;
@@ -32,59 +35,37 @@
       transition: background-color 0.4s ease;
     }
 
+    body.android-device, body.android-device input, body.android-device button, body.android-device textarea, body.android-device select {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
     h1, h2, h3 { font-weight: bold; margin: 0; }
     a { text-decoration: none; color: inherit; }
 
     /* Base Layer Styles */
     .form-layer {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-      background-color: transparent;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px; background-color: transparent;
     }
-
-    .form-layer.active {
-      display: flex;
-    }
+    .form-layer.active { display: flex; }
 
     /* Loading Screen */
     .loading-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: #0f0f0f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #0f0f0f; display: flex; justify-content: center;
+      align-items: center; z-index: 9999;
     }
-
     .loading-spinner {
-      width: 50px; height: 50px;
-      border: 5px solid #ff6f61;
-      border-radius: 50%;
-      border-top-color: transparent;
+      width: 50px; height: 50px; border: 5px solid #ff6f61;
+      border-radius: 50%; border-top-color: transparent;
       animation: spin 1s linear infinite;
     }
-
-    @keyframes spin {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
     .challenge-container {
-      background-color: #1a1a1a;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      background-color: #1a1a1a; padding: 2rem; border-radius: 10px;
+      width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center;
     }
     .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
@@ -93,39 +74,22 @@
 
     /* --- DESKTOP FIRST STYLES --- */
     .form-box {
-      width: 95vw;
-      height: 90vh;
-      background: #1a1a1a;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      width: 95vw; height: 90vh; background: #1a1a1a; position: relative;
+      border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       display: flex;
     }
-    
     .form-container { display: flex; width: 100%; height: 100%; }
-
     .form-left-panel {
       flex: 1;
       background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
-      background-size: cover;
-      position: relative;
+      background-size: cover; position: relative;
     }
-
     .form-right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 2rem;
-      background-color: #1a1a1a;
-      overflow-y: auto;
+      flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
+      padding: 2rem; background-color: #1a1a1a; overflow-y: auto;
     }
-
     .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
-
-    /* Custom Scrollbar */
     .form-right-panel::-webkit-scrollbar { width: 8px; }
     .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
     .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
@@ -135,32 +99,26 @@
       position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
     }
-
     .method-header, .auth-header { text-align: center; margin-bottom: 2rem; }
     .method-header h1, .auth-header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
     .method-header p, .auth-header p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); }
-
     .method-btn {
       width: 100%; padding: 1rem; border: none; border-radius: 5px;
       font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer;
       transition: background-color 0.3s; display: flex; align-items: center;
       justify-content: center; gap: 0.5rem; margin-bottom: 1rem;
     }
-
     .google-btn { background-color: #4285F4; color: #fff; }
     .github-btn { background-color: #333; color: #fff; }
     .email-btn { background-color: #ff6f61; color: #fff; }
-
     .or-divider {
       display: flex; align-items: center; margin: 1.5rem 0; color: #ccc;
     }
     .or-divider::before, .or-divider::after { content: ""; flex: 1; border-bottom: 1px solid #333; }
     .or-divider::before { margin-right: 1rem; }
     .or-divider::after { margin-left: 1rem; }
-
     .method-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.7rem, 3vw, 0.8rem); }
     .method-footer a { color: #ff6f61; text-decoration: underline; }
-
     .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #333; }
     .auth-tab {
       flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative;
@@ -171,7 +129,6 @@
       content: ''; position: absolute; bottom: -1px; left: 0; width: 100%;
       height: 2px; background-color: #ff6f61;
     }
-
     .auth-form { display: none; }
     .auth-form.active { display: block; }
     .form-group { margin-bottom: 1.5rem; position: relative; }
@@ -181,6 +138,57 @@
       background-color: #333; color: #fff; font-size: clamp(0.9rem, 3vw, 1rem);
     }
     .form-group input:focus { outline: none; border-color: #ff6f61; }
+    
+    /* --- Composite Email Input --- */
+    .composite-email-input {
+        display: flex;
+        align-items: center;
+        background-color: #333;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding-right: 0.5rem;
+        transition: border-color 0.2s;
+    }
+    .composite-email-input:focus-within {
+        border-color: #ff6f61;
+    }
+    .composite-email-input input {
+        flex-grow: 1;
+        border: none;
+        background-color: transparent;
+        padding: 0.8rem;
+    }
+    .composite-email-input .email-at-symbol {
+        color: #ccc;
+    }
+    .composite-email-input select {
+        background-color: transparent;
+        border: none;
+        color: #fff;
+        padding: 0.8rem 0.5rem;
+        cursor: pointer;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        max-width: 40%;
+    }
+    /* Simple custom arrow */
+    .select-wrapper {
+        position: relative;
+    }
+    .select-wrapper::after {
+        content: '▼';
+        font-size: 0.6em;
+        color: #ccc;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+
     .password-toggle {
       position: absolute; right: 10px; top: 35px; cursor: pointer; color: #ccc;
       background: none; border: none; padding: 5px;
@@ -192,26 +200,15 @@
     }
     .auth-btn:hover { background-color: #ff3b2f; }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
-
-    .forgot-password-link {
-        text-align: right;
-        margin: -1rem 0 1.5rem 0;
-    }
-    .forgot-password-link a {
-        color: #ff6f61;
-        text-decoration: underline;
-        font-size: 0.8rem;
-    }
-
+    .forgot-password-link { text-align: right; margin: -1rem 0 1.5rem 0; }
+    .forgot-password-link a { color: #ff6f61; text-decoration: underline; font-size: 0.8rem; }
     .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-
     .auth-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .auth-footer a { color: #ff6f61; text-decoration: underline; }
-
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
       display: flex; justify-content: center; align-items: center; z-index: 2000;
@@ -235,7 +232,6 @@
     .requirement-item.invalid i { color: #ff6f61; }
     .countdown-bar { height: 4px; background-color: #333; border-radius: 2px; overflow: hidden; width: 100%; }
     .countdown-progress { height: 100%; background-color: #ff6f61; width: 0%; transition: width 3s linear; }
-
     .close-button {
       position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
@@ -244,21 +240,12 @@
     /* --- MOBILE ONLY STYLES --- */
     @media (max-width: 768px) {
       .form-box {
-        width: 100%;
-        max-width: 450px;
-        height: auto;
-        max-height: 95vh;
-        flex-direction: column;
+        width: 100%; max-width: 450px; height: auto;
+        max-height: 95vh; flex-direction: column;
       }
-      .form-container {
-        flex-direction: column;
-      }
-      .form-left-panel {
-        flex: 0 0 220px;
-      }
-      .form-right-panel {
-        flex-grow: 1;
-      }
+      .form-container { flex-direction: column; }
+      .form-left-panel { flex: 0 0 220px; }
+      .form-right-panel { flex-grow: 1; }
     }
   </style>
 </head>
@@ -320,7 +307,7 @@
           <div id="loginForm" class="auth-form active">
             <div class="form-group">
               <label for="loginEmail">Email</label>
-              <input type="text" id="loginEmail" placeholder="Enter your email" required>
+              <input type="email" id="loginEmail" placeholder="Enter your email" required>
             </div>
             <div class="form-group">
               <label for="loginPassword">Password</label>
@@ -339,8 +326,14 @@
               <input type="text" id="signupUsername" placeholder="Choose a username" required>
             </div>
             <div class="form-group">
-              <label for="signupEmail">Email</label>
-              <input type="email" id="signupEmail" placeholder="Enter your email" required>
+              <label for="signupEmailLocalPart">Email</label>
+              <div class="composite-email-input">
+                  <input type="text" id="signupEmailLocalPart" placeholder="your-username" autocomplete="off">
+                  <span class="email-at-symbol">@</span>
+                  <div class="select-wrapper">
+                      <select id="signupEmailDomain"></select>
+                  </div>
+              </div>
             </div>
             <div class="form-group">
               <label for="signupPassword">Password</label>
@@ -401,6 +394,11 @@
   </div>
 
   <script>
+    // Android Font Detection
+    if (/android/i.test(navigator.userAgent)) {
+      document.body.classList.add('android-device');
+    }
+
     // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
@@ -431,7 +429,8 @@
     const emailMethodBtn = document.getElementById('emailMethodBtn');
     const signupBtn = document.getElementById('signupBtn');
     const signupUsername = document.getElementById('signupUsername');
-    const signupEmail = document.getElementById('signupEmail');
+    const signupEmailLocalPart = document.getElementById('signupEmailLocalPart');
+    const signupEmailDomain = document.getElementById('signupEmailDomain');
     const signupPassword = document.getElementById('signupPassword');
     const signupConfirmPassword = document.getElementById('signupConfirmPassword');
     const authTabs = document.querySelectorAll('.auth-tab');
@@ -448,33 +447,30 @@
     const reqLowercase = document.getElementById('req-lowercase');
     
     const errorMessages = {
-      "auth/invalid-email": "Invalid email format.",
-      "auth/user-not-found": "No account found with this email.",
-      "auth/wrong-password": "Incorrect password. Try again.",
-      "auth/email-already-in-use": "Email already exists.",
-      "auth/weak-password": "Password too weak.",
-      "auth/network-request-failed": "Network error. Check connection.",
-      "auth/too-many-requests": "Too many attempts. Try again later.",
-      "auth/popup-blocked": "Popup blocked by browser.",
-      "auth/popup-closed-by-user": "Login popup was closed.",
-      "auth/account-exists-with-different-credential": "Account exists with another login method.",
+      "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password. Try again.", "auth/email-already-in-use": "Email already exists.",
+      "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error. Check connection.",
+      "auth/too-many-requests": "Too many attempts. Try again later.", "auth/popup-blocked": "Popup blocked by browser.",
+      "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.",
       "default": "An unexpected error occurred."
     };
 
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    function showRequirementsMenu(requirements) {
+    function showFeedback(messages) {
+      if (!Array.isArray(messages)) messages = [messages];
       const requirementsList = document.getElementById('requirementsList');
       const countdownProgress = document.getElementById('countdownProgress');
-      requirementsList.innerHTML = requirements.map(req => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${req}</span></li>`).join('');
+      requirementsList.innerHTML = messages.map(msg => `<li class="requirement-item invalid"><i class="fas fa-times"></i><span>${msg}</span></li>`).join('');
       requirementsOverlay.classList.add('active');
+      countdownProgress.style.transition = 'none'; countdownProgress.style.width = '0%';
+      void countdownProgress.offsetWidth;
+      countdownProgress.style.transition = 'width 3s linear';
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
-      setTimeout(() => requirementsOverlay.classList.remove('active'), 3000);
+      setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
     }
 
-    function getErrorMessage(error) {
-      return errorMessages[error.code] || errorMessages['default'];
-    }
+    function getErrorMessage(error) { return errorMessages[error.code] || errorMessages['default']; }
 
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
@@ -483,31 +479,13 @@
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
-              document.body.style.backgroundColor = '#0f0f0f'; // Change body back to dark permanently
-              securityChallengeLayer.classList.remove('active');
-              methodSelectorLayer.classList.add('active');
+              document.body.style.backgroundColor = '#0f0f0f';
+              showLayer(methodSelectorLayer);
             }, 1000);
           }
         });
       }
     }
-
-    setTimeout(() => {
-      auth.onAuthStateChanged(user => {
-        initialLoadingScreen.style.display = 'none';
-        if (user && user.emailVerified) {
-          window.location.href = 'https://raidpo-ai.netlify.app/';
-        } else {
-          if (user && !user.emailVerified) auth.signOut();
-          document.body.style.backgroundColor = '#ff3b2f'; // Change body to red for security step
-          securityChallengeLayer.classList.add('active');
-        }
-      });
-    }, 3000);
-
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    
-    // Navigation Functions
     const showLayer = (layerToShow) => {
         [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(layer => {
             layer.classList.remove('active');
@@ -515,44 +493,73 @@
         layerToShow.classList.add('active');
     };
 
+    setTimeout(() => {
+      auth.onAuthStateChanged(user => {
+        initialLoadingScreen.style.display = 'none';
+        if (user && user.emailVerified) {
+          const peer = new Peer(user.uid, { host: '0.peerjs.com', port: 443, path: '/', secure: true });
+          peer.on('open', id => console.log('PeerJS connection established with ID:', id));
+          peer.on('error', err => console.error('PeerJS error:', err));
+          window.location.href = 'https://raidpo-ai.netlify.app/';
+        } else {
+          if (user && !user.emailVerified) auth.signOut();
+          document.body.style.backgroundColor = '#ff3b2f';
+          showLayer(securityChallengeLayer);
+        }
+      });
+    }, 3000);
+    
+    // Setup Domain Whitelist Dropdown
+    const allowedDomains = [
+        'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com',
+        'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com',
+        'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'
+    ];
+    allowedDomains.forEach(domain => {
+        const option = document.createElement('option');
+        option.value = domain;
+        option.textContent = domain;
+        if (domain === 'gmail.com') option.selected = true;
+        signupEmailDomain.appendChild(option);
+    });
+
+    // Disallow '.' in the local part of the email
+    signupEmailLocalPart.addEventListener('keydown', (e) => {
+        if (e.key === '.') {
+            e.preventDefault();
+        }
+    });
+
+    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
     backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
     backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
 
-
-    const signInWithProvider = (provider) => {
-      auth.signInWithPopup(provider).catch(error => showRequirementsMenu([getErrorMessage(error)]));
-    };
+    const signInWithProvider = (provider) => { auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error))); };
     googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
     githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
 
     function updateRequirement(element, isValid) {
-      element.classList.toggle('valid', isValid);
-      element.classList.toggle('invalid', !isValid);
+      element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
     const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
       const checks = {
-        length: password.length >= 6,
-        upper: /[A-Z]/.test(password),
-        lower: /[a-z]/.test(password)
+        length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password)
       };
-      updateRequirement(reqLength, checks.length);
-      updateRequirement(reqUppercase, checks.upper);
+      updateRequirement(reqLength, checks.length); updateRequirement(reqUppercase, checks.upper);
       updateRequirement(reqLowercase, checks.lower);
       return checks.length && checks.upper && checks.lower;
     }
-
     function togglePasswordVisibility(input, toggle) {
       input.type = input.type === 'password' ? 'text' : 'password';
       toggle.querySelector('i').classList.toggle('fa-eye-slash');
     }
     ['toggleLoginPassword', 'toggleSignupPassword', 'toggleConfirmPassword'].forEach(id => {
-        const toggle = document.getElementById(id);
-        const input = toggle.previousElementSibling;
+        const toggle = document.getElementById(id); const input = toggle.previousElementSibling;
         toggle.addEventListener('click', () => togglePasswordVisibility(input, toggle));
     });
 
@@ -561,8 +568,7 @@
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
     
     authTabs.forEach(tab => tab.addEventListener('click', () => {
-      authTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+      authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
       document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
     }));
@@ -572,68 +578,55 @@
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
-      if (!email || !password) return showRequirementsMenu(['Email and password are required.']);
+      if (!email || !password) return showFeedback('Email and password are required.');
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (!userCredential.user.emailVerified) {
-          showRequirementsMenu(["Please verify your email to log in."]);
-          await auth.signOut();
+          showFeedback("Please verify your email to log in."); await auth.signOut();
         }
-      } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
-      }
+      } catch (error) { showFeedback(getErrorMessage(error)); }
     });
 
     signupBtn.addEventListener('click', async () => {
+      const localPart = signupEmailLocalPart.value.trim();
+      const domain = signupEmailDomain.value;
+      const email = `${localPart}@${domain}`;
+
       const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
       const password = signupPassword.value;
       const errors = [];
       if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
-      if (!isValidEmail(email)) errors.push('Please enter a valid email.');
+      if (!localPart) errors.push('Please enter the first part of your email.');
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) return showRequirementsMenu(errors);
+      if (errors.length > 0) return showFeedback(errors);
 
-      signupBtn.disabled = true;
-      signupBtn.textContent = 'Registering...';
-
+      signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
         if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
-
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
-        
         document.body.style.backgroundColor = '#ff3b2f';
-
-        setTimeout(() => {
-          window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
-        }, 600);
-
+        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 600);
       } catch (error) {
-        showRequirementsMenu([getErrorMessage(error)]);
-        signupBtn.disabled = false;
-        signupBtn.textContent = 'Sign Up';
+        showFeedback(getErrorMessage(error));
+        signupBtn.disabled = false; signupBtn.textContent = 'Sign Up';
       }
     });
 
     resetPasswordBtn.addEventListener('click', async () => {
         const email = resetEmail.value.trim();
-        if (!email) return showRequirementsMenu(["Please enter your email address."]);
-        if (!isValidEmail(email)) return showRequirementsMenu(["Please enter a valid email format."]);
-
-        resetPasswordBtn.disabled = true;
-        resetPasswordBtn.textContent = 'Sending...';
-
+        if (!email) return showFeedback("Please enter your email address.");
+        if (!isValidEmail(email)) return showFeedback("Please enter a valid email format.");
+        resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
             window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
-            showRequirementsMenu([getErrorMessage(error)]);
-            resetPasswordBtn.disabled = false;
-            resetPasswordBtn.textContent = 'Send Reset Link';
+            showFeedback(getErrorMessage(error));
+            resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
   </script>
