@@ -266,10 +266,7 @@
       <div class="form-container">
         <div class="form-left-panel"></div>
         <div class="form-right-panel">
-          <div class="method-header">
-            <h1>Log in or Register</h1>
-            <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
-          </div>
+          <div class="method-header"><h1>Log in or Register</h1><p>Access powerful AI tools with your account (it's 100% FREE!)</p></div>
           <div id="lastUserContainer"></div>
           <button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button>
           <button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button>
@@ -286,19 +283,16 @@
         <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
           <div class="auth-header"><h1>Raidpo AI</h1><p>Access powerful AI tools with your account</p></div>
-          <div class="auth-tabs">
-            <div class="auth-tab active" data-tab="login">Login</div>
-            <div class="auth-tab" data-tab="signup">Sign Up</div>
-          </div>
+          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Sign Up</div></div>
           <div id="loginForm" class="auth-form active">
-            <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required></div>
-            <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
+            <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
+            <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="off"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
             <div class="forgot-password-link"><a href="#" id="forgotPasswordLink">Forgot password?</a></div>
             <button id="loginBtn" class="auth-btn">Login</button>
             <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
           <div id="signupForm" class="auth-form">
-            <div class="form-group"><label for="signupUsername">Username</label><input type="text" id="signupUsername" placeholder="Choose a username" required></div>
+            <div class="form-group"><label for="signupUsername">Username</label><input type="text" id="signupUsername" placeholder="Choose a username" required autocomplete="off"></div>
             <div class="form-group"><label for="signupEmailLocalPart">Email</label>
               <div class="composite-email-input">
                   <input type="text" id="signupEmailLocalPart" placeholder="your-username" autocomplete="off">
@@ -306,14 +300,14 @@
                   <div class="select-wrapper"><span class="email-at-symbol">@</span><select id="signupEmailDomain"></select></div>
               </div>
             </div>
-            <div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" placeholder="Create a password" required><button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
+            <div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" placeholder="Create a password" required autocomplete="new-password"><button class="password-toggle" id="toggleSignupPassword"><i class="fas fa-eye"></i></button>
               <div class="password-requirements" id="signupPasswordRequirements">
                 <div class="requirement" id="req-length"><i class="fas fa-times"></i><span>At least 6 characters</span></div>
                 <div class="requirement" id="req-uppercase"><i class="fas fa-times"></i><span>At least 1 uppercase letter</span></div>
                 <div class="requirement" id="req-lowercase"><i class="fas fa-times"></i><span>At least 1 lowercase letter</span></div>
               </div>
             </div>
-            <div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required><button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button></div>
+            <div class="form-group"><label for="signupConfirmPassword">Confirm Password</label><input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required autocomplete="new-password"><button class="password-toggle" id="toggleConfirmPassword"><i class="fas fa-eye"></i></button></div>
             <button id="signupBtn" class="auth-btn">Sign Up</button>
             <div class="auth-footer">Already have an account? <a href="#" id="switchToLogin">Sign in</a></div>
           </div>
@@ -327,7 +321,7 @@
               <div class="form-left-panel"><button class="back-to-auth" id="backToAuthFromReset"><i class="fas fa-arrow-left"></i></button></div>
               <div class="form-right-panel">
                   <div style="text-align: center;"><h1>Forgot Password</h1><p>Enter your account's email to receive a password reset link.</p></div>
-                  <div class="form-group"><label for="resetEmail">Email</label><input type="email" id="resetEmail" placeholder="Enter your email" required></div>
+                  <div class="form-group"><label for="resetEmail">Email</label><input type="email" id="resetEmail" placeholder="Enter your email" required autocomplete="off"></div>
                   <button id="resetPasswordBtn" class="auth-btn">Send Reset Link</button>
                   <div class="auth-footer">Remembered your password? <a href="#" id="backToLoginFromReset">Back to Login</a></div>
               </div>
@@ -347,8 +341,6 @@
     const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const githubProvider = new firebase.auth.GithubAuthProvider();
     const dom = {
         initialLoadingScreen: document.getElementById('initialLoadingScreen'), securityChallengeLayer: document.getElementById('securityChallengeLayer'),
         methodSelectorLayer: document.getElementById('methodSelectorLayer'), authLayer: document.getElementById('authLayer'),
@@ -408,11 +400,16 @@
             const text = document.createElement('span');
             text.textContent = `Continue as ${userData.displayName || 'last user'}`;
             text.className = 'last-user-name';
-            button.appendChild(img);
-            button.appendChild(text);
+            button.appendChild(img); button.appendChild(text);
             button.onclick = () => {
-                const provider = userData.providerId === 'google.com' ? googleProvider : githubProvider;
-                signInWithProvider(provider);
+                let provider;
+                if (userData.providerId === 'google.com') {
+                    provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({ login_hint: userData.email });
+                } else if (userData.providerId === 'github.com') {
+                    provider = new firebase.auth.GithubAuthProvider();
+                }
+                if (provider) signInWithProvider(provider);
             };
             dom.lastUserContainer.appendChild(button);
             dom.lastUserContainer.style.display = 'block';
@@ -424,7 +421,7 @@
         dom.initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
           if (user.providerData && user.providerData.length > 0) {
-            const lastUser = { displayName: user.displayName, photoURL: user.photoURL, providerId: user.providerData[0].providerId };
+            const lastUser = { displayName: user.displayName, photoURL: user.photoURL, providerId: user.providerData[0].providerId, email: user.email };
             localStorage.setItem('lastUser', JSON.stringify(lastUser));
           }
           window.location.href = 'https://raidpo-ai.netlify.app/';
@@ -451,8 +448,8 @@
     dom.backToAuthFromReset.addEventListener('click', () => showLayer(dom.authLayer));
     dom.backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(dom.authLayer); });
     const signInWithProvider = (provider) => { auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error))); };
-    dom.googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
-    dom.githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
+    dom.googleMethodBtn.addEventListener('click', () => signInWithProvider(new firebase.auth.GoogleAuthProvider()));
+    dom.githubMethodBtn.addEventListener('click', () => signInWithProvider(new firebase.auth.GithubAuthProvider()));
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
