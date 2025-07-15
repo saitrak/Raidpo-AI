@@ -172,11 +172,11 @@
     .email-at-symbol { color: #ccc; padding-left: 1rem; }
     .composite-email-input select {
         background-color: transparent; border: none; color: #fff;
-        padding: 0.8rem 2rem 0.8rem 0.5rem; /* Padding for text and arrow */
+        padding: 0.8rem 2rem 0.8rem 0.5rem;
         cursor: pointer; outline: none; -webkit-appearance: none;
         -moz-appearance: none; appearance: none;
         width: 100%; height: 100%;
-        color-scheme: dark; /* Hint for dark UI on dropdown list */
+        color-scheme: dark;
     }
     .composite-email-input select option {
         background: #1a1a1a;
@@ -446,6 +446,9 @@
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
+    // Control flag to prevent auth listener from interfering with signup
+    let isRegistering = false;
+
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found with this email.",
       "auth/wrong-password": "Incorrect password. Try again.", "auth/email-already-in-use": "Email already exists.",
@@ -495,6 +498,9 @@
 
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
+        // If a registration is in progress, do nothing and let it complete.
+        if (isRegistering) return; 
+
         initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
           window.location.href = 'https://raidpo-ai.netlify.app/';
@@ -592,17 +598,20 @@
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
       if (errors.length > 0) return showFeedback(errors);
-
+      
+      isRegistering = true; // Set the flag to prevent interference
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
+      
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
         if (methods.length > 0) throw { code: 'auth/email-already-in-use' };
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 600);
+        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
+        isRegistering = false; // Reset flag only on failure
         signupBtn.disabled = false; signupBtn.textContent = 'Sign Up';
       }
     });
