@@ -39,7 +39,7 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 
-    /* Fix for browser autofill background color */
+    /* Custom Autofill Styling */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus, 
@@ -123,6 +123,7 @@
     .google-btn { background-color: #4285F4; color: #fff; }
     .github-btn { background-color: #333; color: #fff; }
     .email-btn { background-color: #ff6f61; color: #fff; }
+    .continue-as-btn { background-color: #4a4a4a; color: #fff; }
     .or-divider {
       display: flex; align-items: center; margin: 1.5rem 0; color: #ccc;
     }
@@ -151,7 +152,6 @@
     }
     .form-group input:focus { outline: none; border-color: #ff6f61; }
     
-    /* --- Composite Email Input --- */
     .composite-email-input {
         display: flex; align-items: stretch; background-color: #333;
         border: 1px solid #333; border-radius: 5px;
@@ -162,9 +162,7 @@
         flex-grow: 1; border: none; background-color: transparent;
         padding: 0.8rem; min-width: 60%;
     }
-    .input-separator {
-        width: 1px; background-color: #555;
-    }
+    .input-separator { width: 1px; background-color: #555; }
     .select-wrapper {
         position: relative; flex-basis: 40%;
         display: flex; align-items: center;
@@ -172,16 +170,12 @@
     .email-at-symbol { color: #ccc; padding-left: 1rem; }
     .composite-email-input select {
         background-color: transparent; border: none; color: #fff;
-        padding: 0.8rem 2rem 0.8rem 0.5rem; /* Padding for text and arrow */
+        padding: 0.8rem 2rem 0.8rem 0.5rem;
         cursor: pointer; outline: none; -webkit-appearance: none;
         -moz-appearance: none; appearance: none;
-        width: 100%; height: 100%;
-        color-scheme: dark; /* Hint for dark UI on dropdown list */
+        width: 100%; height: 100%; color-scheme: dark;
     }
-    .composite-email-input select option {
-        background: #1a1a1a;
-        color: #fff;
-    }
+    .composite-email-input select option { background: #1a1a1a; color: #fff; }
     .select-wrapper::after {
         content: '▼'; font-size: 0.6em; color: #ccc;
         position: absolute; right: 1rem; top: 50%;
@@ -276,6 +270,11 @@
             <h1>Log in or Register</h1>
             <p>Access powerful AI tools with your account (it's 100% FREE!)</p>
           </div>
+          <button id="continueAsBtn" class="method-btn continue-as-btn" style="display: none;">
+            <i class="fas fa-user-circle"></i>
+            <span id="continueAsText">Continue as </span>
+            <span id="continueAsName" style="font-weight: bold;"></span>
+          </button>
           <button id="googleMethodBtn" class="method-btn google-btn"><i class="fab fa-google"></i> Continue with Google</button>
           <button id="githubMethodBtn" class="method-btn github-btn"><i class="fab fa-github"></i> Continue with GitHub</button>
           <div class="or-divider">or</div>
@@ -422,11 +421,9 @@
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
     const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
-    const closeButton = document.getElementById('closeButton');
-    const backToMethods = document.getElementById('backToMethods');
-    const googleMethodBtn = document.getElementById('googleMethodBtn');
-    const githubMethodBtn = document.getElementById('githubMethodBtn');
-    const emailMethodBtn = document.getElementById('emailMethodBtn');
+    const continueAsBtn = document.getElementById('continueAsBtn');
+    const continueAsName = document.getElementById('continueAsName');
+    const loginEmail = document.getElementById('loginEmail');
     const signupBtn = document.getElementById('signupBtn');
     const signupUsername = document.getElementById('signupUsername');
     const signupEmailLocalPart = document.getElementById('signupEmailLocalPart');
@@ -439,14 +436,12 @@
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const resetEmail = document.getElementById('resetEmail');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-    const backToAuthFromReset = document.getElementById('backToAuthFromReset');
-    const backToLoginFromReset = document.getElementById('backToLoginFromReset');
-
+    
     const reqLength = document.getElementById('req-length');
     const reqUppercase = document.getElementById('req-uppercase');
     const reqLowercase = document.getElementById('req-lowercase');
     
-    let isSigningUp = false; // Flag to prevent onAuthStateChanged from firing during signup
+    let isSigningUp = false;
 
     const errorMessages = {
       "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found with this email.",
@@ -482,6 +477,7 @@
             document.getElementById('challengeComplete').style.display = 'block';
             setTimeout(() => {
               document.body.style.backgroundColor = '#0f0f0f';
+              checkLastUser();
               showLayer(methodSelectorLayer);
             }, 1000);
           }
@@ -497,10 +493,12 @@
 
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
-        if (isSigningUp) return; // Prevent this from running during the signup process
+        if (isSigningUp) return;
 
         initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
+          localStorage.setItem('lastUserName', user.displayName);
+          localStorage.setItem('lastUserEmail', user.email);
           window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           if (user && !user.emailVerified) auth.signOut();
@@ -509,6 +507,21 @@
         }
       });
     }, 3000);
+
+    function checkLastUser() {
+        const lastUserName = localStorage.getItem('lastUserName');
+        const lastUserEmail = localStorage.getItem('lastUserEmail');
+
+        if (lastUserName && lastUserEmail) {
+            continueAsName.textContent = lastUserName;
+            continueAsBtn.style.display = 'flex';
+            continueAsBtn.addEventListener('click', () => {
+                showLayer(authLayer);
+                loginEmail.value = lastUserEmail;
+                document.getElementById('loginPassword').focus();
+            });
+        }
+    }
     
     const allowedDomains = [
         'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com',
@@ -527,16 +540,16 @@
         if (e.key === '.') { e.preventDefault(); }
     });
 
-    closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
-    backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
-    emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
+    document.getElementById('closeButton').addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    document.getElementById('backToMethods').addEventListener('click', () => showLayer(methodSelectorLayer));
+    document.getElementById('emailMethodBtn').addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
-    backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
-    backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
+    document.getElementById('backToAuthFromReset').addEventListener('click', () => showLayer(authLayer));
+    document.getElementById('backToLoginFromReset').addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
 
     const signInWithProvider = (provider) => { auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error))); };
-    googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
-    githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
+    document.getElementById('googleMethodBtn').addEventListener('click', () => signInWithProvider(googleProvider));
+    document.getElementById('githubMethodBtn').addEventListener('click', () => signInWithProvider(githubProvider));
 
     function updateRequirement(element, isValid) {
       element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
@@ -544,9 +557,7 @@
     }
     const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
     function isValidPassword(password) {
-      const checks = {
-        length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password)
-      };
+      const checks = { length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password) };
       updateRequirement(reqLength, checks.length); updateRequirement(reqUppercase, checks.upper);
       updateRequirement(reqLowercase, checks.lower);
       return checks.length && checks.upper && checks.lower;
@@ -585,7 +596,7 @@
     });
 
     signupBtn.addEventListener('click', async () => {
-      isSigningUp = true; // Set flag to prevent onAuthStateChanged from interfering
+      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim();
       const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`;
@@ -596,10 +607,7 @@
       if (!localPart) errors.push('Please enter the first part of your email.');
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) {
-        isSigningUp = false; // Reset flag on validation failure
-        return showFeedback(errors);
-      }
+      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
 
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
@@ -611,7 +619,7 @@
         setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
-        isSigningUp = false; // Reset flag on Firebase error
+        isSigningUp = false;
         signupBtn.disabled = false; signupBtn.textContent = 'Sign Up';
       }
     });
