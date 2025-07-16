@@ -1,172 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found | Raidpo AI</title>
-    <!-- Favicon link: Using the same favicon as your index.html -->
-    <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* Import Google Font - Poppins (from your index.html) */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 Not Found | Raidpo AI</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* General Styles - Mirrored from your original file for consistency */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        /* D-1 Theme Variables (copied from index.html for consistency) */
-        :root {
-            --bg-color-primary: #0f0f0f;
-            --bg-color-secondary: #1a1a1a;
-            --bg-color-tertiary: #333;
-            --text-color-primary: #fff;
-            --text-color-secondary: #ccc;
-            --accent-color: #ff6f61; /* Orange/Red */
-            --accent-gradient: linear-gradient(135deg, #ff6f61, #ff3b2f);
-            --border-radius: 15px; /* Slightly more rounded for cards */
-            --shadow: 0 5px 20px rgba(0, 0, 0, 0.5); /* Modal shadow */
-        }
+    ::selection { background-color: #ff6f61; color: #fff; }
+    ::-moz-selection { background-color: #ff6f61; color: #fff; }
+    
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: #fff;
+      background-color: #0f0f0f;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-        /* Base Body Styles (matching D-1) */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color-primary);
-            color: var(--text-color-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            text-align: center;
-            overflow: hidden; /* Keep hidden if no particles, for cleaner look */
-        }
+    /* System font fallback for Android for better readability */
+    body.android-device, body.android-device a, body.android-device button {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
 
-        /* Main Content Container (matching D-1 tool card style) */
-        .container {
-            background-color: var(--bg-color-secondary);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            max-width: 600px;
-            width: 90%;
-            animation: fadeIn 1s ease-out;
-            position: relative;
-        }
+    h1, h2 { font-weight: bold; margin: 0; }
+    a { text-decoration: none; color: inherit; }
 
-        /* Heading Styles */
-        h1 {
-            font-size: 5em;
-            margin-bottom: 10px;
-            color: var(--accent-color);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            animation: bounceIn 0.8s ease-out;
-        }
+    /* 404 Page Specific Styles */
+    .error-container {
+      background-color: #1a1a1a;
+      padding: clamp(2rem, 8vw, 4rem);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      text-align: center;
+      border: 1px solid #333;
+    }
 
-        h2 {
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            color: var(--text-color-primary);
-        }
+    .error-icon {
+      font-size: clamp(4rem, 15vw, 6rem);
+      color: #ff6f61;
+      margin-bottom: 1rem;
+      display: inline-block;
+      animation: float 4s ease-in-out infinite;
+    }
 
-        p {
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            color: var(--text-color-secondary);
-        }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .error-container h1 {
+      font-size: clamp(5rem, 25vw, 10rem);
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 15px rgba(255, 111, 97, 0.4);
+    }
+    
+    .error-container h2 {
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+      color: #ccc;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .error-container p {
+      color: #aaa;
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      margin-bottom: 2.5rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-        /* Home Button Styles (matching D-1 cta-button) */
-        .home-button {
-            display: inline-block;
-            background-color: var(--accent-color);
-            color: var(--text-color-primary);
-            padding: 1rem 2rem; /* Matches hero cta */
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold; /* Matches hero cta */
-            font-size: 1.2rem; /* Matches hero cta */
-            transition: transform 0.3s, background-color 0.3s, color 0.3s;
-            box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4); /* Similar to D1 card shadow */
-        }
+    .home-btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background-color: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s ease;
+    }
+    
+    .home-btn:hover {
+      background-color: #ff3b2f;
+      transform: translateY(-3px);
+    }
 
-        .home-button:hover {
-            background-color: var(--text-color-primary); /* Invert like D1 cta hover */
-            color: var(--accent-color); /* Invert like D1 cta hover */
-            transform: scale(1.1); /* Matches D1 cta hover */
-        }
+    .home-btn:active {
+      transform: translateY(-1px);
+    }
 
-        /* Keyframe Animations (retained from D-2 but adjusted colors) */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes bounceIn {
-            0%, 20%, 40%, 60%, 80%, 100% {
-                transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-            }
-            0% {
-                opacity: 0;
-                transform: scale3d(0.3, 0.3, 0.3);
-            }
-            20% {
-                transform: scale3d(1.1, 1.1, 1.1);
-            }
-            40% {
-                transform: scale3d(0.9, 0.9, 0.9);
-            }
-            60% {
-                opacity: 1;
-                transform: scale3d(1.03, 1.03, 1.03);
-            }
-            80% {
-                transform: scale3d(0.97, 0.97, 0.97);
-            }
-            100% {
-                opacity: 1;
-                transform: scale3d(1, 1, 1);
-            }
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 3.5em;
-            }
-            h2 {
-                font-size: 1.5em;
-            }
-            p {
-                font-size: 1em;
-            }
-            .container {
-                padding: 30px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2.5em;
-            }
-            h2 {
-                font-size: 1.2em;
-            }
-            p {
-                font-size: 0.9em;
-            }
-            .container {
-                padding: 20px;
-            }
-            .home-button {
-                padding: 10px 20px;
-                font-size: 1em;
-            }
-        }
-    </style>
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>404</h1>
-        <h2>Oops! Lost in the AI Matrix?</h2>
-        <p>The page you're searching for might have been moved, renamed, or perhaps it never existed in this dimension. Our AI is trying its best to locate it, but sometimes even they need a break!</p>
-        <a href="/" class="home-button">Go Back to Raidpo AI HQ</a>
-    </div>
+
+  <div class="error-container">
+    <i class="fas fa-ghost error-icon"></i>
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>
+      Oops! The page you're looking for seems to have ventured into the unknown. Let's get you back on track.
+    </p>
+    <a href="https://raidpo-ai.netlify.app/" class="home-btn">
+      <i class="fas fa-home"></i> Go to Homepage
+    </a>
+  </div>
+
+  <script>
+    // Simple script to apply system font on Android devices
+    if (/android/i.test(navigator.userAgent)) {
+      document.body.classList.add('android-device');
+    }
+  </script>
+
 </body>
 </html>
