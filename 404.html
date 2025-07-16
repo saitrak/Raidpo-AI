@@ -4,127 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Page Not Found | Raidpo AI</title>
-    <!-- Favicon link: Assumes you have a favicon.ico in your root directory -->
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <!-- Favicon link: Using the same favicon as your index.html -->
+    <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Import Google Font - Poppins */
+        /* Import Google Font - Poppins (from your index.html) */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-        /* Define CSS Variables for easy theme customization */
+        /* D-1 Theme Variables (copied from index.html for consistency) */
         :root {
-            --bg-color: #1a1a2e; /* Dark background similar to a modern tech theme */
-            --text-color: #e0e0e0; /* Light text for contrast */
-            --accent-color: #007bff; /* A vibrant blue for accents and buttons */
-            --button-hover-color: #0056b3; /* Darker blue on button hover */
-            --container-bg: #282844; /* Slightly lighter dark background for the content container */
-            --border-radius: 8px; /* Rounded corners for elements */
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+            --bg-color-primary: #0f0f0f;
+            --bg-color-secondary: #1a1a1a;
+            --bg-color-tertiary: #333;
+            --text-color-primary: #fff;
+            --text-color-secondary: #ccc;
+            --accent-color: #ff6f61; /* Orange/Red */
+            --accent-gradient: linear-gradient(135deg, #ff6f61, #ff3b2f);
+            --border-radius: 15px; /* Slightly more rounded for cards */
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.5); /* Modal shadow */
         }
 
-        /* Base Body Styles */
+        /* Base Body Styles (matching D-1) */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-color-primary);
+            color: var(--text-color-primary);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Full viewport height */
+            min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars due to particle animation */
             text-align: center;
-            position: relative; /* Needed for absolute positioning of particles */
+            overflow: hidden; /* Keep hidden if no particles, for cleaner look */
         }
 
-        /* Main Content Container */
+        /* Main Content Container (matching D-1 tool card style) */
         .container {
-            background-color: var(--container-bg);
+            background-color: var(--bg-color-secondary);
             padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             max-width: 600px;
-            width: 90%; /* Responsive width */
-            animation: fadeIn 1s ease-out; /* Fade-in animation on load */
+            width: 90%;
+            animation: fadeIn 1s ease-out;
             position: relative;
-            z-index: 10; /* Ensure content is above background particles */
         }
 
         /* Heading Styles */
         h1 {
-            font-size: 5em; /* Large 404 number */
+            font-size: 5em;
             margin-bottom: 10px;
             color: var(--accent-color);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Subtle text shadow */
-            animation: bounceIn 0.8s ease-out; /* Bounce effect for the 404 number */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: bounceIn 0.8s ease-out;
         }
 
         h2 {
             font-size: 1.8em;
             margin-bottom: 20px;
-            color: var(--text-color);
+            color: var(--text-color-primary);
         }
 
         p {
             font-size: 1.1em;
             line-height: 1.6;
             margin-bottom: 30px;
-            color: #b0b0b0; /* Slightly desaturated text for paragraphs */
+            color: var(--text-color-secondary);
         }
 
-        /* Home Button Styles */
+        /* Home Button Styles (matching D-1 cta-button) */
         .home-button {
             display: inline-block;
             background-color: var(--accent-color);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px; /* Pill-shaped button */
+            color: var(--text-color-primary);
+            padding: 1rem 2rem; /* Matches hero cta */
+            border-radius: 50px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4); /* Button shadow */
+            font-weight: bold; /* Matches hero cta */
+            font-size: 1.2rem; /* Matches hero cta */
+            transition: transform 0.3s, background-color 0.3s, color 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4); /* Similar to D1 card shadow */
         }
 
         .home-button:hover {
-            background-color: var(--button-hover-color);
-            transform: translateY(-2px); /* Slight lift on hover */
+            background-color: var(--text-color-primary); /* Invert like D1 cta hover */
+            color: var(--accent-color); /* Invert like D1 cta hover */
+            transform: scale(1.1); /* Matches D1 cta hover */
         }
 
-        /* Background Particle Animation (Pure CSS) */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Allows clicks to pass through particles */
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white particles */
-            border-radius: 50%;
-            animation: float 15s infinite ease-in-out; /* Floating animation */
-        }
-
-        /* Individual particle sizing and positioning for variety */
-        .particle:nth-child(1) { width: 15px; height: 15px; top: 10%; left: 10%; animation-delay: 0s; }
-        .particle:nth-child(2) { width: 10px; height: 10px; top: 20%; left: 80%; animation-delay: 2s; }
-        .particle:nth-child(3) { width: 20px; height: 20px; top: 50%; left: 30%; animation-delay: 4s; }
-        .particle:nth-child(4) { width: 12px; height: 12px; top: 70%; left: 60%; animation-delay: 6s; }
-        .particle:nth-child(5) { width: 18px; height: 18px; top: 90%; left: 20%; animation-delay: 8s; }
-        .particle:nth-child(6) { width: 8px; height: 8px; top: 40%; left: 90%; animation-delay: 10s; }
-        .particle:nth-child(7) { width: 14px; height: 14px; top: 60%; left: 5%; animation-delay: 12s; }
-        .particle:nth-child(8) { width: 16px; height: 16px; top: 30%; left: 45%; animation-delay: 14s; }
-
-        /* Keyframe Animations */
-        @keyframes float {
-            0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
-            50% { transform: translateY(-20px) translateX(20px) scale(1.1); opacity: 0.5; }
-            100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
-        }
-
+        /* Keyframe Animations (retained from D-2 but adjusted colors) */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -194,35 +162,11 @@
     </style>
 </head>
 <body>
-    <!-- Background Particles -->
-    <div class="particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
-    <!-- Main Content -->
     <div class="container">
         <h1>404</h1>
         <h2>Oops! Lost in the AI Matrix?</h2>
         <p>The page you're searching for might have been moved, renamed, or perhaps it never existed in this dimension. Our AI is trying its best to locate it, but sometimes even they need a break!</p>
         <a href="/" class="home-button">Go Back to Raidpo AI HQ</a>
     </div>
-
-    <script>
-        // Optional: You can add JavaScript here for more complex interactions,
-        // analytics tracking for 404 hits, or dynamic content.
-        // For a simple 404 page, it's not strictly necessary.
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Raidpo AI 404 page loaded.');
-            // Example: You could log the referrer or the missing URL to your server for debugging.
-            // console.log('Missing URL:', window.location.pathname + window.location.search);
-            // console.log('Referrer:', document.referrer);
-        });
-    </script>
 </body>
 </html>
