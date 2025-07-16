@@ -22,15 +22,35 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <style>
-    /* General Styles */
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #fff;
-      background-color: #0f0f0f;
-      overflow-x: hidden;
+    /* CSS Variables for Themes */
+    /* D-1 Theme (Original) */
+    .theme-d1 {
+      --bg-color-primary: #0f0f0f;
+      --bg-color-secondary: #1a1a1a;
+      --bg-color-tertiary: #333;
+      --text-color-primary: #fff;
+      --text-color-secondary: #ccc;
+      --text-color-tertiary: #888;
+      --accent-color: #ff6f61; /* Orange/Red */
+      --accent-gradient: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      --card-shadow: 0 10px 20px rgba(255, 111, 97, 0.3);
+      --border-color: #333;
+    }
+
+    /* D-2 Theme (New - based on 404 design) */
+    .theme-d2 {
+      --bg-color-primary: #1a1a2e; /* Dark background similar to new 404 */
+      --bg-color-secondary: #282844;
+      --bg-color-tertiary: #40405b;
+      --text-color-primary: #e0e0e0;
+      --text-color-secondary: #b0b0b0;
+      --text-color-tertiary: #999;
+      --accent-color: #007bff; /* Blue */
+      --accent-gradient: linear-gradient(135deg, #007bff, #0056b3);
+      --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+      --border-color: #40405b;
     }
 
     /* Loading Screen */
@@ -40,7 +60,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #0f0f0f;
+      background-color: var(--bg-color-primary);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -50,7 +70,7 @@
     .loading-animation {
       width: 50px;
       height: 50px;
-      border: 5px solid #ff6f61;
+      border: 5px solid var(--accent-color);
       border-radius: 50%;
       border-top-color: transparent;
       animation: spin 1s linear infinite;
@@ -59,10 +79,22 @@
     @keyframes spin {
       100% { transform: rotate(360deg); }
     }
-    
+
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color-primary);
+      background-color: var(--bg-color-primary);
+      overflow-x: hidden;
+      transition: background-color 0.5s ease; /* Smooth theme transition */
+    }
+
     h1, h2, h3 {
       font-weight: bold;
       margin: 0;
+      color: var(--text-color-primary); /* Ensure headings adapt */
     }
 
     a {
@@ -70,128 +102,208 @@
       color: inherit;
     }
 
-    /* --- NEW: Sticky Header --- */
-    .sticky-header {
-      position: sticky;
-      top: 0;
-      left: 0;
-      width: 100%;
-      display: none; /* Hidden by default, shown for logged-in users */
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.8rem 1.5rem;
-      background-color: #1a1a1a;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      box-sizing: border-box;
-    }
-
-    .header-left, .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .header-brand {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #ff6f61;
-    }
-
-    .header-icon {
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-
-    .header-icon:hover {
-      color: #ff6f61;
-    }
-    
-    .header-account {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-
-    .header-account-name {
-        font-weight: 500;
-    }
-    
-    .header-account-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-size: cover;
-        background-position: center;
-        background-color: #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* --- NEW: Sidebar --- */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: -300px; /* Initially hidden */
-        width: 280px;
-        height: 100%;
-        background-color: #1a1a1a;
-        z-index: 1001;
-        transition: left 0.4s ease;
-        padding: 2rem 1.5rem;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-    }
-    
-    .sidebar.active {
-        left: 0;
-    }
-
-    .sidebar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    
-    .sidebar-brand {
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #ff6f61;
-    }
-
-    .sidebar-close {
-        font-size: 1.8rem;
-        cursor: pointer;
-    }
-
-    .sidebar-nav a {
-        display: block;
-        padding: 1rem;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-        transition: background-color 0.3s, color 0.3s;
-    }
-    
-    .sidebar-nav a:hover {
-        background-color: #ff6f61;
-        color: #fff;
-    }
-
-    .sidebar-nav a i {
-        margin-right: 1rem;
-    }
-
-    .main-content {
-      /* This ensures your main content is not hidden by the header */
-      padding-top: 0; /* No padding when header is not visible */
-    }
-
     /* Homepage */
     .homepage {
       display: none;
+    }
+
+    /* Headbar Styles */
+    .main-headbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: var(--bg-color-secondary);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        height: 60px; /* Fixed height for consistency */
+        transform: translateY(-100%); /* Start hidden */
+        transition: transform 0.3s ease-out;
+    }
+
+    .main-headbar.active {
+        transform: translateY(0%); /* Slide in */
+    }
+
+    .headbar-left .headbar-logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--accent-color);
+        transition: color 0.3s ease;
+    }
+    .headbar-left .headbar-logo:hover {
+        color: var(--text-color-primary);
+    }
+
+    .headbar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .headbar-icon {
+        font-size: 1.4rem;
+        color: var(--text-color-primary);
+        cursor: pointer;
+        transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .headbar-icon:hover {
+        color: var(--accent-color);
+        transform: scale(1.1);
+    }
+
+    /* Theme Changer */
+    .theme-changer {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .theme-changer .theme-icon {
+        font-size: 1.4rem;
+        color: var(--text-color-primary);
+        cursor: pointer;
+        transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .theme-changer .theme-icon:hover {
+        color: var(--accent-color);
+        transform: scale(1.1);
+    }
+
+    .theme-dropdown {
+        position: absolute;
+        top: calc(100% + 10px); /* Position below the icon */
+        right: 0;
+        background-color: var(--bg-color-secondary);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        min-width: 150px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        z-index: 10;
+    }
+
+    .theme-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .theme-dropdown button {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        background: none;
+        border: none;
+        color: var(--text-color-primary);
+        text-align: left;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .theme-dropdown button:hover {
+        background-color: var(--bg-color-tertiary);
+        color: var(--accent-color);
+    }
+    .theme-dropdown button.selected {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    .theme-dropdown button.selected:hover {
+        background-color: var(--accent-color); /* No change on hover if selected */
+        color: white;
+    }
+
+    /* User Profile in Headbar */
+    .headbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+    .headbar-username {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-color-primary);
+        display: none; /* Hidden by default, shown when logged in */
+    }
+
+    .headbar-profile-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        border: 2px solid var(--accent-color);
+        transition: border-color 0.3s ease;
+    }
+    .headbar-profile-avatar:hover {
+        border-color: var(--text-color-primary);
+    }
+    .headbar-profile-avatar .fas.fa-user {
+        font-size: 1.5rem;
+        color: var(--text-color-primary);
+    }
+
+    .headbar-profile-info {
+        position: absolute;
+        top: calc(100% + 10px); /* Position below avatar */
+        right: 0;
+        background-color: var(--bg-color-secondary);
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: var(--card-shadow);
+        display: none; /* Hidden by default */
+        min-width: 250px;
+        text-align: left;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+    }
+
+    .headbar-profile-info.active {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .headbar-profile-info .info-item {
+        margin-bottom: 8px;
+        word-break: break-all;
+    }
+    .headbar-profile-info .info-item:last-child {
+        margin-bottom: 0;
+    }
+
+    #hbProfileName {
+        font-weight: bold;
+        color: var(--text-color-primary);
+        font-size: 1.1rem;
+    }
+    #hbProfileEmail {
+        font-size: 0.9rem;
+        color: var(--text-color-secondary);
+    }
+    #hbProfileUid {
+        font-size: 0.8rem;
+        color: var(--text-color-tertiary);
     }
 
     /* Hero Section */
@@ -203,7 +315,8 @@
       justify-content: center;
       text-align: center;
       overflow: hidden;
-      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      background: var(--accent-gradient);
+      padding-top: 60px; /* Account for fixed headbar */
     }
 
     .hero-content {
@@ -214,28 +327,30 @@
       font-size: 4.5rem;
       margin-bottom: 1rem;
       animation: fadeIn 2s ease-in-out;
+      color: var(--text-color-primary); /* Ensure hero text adapts */
     }
 
     .hero-content p {
       font-size: 1.5rem;
       margin-bottom: 2rem;
       animation: fadeIn 3s ease-in-out;
+      color: var(--text-color-primary); /* Ensure hero text adapts */
     }
 
     .cta-button {
       padding: 1rem 2rem;
-      background-color: #fff;
-      color: #ff3b2f;
+      background-color: var(--text-color-primary);
+      color: var(--accent-color);
       border-radius: 50px;
       font-size: 1.2rem;
       font-weight: bold;
-      transition: transform 0.3s, background-color 0.3s;
+      transition: transform 0.3s, background-color 0.3s, color 0.3s;
       animation: bounce 2s infinite;
     }
 
     .cta-button:hover {
-      background-color: #ff6f61;
-      color: #fff;
+      background-color: var(--accent-color);
+      color: var(--text-color-primary);
       transform: scale(1.1);
     }
 
@@ -252,7 +367,7 @@
     /* Tool Categories */
     .tool-categories {
       padding: 4rem 2rem;
-      background-color: #1a1a1a;
+      background-color: var(--bg-color-secondary);
       text-align: center;
     }
 
@@ -264,7 +379,7 @@
     }
 
     .tool-card {
-      background-color: #333;
+      background-color: var(--bg-color-tertiary);
       padding: 2rem;
       border-radius: 20px;
       transition: transform 0.3s, box-shadow 0.3s;
@@ -279,7 +394,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(45deg, #ff6f61, #ff3b2f);
+      background: var(--accent-gradient);
       opacity: 0;
       transition: opacity 0.3s;
       z-index: -1;
@@ -287,7 +402,7 @@
 
     .tool-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 10px 20px rgba(255, 111, 97, 0.3);
+      box-shadow: var(--card-shadow);
     }
 
     .tool-card:hover::before {
@@ -297,39 +412,47 @@
     .tool-icon {
       font-size: 3rem;
       margin-bottom: 1rem;
-      color: #ff6f61;
+      color: var(--accent-color);
+      transition: color 0.3s ease;
     }
 
     .tool-card h3 {
       font-size: 1.5rem;
       margin-bottom: 0.5rem;
+      color: var(--text-color-primary);
     }
 
     .tool-card p {
       font-size: 0.9rem;
-      color: #ccc;
+      color: var(--text-color-secondary);
     }
 
     .tool-card a {
       display: inline-block;
       margin-top: 1rem;
       padding: 0.5rem 1rem;
-      background-color: #ff6f61;
-      color: #fff;
+      background-color: var(--accent-color);
+      color: var(--text-color-primary);
       border-radius: 50px;
       font-size: 0.9rem;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     .tool-card a:hover {
-      background-color: #ff3b2f;
+      background-color: var(--bg-color-primary); /* Adjusted hover for D1 */
+      color: var(--accent-color); /* Adjusted hover for D1 */
+    }
+    .theme-d2 .tool-card a:hover { /* Override for D2 */
+        background-color: var(--button-hover-color); /* specific for D2 if needed */
+        color: white;
     }
 
     /* Footer */
     footer {
       padding: 2rem;
-      background-color: #0f0f0f;
+      background-color: var(--bg-color-primary);
       text-align: center;
+      color: var(--text-color-primary);
     }
 
     .footer-content {
@@ -343,12 +466,12 @@
 
     .footer-links a {
       margin: 0 0.5rem;
-      color: #ccc;
+      color: var(--text-color-secondary);
       transition: color 0.3s;
     }
 
     .footer-links a:hover {
-      color: #ff6f61;
+      color: var(--accent-color);
     }
 
     .social-links {
@@ -362,46 +485,34 @@
     }
 
     .social-links a:hover {
-      color: #ff6f61;
-    }
-
-    /* Login Button */
-    .login-button {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 100;
-      padding: 0.5rem 1rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      display: none; /* Hidden by default, shown for logged-out users */
+      color: var(--accent-color);
     }
 
     /* Settings Page */
-    .settings-page {
+    .settings-page, .profile-page {
       display: none;
       padding: 2rem;
       max-width: 800px;
       margin: 0 auto;
+      padding-top: 80px; /* Account for fixed headbar */
     }
 
-    .settings-page h2 {
+    .settings-page h2, .profile-page h2 {
       margin-bottom: 1.5rem;
-      color: #ff6f61;
+      color: var(--accent-color);
     }
 
-    .settings-section {
-      background-color: #1a1a1a;
+    .settings-section, .profile-section {
+      background-color: var(--bg-color-secondary);
       padding: 1.5rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
+      color: var(--text-color-primary);
     }
 
-    .settings-section h3 {
+    .settings-section h3, .profile-section h3 {
       margin-bottom: 1rem;
+      color: var(--text-color-primary);
     }
 
     .settings-option {
@@ -409,7 +520,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem 0;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .settings-option:last-child {
@@ -418,47 +529,41 @@
 
     .settings-option label {
       flex: 1;
+      color: var(--text-color-secondary);
     }
 
     .settings-option select,
     .settings-option input {
       padding: 0.5rem;
-      background-color: #333;
-      color: #fff;
-      border: 1px solid #333;
+      background-color: var(--bg-color-tertiary);
+      color: var(--text-color-primary);
+      border: 1px solid var(--border-color);
       border-radius: 5px;
     }
 
     .settings-option select:focus,
     .settings-option input:focus {
       outline: none;
-      border-color: #ff6f61;
+      border-color: var(--accent-color);
     }
 
-    .settings-save {
+    .settings-save, .profile-save {
       padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
+      background-color: var(--accent-color);
+      color: var(--text-color-primary);
       border: none;
       border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
       margin-top: 1rem;
+      transition: background-color 0.3s;
+    }
+    .settings-save:hover, .profile-save:hover {
+      background-color: var(--bg-color-primary);
+      color: var(--accent-color);
     }
 
     /* Profile Page */
-    .profile-page {
-      display: none;
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .profile-page h2 {
-      margin-bottom: 1.5rem;
-      color: #ff6f61;
-    }
-
     .profile-header {
       display: flex;
       align-items: center;
@@ -472,11 +577,15 @@
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      background-color: #333;
+      background-color: var(--bg-color-tertiary);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 3rem;
+      border: 3px solid var(--accent-color);
+    }
+    .profile-avatar .fas.fa-user {
+        color: var(--text-color-primary);
     }
 
     .profile-info {
@@ -487,16 +596,17 @@
       font-size: 1.5rem;
       font-weight: bold;
       margin-bottom: 0.5rem;
+      color: var(--text-color-primary);
     }
 
     .profile-email {
-      color: #ccc;
+      color: var(--text-color-secondary);
       margin-bottom: 1rem;
     }
 
     .profile-uid {
       font-size: 0.9rem;
-      color: #888;
+      color: var(--text-color-tertiary);
       word-break: break-all;
       margin-bottom: 1rem;
     }
@@ -513,23 +623,12 @@
     .profile-stat-value {
       font-size: 1.2rem;
       font-weight: bold;
-      color: #ff6f61;
+      color: var(--accent-color);
     }
 
     .profile-stat-label {
       font-size: 0.8rem;
-      color: #ccc;
-    }
-
-    .profile-section {
-      background-color: #1a1a1a;
-      padding: 1.5rem;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-    }
-
-    .profile-section h3 {
-      margin-bottom: 1rem;
+      color: var(--text-color-secondary);
     }
 
     .profile-form-group {
@@ -539,16 +638,16 @@
     .profile-form-group label {
       display: block;
       margin-bottom: 0.5rem;
-      color: #ccc;
+      color: var(--text-color-secondary);
     }
 
     .profile-form-group input,
     .profile-form-group textarea {
       width: 100%;
       padding: 0.8rem;
-      background-color: #333;
-      color: #fff;
-      border: 1px solid #333;
+      background-color: var(--bg-color-tertiary);
+      color: var(--text-color-primary);
+      border: 1px solid var(--border-color);
       border-radius: 5px;
     }
 
@@ -557,24 +656,18 @@
       resize: vertical;
     }
 
-    .profile-save {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
     /* Back Button */
     .back-button {
       display: inline-block;
       padding: 0.5rem 1rem;
-      background-color: #333;
-      color: #fff;
+      background-color: var(--bg-color-tertiary);
+      color: var(--text-color-primary);
       border-radius: 5px;
       margin-bottom: 1rem;
+      transition: background-color 0.3s;
+    }
+    .back-button:hover {
+        background-color: var(--accent-color);
     }
 
     /* Verification Note Modal */
@@ -593,34 +686,34 @@
     }
 
     .modal-content {
-      background-color: #1a1a1a;
+      background-color: var(--bg-color-secondary);
       padding: 2rem 3rem;
       border-radius: 15px;
       text-align: center;
       max-width: 450px;
       width: 90%;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-      border: 1px solid #333;
-      color: #fff;
+      border: 1px solid var(--border-color);
+      color: var(--text-color-primary);
     }
 
     .modal-content h3 {
       font-size: 1.8rem;
-      color: #ff6f61;
+      color: var(--accent-color);
       margin-bottom: 1rem;
     }
 
     .modal-content p {
       font-size: 1rem;
-      color: #ccc;
+      color: var(--text-color-secondary);
       line-height: 1.6;
       margin-bottom: 2rem;
     }
 
     .modal-close-btn {
       padding: 0.8rem 2rem;
-      background-color: #ff6f61;
-      color: #fff;
+      background-color: var(--accent-color);
+      color: var(--text-color-primary);
       border: none;
       border-radius: 50px;
       font-weight: bold;
@@ -630,9 +723,11 @@
     }
 
     .modal-close-btn:hover {
-      background-color: #ff3b2f;
+      background-color: var(--bg-color-primary);
       transform: scale(1.05);
+      color: var(--accent-color);
     }
+
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -656,323 +751,336 @@
       .profile-stats {
         justify-content: center;
       }
-      .header-account-name {
-          display: none; /* Hide name on smaller screens */
+      .main-headbar {
+          padding: 10px 15px;
       }
+      .headbar-left .headbar-logo {
+          font-size: 1.5rem;
+      }
+      .headbar-right {
+          gap: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+        .main-headbar {
+            padding: 10px;
+        }
+        .headbar-username {
+            display: none !important; /* Hide username on very small screens */
+        }
     }
   </style>
 </head>
-<body>
+<body class="theme-d1"> <!-- Default theme is D1 -->
   <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loading-animation"></div>
   </div>
 
-  <!-- NEW: Sticky Header (for logged-in users) -->
-  <header class="sticky-header" id="stickyHeader">
-    <div class="header-left">
-      <i class="fas fa-bars header-icon" id="sidebarToggle"></i>
-      <a href="/" class="header-brand">Raidpo-AI</a>
+  <!-- Homepage (hidden initially) -->
+  <div class="homepage" id="homepage">
+    <!-- Headbar -->
+    <header class="main-headbar" id="mainHeadbar">
+        <div class="headbar-left">
+            <a href="/" class="headbar-logo">Raidpo-AI</a>
+        </div>
+        <div class="headbar-right">
+            <!-- Theme Changer -->
+            <div class="theme-changer" id="themeChanger">
+                <i class="fas fa-palette theme-icon"></i>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <button class="theme-option selected" data-theme="d1">Default (D-1)</button>
+                    <button class="theme-option" data-theme="d2">New (D-2)</button>
+                </div>
+            </div>
+            <!-- Settings Icon -->
+            <!-- Changed href to hash for SPA navigation -->
+            <a href="#settings" class="headbar-icon" id="headbarSettingsBtn"><i class="fas fa-cog"></i></a>
+            <!-- User Info (Name, Profile Icon, Dropdown) -->
+            <div class="headbar-user" id="headbarUser">
+                <span class="headbar-username" id="headbarUsername"></span>
+                <div class="headbar-profile-avatar" id="headbarProfileAvatar">
+                    <i class="fas fa-user" id="headbarDefaultAvatarIcon"></i>
+                </div>
+                <div class="headbar-profile-info" id="headbarProfileInfo">
+                    <div class="info-item" id="hbProfileName"></div>
+                    <div class="info-item" id="hbProfileUid"></div>
+                    <div class="info-item" id="hbProfileEmail"></div>
+                    <!-- View Profile link uses hash for SPA navigation -->
+                    <a href="#profile" class="user-profile-link" id="hbProfileLink">View Profile</a>
+                </div>
+            </div>
+             <!-- Login Button (shown when not logged in, part of headbar now) -->
+             <a href="https://raidpo-ai.netlify.app/login-form" class="cta-button" id="headbarLoginButton" style="display:none; padding: 8px 15px; font-size: 0.9rem; border-radius: 20px;">Login</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Raidpo AI</h1>
+        <p>Ultimate AI Tools - Free, Fast, and Powerful</p>
+        <a href="#tools" class="cta-button">Explore Tools</a>
+      </div>
+    </section>
+
+    <!-- Tool Categories -->
+    <section id="tools" class="tool-categories">
+      <div class="tool-grid">
+        <!-- CodeCraft Pro -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-code"></i></div>
+          <h3>CodeCraft Pro</h3>
+          <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p>
+          <a href='/codecraft-pro'>Use Tool</a>
+        </div>
+
+        <!-- Book Library -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-book"></i></div>
+          <h3>Book Library</h3>
+          <p>Search and read legal books directly in the app.</p>
+          <a href='/book-library'>Use Tool</a>
+        </div>
+
+        <!-- Age Calculator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-calculator"></i></div>
+          <h3>Age Calculator</h3>
+          <p>Calculate your age in years, months, and days.</p>
+          <a href='/age-calculator'>Use Tool</a>
+        </div>
+
+        <!-- QR Code to Link -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+          <h3>QR Code to Link</h3>
+          <p>Extract links or text from QR codes.</p>
+          <a href='/qr-code-to-link'>Use Tool</a>
+        </div>
+
+        <!-- QR Code Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+          <h3>QR Code Generator</h3>
+          <p>Generate QR codes for URLs or text.</p>
+          <a href='/qr-code-generator'>Use Tool</a>
+        </div>
+
+        <!-- URL Shortener -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-link"></i></div>
+          <h3>URL Shortener</h3>
+          <p>Shorten your URLs with ease.</p>
+          <a href='/url-shortener'>Use Tool</a>
+        </div>
+
+        <!-- Image to Prompt -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-image"></i></div>
+          <h3>Image to Prompt</h3>
+          <p>Generate accurate prompts from any image.</p>
+          <a href='/image-to-prompt'>Use Tool</a>
+        </div>
+
+        <!-- Image Compressor -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-file-image"></i></div>
+          <h3>Image Compressor</h3>
+          <p>Reduce image size without losing quality.</p>
+          <a href='/img-compressor'>Use Tool</a>
+        </div>
+
+        <!-- Background Remover -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-eraser"></i></div>
+          <h3>Background Remover</h3>
+          <p>Remove backgrounds from images instantly with AI.</p>
+          <a href='/bg-remover'>Use Tool</a>
+        </div>
+
+        <!-- Image Resizer -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-expand"></i></div>
+          <h3>Image Resizer</h3>
+          <p>Resize images to any dimension while maintaining quality.</p>
+          <a href='/img-resizer'>Use Tool</a>
+        </div>
+
+        <!-- Image Enhancer -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-magic"></i></div>
+          <h3>Image Enhancer</h3>
+          <p>Enhance image quality with AI-powered tools.</p>
+          <a href='/img-enhance'>Use Tool</a>
+        </div>
+
+        <!-- Text-to-Image Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-paint-brush"></i></div>
+          <h3>Text-to-Image Generator</h3>
+          <p>Transform text into stunning images with AI.</p>
+          <a href='/text-to-image'>Use Tool</a>
+        </div>
+
+        <!-- All Language Translator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-language"></i></div>
+          <h3>All Language Translator</h3>
+          <p>Translate text from any language to any language instantly.</p>
+          <a href='/translator'>Use Tool</a>
+        </div>
+
+        <!-- Text to Speech -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-comment-dots"></i></div>
+          <h3>Text to Speech</h3>
+          <p>Convert text to speech and download the audio file.</p>
+          <a href='/text-to-speech'>Use Tool</a>
+        </div>
+
+        <!-- Knowledge Nexus -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-book"></i></div>
+          <h3>Knowledge Nexus</h3>
+          <p>Explore knowledge, images, and more with AI.</p>
+          <a href='/knowledge-nexus'>Use Tool</a>
+        </div>
+
+        <!-- Currency Converter -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div>
+          <h3>Currency Converter</h3>
+          <p>Convert currencies in real-time with the latest exchange rates.</p>
+          <a href='/currency-converter'>Use Tool</a>
+        </div>
+
+        <!-- YouTube Thumbnail Downloader -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-image"></i></div>
+          <h3>YouTube Thumbnail Downloader</h3>
+          <p>Download high-quality thumbnails from YouTube videos.</p>
+          <a href='/youtube-thumbnail-downloader'>Use Tool</a>
+        </div>
+
+        <!-- ImageFlow -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h3>ImageFlow</h3>
+          <p>Upload and manage images with ease.</p>
+          <a href='/imageflow'>Use Tool</a>
+        </div>
+
+        <!-- Hangman Game -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-gamepad"></i></div>
+          <h3>Hangman Game</h3>
+          <p>Play the classic Hangman game with AI-generated words.</p>
+          <a href="/Hangman-Game.html">Play Now</a>
+        </div>
+
+        <!-- Weather App -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div>
+          <h3>Weather App</h3>
+          <p>Get real-time weather updates for any city.</p>
+          <a href='/weather-app'>Use Tool</a>
+        </div>
+
+        <!-- Interactive Story Generator -->
+        <div class="tool-card">
+          <div class="tool-icon"><i class="fas fa-pen"></i></div>
+          <h3>Interactive Story Generator</h3>
+          <p>Create unique stories with AI-powered storytelling.</p>
+          <a href='/interactive-story-generator'>Use Tool</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href='/terms-and-conditions'>Terms & Conditions</a>
+          <a href='/privacy-policy'>Privacy Policy</a>
+          <a href='/about-us'>About Us</a>
+          <a href='/learn-more'>Learn More</a>
+        </div>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Settings Page -->
+  <div class="settings-page" id="settingsPage">
+    <a href="#" class="back-button" id="settingsBackBtn"><i class="fas fa-arrow-left"></i> Back</a>
+    <h2>Settings</h2>
+    
+    <div class="settings-section">
+      <h3>Account Settings</h3>
+      <div class="settings-option">
+        <label for="accountVisibility">Account Visibility</label>
+        <select id="accountVisibility">
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div class="settings-option">
+        <label for="emailNotifications">Email Notifications</label>
+        <select id="emailNotifications">
+          <option value="enabled">Enabled</option>
+          <option value="disabled">Disabled</option>
+        </select>
+      </div>
     </div>
-    <div class="header-right">
-      <a href="/inbox"><i class="fas fa-envelope header-icon"></i></a>
-      <a href="/account-settings"><i class="fas fa-cog header-icon"></i></a>
-      <div class="header-account">
-        <span class="header-account-name" id="headerAccountName">Account Name</span>
-        <div class="header-account-icon" id="headerAccountIcon">
-            <i class="fas fa-user"></i>
+    
+    <button class="settings-save" id="settingsSaveBtn">Save Settings</button>
+  </div>
+
+  <!-- Profile Page -->
+  <div class="profile-page" id="profilePage">
+    <a href="#" class="back-button" id="profileBackBtn"><i class="fas fa-arrow-left"></i> Back</a>
+    <h2>Your Profile</h2>
+    
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">
+        <i class="fas fa-user" id="profileDefaultAvatar"></i>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name" id="profileName"></div>
+        <div class="profile-email" id="profileEmail"></div>
+        <div class="profile-uid" id="profileUid"></div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="toolsUsed">0</div>
+            <div class="profile-stat-label">Tools Used</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="memberSince">2025</div>
+            <div class="profile-stat-label">Member Since</div>
+          </div>
         </div>
       </div>
     </div>
-  </header>
-
-  <!-- NEW: Sidebar (for logged-in users) -->
-  <nav class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-brand">Navigation</span>
-        <i class="fas fa-times sidebar-close" id="sidebarClose"></i>
+    
+    <div class="profile-section">
+      <h3>Personal Information</h3>
+      <div class="profile-form-group">
+        <label for="profileFullName">Full Name</label>
+        <input type="text" id="profileFullName" placeholder="Enter your full name">
       </div>
-      <div class="sidebar-nav">
-          <a href="/"><i class="fas fa-home"></i> Home</a>
-          <a href="/account-settings"><i class="fas fa-user-circle"></i> Account</a>
-          <a href="/inbox"><i class="fas fa-inbox"></i> Inbox</a>
-          <a href="#" id="signOutBtn"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+      <div class="profile-form-group">
+        <label for="profileBio">Bio</label>
+        <textarea id="profileBio" placeholder="Tell us about yourself"></textarea>
       </div>
-  </nav>
-
-  <div class="main-content" id="mainContent">
-      <!-- Homepage (hidden initially) -->
-      <div class="homepage" id="homepage">
-
-        <!-- Login Button (shown when not logged in) -->
-        <a href="https://raidpo-ai.netlify.app/login-form" class="login-button" id="loginButton">Login</a>
-
-        <!-- Hero Section -->
-        <section class="hero">
-          <div class="hero-content">
-            <h1>Raidpo AI</h1>
-            <p>Ultimate AI Tools - Free, Fast, and Powerful</p>
-            <a href="#tools" class="cta-button">Explore Tools</a>
-          </div>
-        </section>
-
-        <!-- Tool Categories -->
-        <section id="tools" class="tool-categories">
-          <div class="tool-grid">
-            <!-- CodeCraft Pro -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-code"></i></div>
-              <h3>CodeCraft Pro</h3>
-              <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p>
-              <a href='/codecraft-pro'>Use Tool</a>
-            </div>
-
-            <!-- Book Library -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-book"></i></div>
-              <h3>Book Library</h3>
-              <p>Search and read legal books directly in the app.</p>
-              <a href='/book-library'>Use Tool</a>
-            </div>
-
-            <!-- Age Calculator -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-calculator"></i></div>
-              <h3>Age Calculator</h3>
-              <p>Calculate your age in years, months, and days.</p>
-              <a href='/age-calculator'>Use Tool</a>
-            </div>
-
-            <!-- QR Code to Link -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
-              <h3>QR Code to Link</h3>
-              <p>Extract links or text from QR codes.</p>
-              <a href='/qr-code-to-link'>Use Tool</a>
-            </div>
-
-            <!-- QR Code Generator -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
-              <h3>QR Code Generator</h3>
-              <p>Generate QR codes for URLs or text.</p>
-              <a href='/qr-code-generator'>Use Tool</a>
-            </div>
-
-            <!-- URL Shortener -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-link"></i></div>
-              <h3>URL Shortener</h3>
-              <p>Shorten your URLs with ease.</p>
-              <a href='/url-shortener'>Use Tool</a>
-            </div>
-
-            <!-- Image to Prompt -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-image"></i></div>
-              <h3>Image to Prompt</h3>
-              <p>Generate accurate prompts from any image.</p>
-              <a href='/image-to-prompt'>Use Tool</a>
-            </div>
-
-            <!-- Image Compressor -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-file-image"></i></div>
-              <h3>Image Compressor</h3>
-              <p>Reduce image size without losing quality.</p>
-              <a href='/img-compressor'>Use Tool</a>
-            </div>
-
-            <!-- Background Remover -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-eraser"></i></div>
-              <h3>Background Remover</h3>
-              <p>Remove backgrounds from images instantly with AI.</p>
-              <a href='/bg-remover'>Use Tool</a>
-            </div>
-
-            <!-- Image Resizer -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-expand"></i></div>
-              <h3>Image Resizer</h3>
-              <p>Resize images to any dimension while maintaining quality.</p>
-              <a href='/img-resizer'>Use Tool</a>
-            </div>
-
-            <!-- Image Enhancer -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-magic"></i></div>
-              <h3>Image Enhancer</h3>
-              <p>Enhance image quality with AI-powered tools.</p>
-              <a href='/img-enhance'>Use Tool</a>
-            </div>
-
-            <!-- Text-to-Image Generator -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-paint-brush"></i></div>
-              <h3>Text-to-Image Generator</h3>
-              <p>Transform text into stunning images with AI.</p>
-              <a href='/text-to-image'>Use Tool</a>
-            </div>
-
-            <!-- All Language Translator -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-language"></i></div>
-              <h3>All Language Translator</h3>
-              <p>Translate text from any language to any language instantly.</p>
-              <a href='/translator'>Use Tool</a>
-            </div>
-
-            <!-- Text to Speech -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-comment-dots"></i></div>
-              <h3>Text to Speech</h3>
-              <p>Convert text to speech and download the audio file.</p>
-              <a href='/text-to-speech'>Use Tool</a>
-            </div>
-
-            <!-- Knowledge Nexus -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-book"></i></div>
-              <h3>Knowledge Nexus</h3>
-              <p>Explore knowledge, images, and more with AI.</p>
-              <a href='/knowledge-nexus'>Use Tool</a>
-            </div>
-
-            <!-- Currency Converter -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div>
-              <h3>Currency Converter</h3>
-              <p>Convert currencies in real-time with the latest exchange rates.</p>
-              <a href='/currency-converter'>Use Tool</a>
-            </div>
-
-            <!-- YouTube Thumbnail Downloader -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-image"></i></div>
-              <h3>YouTube Thumbnail Downloader</h3>
-              <p>Download high-quality thumbnails from YouTube videos.</p>
-              <a href='/youtube-thumbnail-downloader'>Use Tool</a>
-            </div>
-
-            <!-- ImageFlow -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-              <h3>ImageFlow</h3>
-              <p>Upload and manage images with ease.</p>
-              <a href='/imageflow'>Use Tool</a>
-            </div>
-
-            <!-- Hangman Game -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-gamepad"></i></div>
-              <h3>Hangman Game</h3>
-              <p>Play the classic Hangman game with AI-generated words.</p>
-              <a href="/Hangman-Game.html">Play Now</a>
-            </div>
-
-            <!-- Weather App -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div>
-              <h3>Weather App</h3>
-              <p>Get real-time weather updates for any city.</p>
-              <a href='/weather-app'>Use Tool</a>
-            </div>
-
-            <!-- Interactive Story Generator -->
-            <div class="tool-card">
-              <div class="tool-icon"><i class="fas fa-pen"></i></div>
-              <h3>Interactive Story Generator</h3>
-              <p>Create unique stories with AI-powered storytelling.</p>
-              <a href='/interactive-story-generator'>Use Tool</a>
-            </div>
-          </div>
-        </section>
-
-        <!-- Footer -->
-        <footer>
-          <div class="footer-content">
-            <div class="footer-links">
-              <a href='/terms-and-conditions'>Terms & Conditions</a>
-              <a href='/privacy-policy'>Privacy Policy</a>
-              <a href='/about-us'>About Us</a>
-              <a href='/learn-more'>Learn More</a>
-            </div>
-            <div class="social-links">
-              <a href="#"><i class="fab fa-facebook"></i></a>
-              <a href="#"><i class="fab fa-twitter"></i></a>
-              <a href="#"><i class="fab fa-instagram"></i></a>
-            </div>
-            <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
-          </div>
-        </footer>
-      </div>
-
-      <!-- Settings Page -->
-      <div class="settings-page" id="settingsPage">
-        <a href="#" class="back-button" id="settingsBackBtn"><i class="fas fa-arrow-left"></i> Back</a>
-        <h2>Settings</h2>
-        
-        <div class="settings-section">
-          <h3>Account Settings</h3>
-          <div class="settings-option">
-            <label for="accountVisibility">Account Visibility</label>
-            <select id="accountVisibility">
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </div>
-          <div class="settings-option">
-            <label for="emailNotifications">Email Notifications</label>
-            <select id="emailNotifications">
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
-            </select>
-          </div>
-        </div>
-        
-        <button class="settings-save" id="settingsSaveBtn">Save Settings</button>
-      </div>
-
-      <!-- Profile Page -->
-      <div class="profile-page" id="profilePage">
-        <a href="#" class="back-button" id="profileBackBtn"><i class="fas fa-arrow-left"></i> Back</a>
-        <h2>Your Profile</h2>
-        
-        <div class="profile-header">
-          <div class="profile-avatar" id="profileAvatar">
-            <i class="fas fa-user" id="profileDefaultAvatar"></i>
-          </div>
-          <div class="profile-info">
-            <div class="profile-name" id="profileName"></div>
-            <div class="profile-email" id="profileEmail"></div>
-            <div class="profile-uid" id="profileUid"></div>
-            <div class="profile-stats">
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="toolsUsed">0</div>
-                <div class="profile-stat-label">Tools Used</div>
-              </div>
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="memberSince">2025</div>
-                <div class="profile-stat-label">Member Since</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="profile-section">
-          <h3>Personal Information</h3>
-          <div class="profile-form-group">
-            <label for="profileFullName">Full Name</label>
-            <input type="text" id="profileFullName" placeholder="Enter your full name">
-          </div>
-          <div class="profile-form-group">
-            <label for="profileBio">Bio</label>
-            <textarea id="profileBio" placeholder="Tell us about yourself"></textarea>
-          </div>
-          <button class="profile-save" id="profileSaveBtn">Save Profile</button>
-        </div>
-      </div>
+      <button class="profile-save" id="profileSaveBtn">Save Profile</button>
+    </div>
   </div>
 
   <!-- Verification Note Modal -->
@@ -1000,25 +1108,35 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore(); // Initialize Firestore
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
     const homepage = document.getElementById('homepage');
     const settingsPage = document.getElementById('settingsPage');
     const profilePage = document.getElementById('profilePage');
-    const loginButton = document.getElementById('loginButton');
 
-    // --- NEW: Header and Sidebar Elements ---
-    const stickyHeader = document.getElementById('stickyHeader');
-    const mainContent = document.getElementById('mainContent');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebarClose = document.getElementById('sidebarClose');
-    const headerAccountName = document.getElementById('headerAccountName');
-    const headerAccountIcon = document.getElementById('headerAccountIcon');
-    const signOutBtn = document.getElementById('signOutBtn');
+    // Headbar Elements
+    const mainHeadbar = document.getElementById('mainHeadbar');
+    const headbarSettingsBtn = document.getElementById('headbarSettingsBtn');
+    const headbarProfileAvatar = document.getElementById('headbarProfileAvatar');
+    const headbarDefaultAvatarIcon = document.getElementById('headbarDefaultAvatarIcon');
+    const headbarProfileInfo = document.getElementById('headbarProfileInfo');
+    const headbarUsername = document.getElementById('headbarUsername');
+    const hbProfileName = document.getElementById('hbProfileName');
+    const hbProfileUid = document.getElementById('hbProfileUid');
+    const hbProfileEmail = document.getElementById('hbProfileEmail');
+    const hbProfileLink = document.getElementById('hbProfileLink');
+    const headbarLoginButton = document.getElementById('headbarLoginButton');
 
-    // --- Profile/Settings Page Elements ---
+    // Theme Changer Elements
+    const themeChanger = document.getElementById('themeChanger');
+    const themeDropdown = document.getElementById('themeDropdown');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    const body = document.body;
+
+
+    // Original Profile/Settings page elements (kept for functionality)
     const settingsBackBtn = document.getElementById('settingsBackBtn');
     const profileBackBtn = document.getElementById('profileBackBtn');
     const settingsSaveBtn = document.getElementById('settingsSaveBtn');
@@ -1031,24 +1149,18 @@
     const profileFullName = document.getElementById('profileFullName');
     const profileBio = document.getElementById('profileBio');
     const toolsUsed = document.getElementById('toolsUsed');
-    const verificationModal = document.getElementById('verificationModal');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
-    
+    const verificationModal = document.getElementById('verificationModal');
 
-    // --- NEW: Sidebar Logic ---
-    sidebarToggle.addEventListener('click', () => sidebar.classList.add('active'));
-    sidebarClose.addEventListener('click', () => sidebar.classList.remove('active'));
-    
-    // Sign out logic
-    signOutBtn.addEventListener('click', () => {
-        auth.signOut().then(() => {
-            window.location.reload(); // Reload to clear state
-        });
-    });
+
+    let profileMenuTimeout;
+    let themeDropdownTimeout; // To close theme dropdown after a delay if needed, though click-outside is better
 
     // --- Modal Logic ---
     function showVerificationModal() {
-        if (verificationModal) verificationModal.style.display = 'flex';
+        if (verificationModal) {
+            verificationModal.style.display = 'flex';
+        }
     }
 
     function hideVerificationModal() {
@@ -1059,33 +1171,156 @@
     }
 
     function checkUrlForNote() {
-        if (window.location.hash === '#note') showVerificationModal();
+        if (window.location.hash === '#note') {
+            showVerificationModal();
+        }
     }
     
     modalCloseBtn.addEventListener('click', hideVerificationModal);
     verificationModal.addEventListener('click', (event) => {
-        if (event.target === verificationModal) hideVerificationModal();
+        if (event.target === verificationModal) {
+            hideVerificationModal();
+        }
     });
 
-    // Update user profile with photo if available
-    function updateUserUI(user) {
-      if (user) {
-        // --- LOGGED IN STATE ---
-        // Show header & sidebar capabilities, hide login button
-        stickyHeader.style.display = 'flex';
-        loginButton.style.display = 'none';
+    // --- Headbar Profile Info Logic (0.6s delay) ---
+    function showHeadbarProfileInfo() {
+        clearTimeout(profileMenuTimeout);
+        headbarProfileInfo.classList.add('active');
+    }
 
-        // Update Header
-        headerAccountName.textContent = user.displayName || 'User';
-        if (user.photoURL) {
-          headerAccountIcon.style.backgroundImage = `url(${user.photoURL})`;
-          headerAccountIcon.innerHTML = ''; // Remove default icon
+    function hideHeadbarProfileInfo() {
+        profileMenuTimeout = setTimeout(() => {
+            headbarProfileInfo.classList.remove('active');
+        }, 600); // 0.6 seconds
+    }
+
+    headbarProfileAvatar.addEventListener('mouseenter', showHeadbarProfileInfo);
+    headbarProfileInfo.addEventListener('mouseenter', showHeadbarProfileInfo);
+
+    headbarProfileAvatar.addEventListener('mouseleave', hideHeadbarProfileInfo);
+    headbarProfileInfo.addEventListener('mouseleave', hideHeadbarProfileInfo);
+
+    headbarProfileAvatar.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent document click from immediately closing
+        if (headbarProfileInfo.classList.contains('active')) {
+            hideHeadbarProfileInfo(); // If already active, toggle off
         } else {
-          headerAccountIcon.style.backgroundImage = '';
-          headerAccountIcon.innerHTML = '<i class="fas fa-user"></i>';
+            showHeadbarProfileInfo(); // If not active, toggle on
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        // Close profile info if clicking outside
+        // Note: headbarUser is the parent of avatar and info dropdown
+        if (!mainHeadbar.contains(event.target) && headbarProfileInfo.classList.contains('active')) {
+            hideHeadbarProfileInfo();
+        }
+        // Close theme dropdown if clicking outside
+        if (!themeChanger.contains(event.target) && themeDropdown.classList.contains('active')) {
+            themeDropdown.classList.remove('active');
+        }
+    });
+
+    // --- Theme Changer Logic ---
+    themeChanger.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent document click from immediately closing
+        themeDropdown.classList.toggle('active');
+    });
+
+    themeOptions.forEach(button => {
+        button.addEventListener('click', async () => {
+            const selectedTheme = button.dataset.theme;
+            applyTheme(selectedTheme);
+            themeDropdown.classList.remove('active'); // Close dropdown after selection
+
+            const user = auth.currentUser;
+            if (user) {
+                await saveUserTheme(user.uid, selectedTheme);
+            }
+        });
+    });
+
+    function applyTheme(themeName) {
+        body.classList.remove('theme-d1', 'theme-d2');
+        body.classList.add(`theme-${themeName}`);
+
+        // Update selected state in dropdown
+        themeOptions.forEach(btn => {
+            if (btn.dataset.theme === themeName) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+    }
+
+    // --- Firebase Theme Saving & Loading (Themer Functions) ---
+    /**
+     * Saves the user's selected theme preference to Firestore.
+     * @param {string} uid The user's Firebase UID.
+     * @param {string} theme The theme name ('d1' or 'd2').
+     */
+    async function saveUserTheme(uid, theme) {
+        try {
+            await db.collection('users').doc(uid).set({
+                themePreference: theme
+            }, { merge: true }); // Use merge to avoid overwriting other user data
+            console.log('Theme preference saved:', theme);
+        } catch (error) {
+            console.error('Error saving theme preference:', error);
+        }
+    }
+
+    /**
+     * Loads the user's theme preference from Firestore and applies it.
+     * Defaults to 'd1' if no preference is found or an error occurs.
+     * @param {string} uid The user's Firebase UID.
+     */
+    async function loadUserTheme(uid) {
+        try {
+            const doc = await db.collection('users').doc(uid).get();
+            if (doc.exists && doc.data().themePreference) {
+                const savedTheme = doc.data().themePreference;
+                applyTheme(savedTheme);
+                console.log('Theme preference loaded:', savedTheme);
+            } else {
+                applyTheme('d1'); // Default to D1 if no preference found
+            }
+        } catch (error) {
+            console.error('Error loading theme preference:', error);
+            applyTheme('d1'); // Fallback to default on error
+        }
+    }
+
+    // --- Update User Profile in Headbar & Pages ---
+    function updateHeadbarAndProfile(user) {
+      if (user) {
+        mainHeadbar.classList.add('active'); // Show headbar
+        headbarUser.style.display = 'flex';
+        headbarLoginButton.style.display = 'none';
+        headbarUsername.style.display = 'inline-block'; // Show username next to avatar
+
+        // Main avatar
+        if (user.photoURL) {
+          headbarProfileAvatar.style.backgroundImage = `url(${user.photoURL})`;
+          headbarDefaultAvatarIcon.style.display = 'none';
+        } else {
+          headbarProfileAvatar.style.backgroundImage = '';
+          headbarDefaultAvatarIcon.style.display = 'flex';
         }
 
-        // --- Profile page elements ---
+        // Profile info dropdown
+        const displayName = user.displayName || 'User';
+        const userEmail = user.email || '';
+        const userUid = user.uid;
+
+        headbarUsername.textContent = displayName;
+        hbProfileName.textContent = displayName;
+        hbProfileEmail.textContent = userEmail;
+        hbProfileUid.textContent = `UID: ${userUid}`;
+
+        // Profile page elements
         if (user.photoURL) {
           profileAvatar.style.backgroundImage = `url(${user.photoURL})`;
           profileDefaultAvatar.style.display = 'none';
@@ -1094,90 +1329,92 @@
           profileDefaultAvatar.style.display = 'flex';
         }
         
-        profileName.textContent = user.displayName || 'User';
-        profileEmail.textContent = user.email || '';
-        profileUid.textContent = `UID: ${user.uid}`;
-        profileFullName.value = user.displayName || '';
+        profileName.textContent = displayName;
+        profileEmail.textContent = userEmail;
+        profileUid.textContent = `UID: ${userUid}`;
+        profileFullName.value = displayName;
         
+        // Set member since year
         const memberSince = document.getElementById('memberSince');
         if (user.metadata && user.metadata.creationTime) {
           const creationDate = new Date(user.metadata.creationTime);
           memberSince.textContent = creationDate.getFullYear();
         }
 
+        // Load user's theme preference using themer function
+        loadUserTheme(user.uid);
+
       } else {
-        // --- LOGGED OUT STATE ---
-        // Hide header & sidebar capabilities, show login button
-        stickyHeader.style.display = 'none';
-        sidebar.classList.remove('active');
-        loginButton.style.display = 'block';
+        // Not logged in: Hide headbar user info, show login button
+        mainHeadbar.classList.remove('active'); // Hide headbar, or keep it but hide user-specific parts
+        headbarUser.style.display = 'none';
+        headbarLoginButton.style.display = 'block';
+        headbarUsername.style.display = 'none';
+        applyTheme('d1'); // Always revert to D1 for logged out users or if no preference for 404 is desired
       }
     }
 
-    // Navigation between pages
-    // Simplified since header links handle some navigation.
-    // Ensure we can still navigate to settings/profile pages.
-    // Example: Clicking settings icon in header should show settings page.
-    document.querySelector('a[href="/account-settings"]').addEventListener('click', (e) => {
-        e.preventDefault();
+    // --- Navigation between pages (using hash-based SPA system) ---
+    function handleHashChange() {
+        const hash = window.location.hash;
         homepage.style.display = 'none';
+        settingsPage.style.display = 'none';
         profilePage.style.display = 'none';
-        settingsPage.style.display = 'block';
-    });
 
-    settingsBackBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      settingsPage.style.display = 'none';
-      homepage.style.display = 'block';
-    });
+        if (hash === '#settings') {
+            settingsPage.style.display = 'block';
+        } else if (hash === '#profile') {
+            profilePage.style.display = 'block';
+        } else {
+            homepage.style.display = 'block';
+        }
 
-    profileBackBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      profilePage.style.display = 'none';
-      homepage.style.display = 'block';
-    });
+        // Also check for #note modal
+        checkUrlForNote();
+    }
 
     // Save settings
     settingsSaveBtn.addEventListener('click', () => {
       alert('Settings saved successfully!');
-      homepage.style.display = 'block';
-      settingsPage.style.display = 'none';
+      window.location.hash = ''; // Go back to homepage
     });
 
     // Save profile
     profileSaveBtn.addEventListener('click', () => {
       const newName = profileFullName.value;
-      if (newName) {
+      if (newName && auth.currentUser) {
         auth.currentUser.updateProfile({
           displayName: newName
         }).then(() => {
-          updateUserUI(auth.currentUser);
+          updateHeadbarAndProfile(auth.currentUser); // Re-render with new name
           alert('Profile updated successfully!');
-          homepage.style.display = 'block';
-          profilePage.style.display = 'none';
+          window.location.hash = ''; // Go back to homepage
+        }).catch(error => {
+            console.error("Error updating profile:", error);
+            alert("Error updating profile: " + error.message);
         });
-      } else {
+      } else if (!newName) {
         alert('Please enter your full name');
       }
     });
 
-    // Check Auth State
+    // Check Auth State and initialize page
     auth.onAuthStateChanged(user => {
-      updateUserUI(user);
+      updateHeadbarAndProfile(user);
       
-      // Hide loading screen after a delay
+      // After auth check, wait for the full 3 seconds before hiding loading screen
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-        homepage.style.display = 'block';
-      }, 2000); // Reduced delay for faster page load feel
+        handleHashChange(); // Show correct page based on hash
+      }, 3000);
     });
 
-    // Initialize page
+    // Initialize page and listen for hash changes
     document.addEventListener('DOMContentLoaded', () => {
-      checkUrlForNote();
+      handleHashChange(); // Initial check on load
     });
 
-    window.addEventListener('hashchange', checkUrlForNote);
+    window.addEventListener('hashchange', handleHashChange);
   </script>
 </body>
 </html>
