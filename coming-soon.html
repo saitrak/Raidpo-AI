@@ -3,181 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- The title will be dynamically updated by JavaScript -->
-  <title>Raidpo AI</title> 
+  <title>Coming Soon | Raidpo AI</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* General Styles */
+    /* Paste the same CSS from your other pages here for consistency */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     ::selection { background-color: #ff6f61; color: #fff; }
-    ::-moz-selection { background-color: #ff6f61; color: #fff; }
-    
-    body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      color: #fff;
-      background-color: #0f0f0f;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    body.android-device, body.android-device a, body.android-device button {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-
-    h1, h2 { font-weight: bold; margin: 0; }
+    body { font-family: 'Comic Sans MS', cursive, sans-serif; color: #fff; background-color: #0f0f0f; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    body.android-device, body.android-device a, body.android-device button { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
     a { text-decoration: none; color: inherit; }
-
-    /* Main Container for both messages */
-    .content-container {
-      background-color: #1a1a1a;
-      padding: clamp(2rem, 8vw, 4rem);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 600px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align: center;
-      border: 1px solid #333;
-    }
-
-    /* Initially hide both content sections */
-    .content-section {
-      display: none;
-    }
-
-    .content-icon {
-      font-size: clamp(4rem, 15vw, 6rem);
-      color: #ff6f61;
-      margin-bottom: 1.5rem;
-      display: inline-block;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-      100% { transform: translateY(0px); }
-    }
-    
-    .content-container h1 {
-      font-size: clamp(2.5rem, 10vw, 4rem);
-      line-height: 1.2;
-      color: #fff;
-      text-shadow: 0 0 15px rgba(255, 111, 97, 0.4);
-    }
-
-    /* Special size for 404 number */
-    #not-found-content h1 {
-      font-size: clamp(5rem, 25vw, 10rem);
-    }
-    
-    .content-container h2 {
-      font-size: clamp(1.2rem, 5vw, 1.8rem);
-      color: #ccc;
-      margin-top: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .content-container p {
-      color: #aaa;
-      font-size: clamp(0.9rem, 3vw, 1.1rem);
-      margin-bottom: 2.5rem;
-      max-width: 450px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .home-btn {
-      display: inline-block;
-      padding: 1rem 2.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s ease;
-    }
-    
+    .container { background-color: #1a1a1a; padding: clamp(2rem, 8vw, 4rem); border-radius: 10px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
+    .icon { font-size: clamp(4rem, 15vw, 6rem); color: #ff6f61; margin-bottom: 1.5rem; display: inline-block; animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+    .container h1 { font-size: clamp(2.5rem, 10vw, 4rem); line-height: 1.2; color: #fff; text-shadow: 0 0 15px rgba(255, 111, 97, 0.4); }
+    .container h2 { font-size: clamp(1.2rem, 5vw, 1.8rem); color: #ccc; margin-top: 0.5rem; margin-bottom: 1.5rem; }
+    .container p { color: #aaa; font-size: clamp(0.9rem, 3vw, 1.1rem); margin-bottom: 2.5rem; max-width: 450px; margin-left: auto; margin-right: auto; }
+    .home-btn { display: inline-block; padding: 1rem 2.5rem; background-color: #ff6f61; color: #fff; border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer; transition: background-color 0.3s, transform 0.2s ease; }
     .home-btn:hover { background-color: #ff3b2f; transform: translateY(-3px); }
-    .home-btn:active { transform: translateY(-1px); }
-
   </style>
 </head>
 <body>
 
-  <div class="content-container">
-    <!-- Section 1: Coming Soon Message (hidden by default) -->
-    <div id="coming-soon-content" class="content-section">
-      <i class="fas fa-rocket content-icon"></i>
-      <h1>Coming Soon!</h1>
-      <h2>Something Awesome is on the Way</h2>
-      <p>
-        We're working hard to build this new feature for you. It's not quite ready for launch, but we promise it will be worth the wait!
-      </p>
-    </div>
-
-    <!-- Section 2: 404 Not Found Message (hidden by default) -->
-    <div id="not-found-content" class="content-section">
-      <i class="fas fa-ghost content-icon"></i>
-      <h1>404</h1>
-      <h2>Page Not Found</h2>
-      <p>
-        Oops! The page you're looking for seems to have ventured into the unknown. It's not a planned feature or an existing page.
-      </p>
-    </div>
-
-    <!-- This button is outside the sections so it's always visible -->
+  <div class="container">
+    <i class="fas fa-rocket icon"></i>
+    <h1>Coming Soon!</h1>
+    <h2>Something Awesome is on the Way</h2>
+    <p>
+      We're working hard to build this new feature for you. It's not quite ready for launch, but we promise it will be worth the wait!
+    </p>
     <a href="https://raidpo-ai.netlify.app/" class="home-btn">
       <i class="fas fa-home"></i> Go to Homepage
     </a>
   </div>
 
   <script>
-    // Apply system font on Android devices
-    if (/android/i.test(navigator.userAgent)) {
-      document.body.classList.add('android-device');
-    }
-
-    // --- LOGIC TO SHOW THE CORRECT MESSAGE ---
-
-    // =========================================================================
-    // == THIS IS THE LIST YOU WILL EDIT TO ADD OR REMOVE "COMING SOON" PAGES ==
-    // =========================================================================
-    // Add the exact path (starting with a '/') for any page you want to show
-    // the "Coming Soon" message for.
-    const comingSoonPaths = [
-      '/dashboard',
-      '/analytics',
-      '/settings',
-      '/user-profile',
-      '/api-docs'
-    ];
-    // =========================================================================
-    
-    // Get the path from the URL the user tried to access
-    const currentPath = window.location.pathname;
-
-    // Get the HTML elements for our content sections
-    const comingSoonSection = document.getElementById('coming-soon-content');
-    const notFoundSection = document.getElementById('not-found-content');
-
-    // Check if the current path is in our list of "coming soon" pages
-    if (comingSoonPaths.includes(currentPath)) {
-      // If it is, show the "Coming Soon" content
-      document.title = 'Coming Soon | Raidpo AI';
-      comingSoonSection.style.display = 'block';
-    } else {
-      // If it's not in the list, show the "404 Not Found" content
-      document.title = '404 Not Found | Raidpo AI';
-      notFoundSection.style.display = 'block';
-    }
+    if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
   </script>
 
 </body>
