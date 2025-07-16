@@ -28,6 +28,15 @@
       --headbar-height: 60px;
     }
 
+    /* Selection & Scrollbar Styles */
+    ::selection { background-color: #ff6f61; color: #fff; }
+    ::-moz-selection { background-color: #ff6f61; color: #fff; }
+
+    body::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
+    body::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
+    body::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
+
     /* Loading Screen */
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -82,7 +91,6 @@
     .headbar-left { flex-grow: 1; }
     .brand-name { font-size: 1.8rem; font-weight: bold; color: #ff6f61; }
     
-    /* NEW Search Bar Style */
     .search-bar {
       padding: 0.8rem; border: 1px solid #333; border-radius: 5px;
       background-color: #333; color: #fff; font-size: 1rem;
@@ -193,7 +201,7 @@
   <header class="headbar" id="headbar">
     <div class="headbar-left">
       <i class="fas fa-bars headbar-icon" id="sidebar-toggle"></i>
-      <span class="brand-name">Raidpo-AI</span>
+      <a href="https://raidpo-ai.netlify.app"><span class="brand-name">Raidpo-AI</span></a>
       <input type="text" class="search-bar" id="headbar-search" placeholder="Search for tools...">
     </div>
     <div class="headbar-right">
@@ -375,31 +383,59 @@
         });
     }
 
-    // --- UPDATED Search functionality ---
+    // --- Search functionality ---
     headbarSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         const toolCards = toolGrid.querySelectorAll('.tool-card');
         toolCards.forEach(card => {
-            if (!searchTerm) {
-                card.style.display = 'block';
-                return;
-            }
+            if (!searchTerm) { card.style.display = 'block'; return; }
             const title = card.querySelector('h3').innerText.toLowerCase();
             const description = card.querySelector('p').innerText.toLowerCase();
             card.style.display = (title.startsWith(searchTerm) || description.startsWith(searchTerm)) ? 'block' : 'none';
         });
     });
+
     sidebarSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
-        const menuItems = sidebarMenu.querySelectorAll('#tools-submenu-list li');
-        menuItems.forEach(item => {
-            if (!searchTerm) {
-                item.style.display = 'block';
-                return;
-            }
+        const mainLinks = sidebarMenu.querySelectorAll(':scope > li');
+        let submenuMatchFound = false;
+
+        // First, filter the submenu items
+        const submenuItems = toolsSubmenuList.querySelectorAll('li');
+        submenuItems.forEach(item => {
             const itemText = item.querySelector('a').innerText.toLowerCase();
-            item.style.display = itemText.startsWith(searchTerm) ? 'block' : 'none';
+            const isMatch = itemText.startsWith(searchTerm);
+            item.style.display = isMatch ? 'block' : 'none';
+            if (isMatch) {
+                submenuMatchFound = true;
+            }
         });
+
+        // Now, filter the main menu items
+        mainLinks.forEach(link => {
+            if (link.id === 'tools-menu') {
+                // Handle the "Tools" parent menu
+                const toolsText = link.querySelector('a').innerText.toLowerCase();
+                if (submenuMatchFound || toolsText.startsWith(searchTerm)) {
+                    link.style.display = 'block';
+                    if (submenuMatchFound && searchTerm) {
+                        link.classList.add('open'); // Auto-open if a child matches
+                    }
+                } else {
+                    link.style.display = 'none';
+                }
+            } else {
+                // Handle other main links like "Account Settings"
+                const linkText = link.querySelector('a').innerText.toLowerCase();
+                link.style.display = linkText.startsWith(searchTerm) ? 'block' : 'none';
+            }
+        });
+
+        // If search is cleared, show all main links but don't force submenu open
+        if (!searchTerm) {
+            mainLinks.forEach(link => link.style.display = 'block');
+            toolsMenu.classList.remove('open');
+        }
     });
 
     // --- Authentication Logic ---
@@ -429,7 +465,7 @@
       setTimeout(() => {
         loadingScreen.style.display = 'none';
         homepage.style.display = 'block';
-      }, 2500); // Adjusted for shimmer animation
+      }, 2500);
     });
 
     // Initialize page
