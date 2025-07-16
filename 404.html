@@ -7,115 +7,27 @@
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* General Styles - Mirrored from your original file for consistency */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    /* Paste the same CSS from your other pages here for consistency */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     ::selection { background-color: #ff6f61; color: #fff; }
-    ::-moz-selection { background-color: #ff6f61; color: #fff; }
-    
-    body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      color: #fff;
-      background-color: #0f0f0f;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    /* System font fallback for Android for better readability */
-    body.android-device, body.android-device a, body.android-device button {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-
-    h1, h2 { font-weight: bold; margin: 0; }
+    body { font-family: 'Comic Sans MS', cursive, sans-serif; color: #fff; background-color: #0f0f0f; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    body.android-device, body.android-device a, body.android-device button { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
     a { text-decoration: none; color: inherit; }
-
-    /* 404 Page Specific Styles */
-    .error-container {
-      background-color: #1a1a1a;
-      padding: clamp(2rem, 8vw, 4rem);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 600px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align: center;
-      border: 1px solid #333;
-    }
-
-    .error-icon {
-      font-size: clamp(4rem, 15vw, 6rem);
-      color: #ff6f61;
-      margin-bottom: 1rem;
-      display: inline-block;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-      100% { transform: translateY(0px); }
-    }
-    
-    .error-container h1 {
-      font-size: clamp(5rem, 25vw, 10rem);
-      line-height: 1;
-      color: #fff;
-      text-shadow: 0 0 15px rgba(255, 111, 97, 0.4);
-    }
-    
-    .error-container h2 {
-      font-size: clamp(1.5rem, 6vw, 2.5rem);
-      color: #ccc;
-      margin-top: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .error-container p {
-      color: #aaa;
-      font-size: clamp(0.9rem, 3vw, 1.1rem);
-      margin-bottom: 2.5rem;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .home-btn {
-      display: inline-block;
-      padding: 1rem 2.5rem;
-      background-color: #ff6f61;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s ease;
-    }
-    
-    .home-btn:hover {
-      background-color: #ff3b2f;
-      transform: translateY(-3px);
-    }
-
-    .home-btn:active {
-      transform: translateY(-1px);
-    }
-
+    .container { background-color: #1a1a1a; padding: clamp(2rem, 8vw, 4rem); border-radius: 10px; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
+    .icon { font-size: clamp(4rem, 15vw, 6rem); color: #ff6f61; margin-bottom: 1rem; display: inline-block; animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+    .container .error-404 { font-size: clamp(5rem, 25vw, 10rem); line-height: 1; color: #fff; text-shadow: 0 0 15px rgba(255, 111, 97, 0.4); }
+    .container h2 { font-size: clamp(1.5rem, 6vw, 2.5rem); color: #ccc; margin-top: 0.5rem; margin-bottom: 1.5rem; }
+    .container p { color: #aaa; font-size: clamp(0.9rem, 3vw, 1.1rem); margin-bottom: 2.5rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+    .home-btn { display: inline-block; padding: 1rem 2.5rem; background-color: #ff6f61; color: #fff; border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer; transition: background-color 0.3s, transform 0.2s ease; }
+    .home-btn:hover { background-color: #ff3b2f; transform: translateY(-3px); }
   </style>
 </head>
 <body>
 
-  <div class="error-container">
-    <i class="fas fa-ghost error-icon"></i>
-    <h1>404</h1>
+  <div class="container">
+    <i class="fas fa-ghost icon"></i>
+    <h1 class="error-404">404</h1>
     <h2>Page Not Found</h2>
     <p>
       Oops! The page you're looking for seems to have ventured into the unknown. Let's get you back on track.
@@ -126,10 +38,7 @@
   </div>
 
   <script>
-    // Simple script to apply system font on Android devices
-    if (/android/i.test(navigator.userAgent)) {
-      document.body.classList.add('android-device');
-    }
+    if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
   </script>
 
 </body>
