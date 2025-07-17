@@ -88,13 +88,16 @@
     }
 
     .headbar-left, .headbar-right { display: flex; align-items: center; gap: 1rem; }
-    .headbar-left { flex-grow: 1; }
+    .headbar-left { flex-grow: 1; min-width: 0; } /* Allow left side to grow and shrink */
+    .headbar-right { flex-shrink: 0; } /* Prevent right side from shrinking */
+
     .brand-name { font-size: 1.8rem; font-weight: bold; color: #ff6f61; }
     
     .search-bar {
       padding: 0.8rem; border: 1px solid #333; border-radius: 5px;
       background-color: #333; color: #fff; font-size: 1rem;
-      width: 250px;
+      flex-grow: 1; /* This makes the search bar flexible */
+      min-width: 50px; /* Prevent it from disappearing completely */
     }
     .search-bar:focus { outline: none; border-color: #ff6f61; }
     
@@ -182,10 +185,18 @@
     .login-button { position: fixed; top: 1rem; right: 1rem; z-index: 100; padding: 0.5rem 1rem; background-color: #ff6f61; color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; display: none; }
 
     /* Responsive */
-    @media (max-width: 768px) {
-      /* REMOVED mobile-specific overrides to ensure consistent experience */
-      .hero-content h1 { font-size: 3rem; }
-      .hero-content p { font-size: 1.2rem; }
+    @media (max-width: 600px) {
+      .account-name {
+        display: none; /* Hide account name text on small screens to save space */
+      }
+      .headbar-left, .headbar-right {
+        gap: 0.75rem; /* Reduce gap between icons */
+      }
+    }
+    @media (max-width: 400px) {
+        .brand-name {
+            display: none; /* Hide brand name on very small screens */
+        }
     }
   </style>
 </head>
