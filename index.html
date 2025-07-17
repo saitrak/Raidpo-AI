@@ -19,6 +19,18 @@
   <link rel="canonical" href="https://raidpo-ai.netlify.app">
   <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Pre-emptive Theme Script -->
+  <script>
+    // This script runs before the page is rendered to prevent a flash of the wrong theme.
+    (function() {
+      const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      }
+    })();
+  </script>
+  
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -38,6 +50,8 @@
       --border-color: #333;
       --hero-gradient: linear-gradient(135deg, #ff6f61, #ff3b2f);
       --cta-text-color: #ff3b2f;
+      --loader-text-base: #555;
+      --loader-text-shimmer: #fff;
     }
 
     .light-theme {
@@ -46,32 +60,34 @@
       --bg-secondary: #ffffff;
       --bg-card: #ffffff;
       --text-primary: #212529;
-      --text-secondary: #6c757d;
+      --text-secondary: #6c7d7d;
       --border-color: #dee2e6;
       --cta-text-color: #ff3b2f;
+      --loader-text-base: #e0e0e0;
+      --loader-text-shimmer: #212529;
     }
 
     /* Selection & Scrollbar Styles */
     ::selection { background-color: var(--accent-primary); color: #fff; }
     ::-moz-selection { background-color: var(--accent-primary); color: #fff; }
 
-    body::-webkit-scrollbar { width: 8px; }
-    body::-webkit-scrollbar-track { background: var(--bg-card); }
-    body::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
-    body::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+    body::-webkit-scrollbar, .sidebar-nav::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track, .sidebar-nav::-webkit-scrollbar-track { background: var(--bg-card); }
+    body::-webkit-scrollbar-thumb, .sidebar-nav::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+    body::-webkit-scrollbar-thumb:hover, .sidebar-nav::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
 
     /* Loading Screen */
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: #0f0f0f; display: flex; justify-content: center;
+      background-color: var(--bg-primary); display: flex; justify-content: center;
       align-items: center; z-index: 9999;
     }
     .loader-content {
-        font-size: 3rem; font-weight: bold; color: #555; position: relative; overflow: hidden;
+        font-size: 3rem; font-weight: bold; color: var(--loader-text-base); position: relative; overflow: hidden;
     }
     .loader-content::after {
         content: 'Raidpo AI'; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        color: #fff; background: linear-gradient(100deg, transparent 20%, var(--accent-primary) 50%, transparent 80%);
+        color: var(--loader-text-shimmer); background: linear-gradient(100deg, transparent 20%, var(--accent-primary) 50%, transparent 80%);
         background-size: 200% 100%; background-clip: text; -webkit-background-clip: text;
         -webkit-text-fill-color: transparent; animation: shimmer-animation 2s infinite linear;
     }
@@ -104,7 +120,7 @@
       z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1); box-sizing: border-box;
       transition: left 0.3s ease-in-out, width 0.3s ease-in-out, background-color 0.3s, color 0.3s;
       border-bottom: 1px solid var(--border-color);
-      gap: 1.5rem; /* Ensures space between left and right sections */
+      gap: 1.5rem;
     }
     body.logged-in .headbar { display: flex; }
     body.sidebar-is-open .headbar {
@@ -154,12 +170,17 @@
       position: fixed; top: 0; left: calc(-1 * var(--sidebar-width)); width: var(--sidebar-width);
       height: 100%; background-color: var(--bg-secondary); color: var(--text-primary); z-index: 1002;
       box-shadow: 5px 0 15px rgba(0,0,0,0.5); transition: left 0.3s ease-in-out, background-color 0.3s, color 0.3s;
-      padding: 1.5rem; box-sizing: border-box; display: none; flex-direction: column; gap: 1.5rem;
+      padding: 1.5rem; box-sizing: border-box; display: none; flex-direction: column; gap: 1rem;
       border-right: 1px solid var(--border-color);
     }
     body.logged-in .sidebar { display: flex; }
     .sidebar.open { left: 0; }
-    .sidebar-header { font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); margin-bottom: 1rem; }
+    .sidebar-header { font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); margin-bottom: 0; }
+    .sidebar-nav {
+      flex-grow: 1; /* Allows nav to take up remaining space */
+      overflow-y: auto; /* Adds scrollbar ONLY when content overflows */
+      min-height: 0; /* Critical for overflow to work in a flex container */
+    }
     .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
     .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0;
       border-bottom: 1px solid var(--border-color); transition: color 0.2s;
@@ -194,7 +215,7 @@
 
     /* Footer */
     footer { padding: 2rem; background-color: var(--bg-secondary); text-align: center; border-top: 1px solid var(--border-color); }
-    .footer-links a { margin: 0 1rem; } /* Increased gap between footer links */
+    .footer-links a { margin: 0 1rem; }
     .footer-links a:hover { color: var(--accent-primary); }
     .social-links a:hover { color: var(--accent-primary); }
 
@@ -350,7 +371,6 @@
 
     let profileMenuTimeout;
     
-    // Check for Android device to apply specific font
     if (/android/i.test(navigator.userAgent)) {
         body.classList.add('android-device');
     }
@@ -375,7 +395,7 @@
         applyTheme(newTheme);
     }
 
-    function loadTheme() {
+    function loadInitialTheme() {
         const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
         applyTheme(savedTheme);
     }
@@ -394,13 +414,11 @@
         toggleTheme();
     });
 
-    // Account Profile Popover
     accountProfileIcon.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); userProfileInfo.classList.add('active'); });
     accountProfileIcon.addEventListener('click', (e) => { e.stopPropagation(); userProfileInfo.classList.toggle('active'); });
     headbar.addEventListener('mouseleave', () => { profileMenuTimeout = setTimeout(() => { userProfileInfo.classList.remove('active'); }, 300); });
     headbar.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); });
 
-    // Close menus when clicking outside
     document.addEventListener('click', (e) => {
         if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open'); body.classList.remove('sidebar-is-open');
@@ -409,16 +427,13 @@
         if (!accountProfileIcon.parentElement.contains(e.target)) { userProfileInfo.classList.remove('active'); }
     });
 
-    // Sign Out
     signOutBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (confirm("Are you sure you want to sign out?")) { auth.signOut().catch(error => console.error("Sign out error", error)); }
     });
 
-    // Tools Submenu Toggle
     toolsMenuToggle.addEventListener('click', (e) => { e.preventDefault(); toolsMenu.classList.toggle('open'); });
 
-    // Populate Sidebar with Tools
     function populateToolsSidebar() {
         const toolCards = toolGrid.querySelectorAll('.tool-card');
         toolsSubmenuList.innerHTML = '';
@@ -465,12 +480,8 @@
                 const isDirectMatch = linkText.startsWith(searchTerm);
                 if (submenuMatchFound || isDirectMatch) {
                     link.style.display = 'block';
-                    if (submenuMatchFound && searchTerm) {
-                        link.classList.add('open');
-                    }
-                } else {
-                    link.style.display = 'none';
-                }
+                    if (submenuMatchFound && searchTerm) { link.classList.add('open'); }
+                } else { link.style.display = 'none'; }
             } else {
                 link.style.display = linkText.startsWith(searchTerm) ? 'block' : 'none';
             }
@@ -515,7 +526,7 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-        loadTheme();
+        loadInitialTheme(); // Set the correct theme on full load
         populateToolsSidebar();
     });
   </script>
