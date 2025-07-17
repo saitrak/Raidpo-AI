@@ -88,16 +88,22 @@
     }
 
     .headbar-left, .headbar-right { display: flex; align-items: center; gap: 1rem; }
-    .headbar-left { flex-grow: 1; min-width: 0; } /* Allow left side to grow and shrink */
-    .headbar-right { flex-shrink: 0; } /* Prevent right side from shrinking */
+    .headbar-left { flex-grow: 1; min-width: 0; }
+    .headbar-right { flex-shrink: 0; }
 
-    .brand-name { font-size: 1.8rem; font-weight: bold; color: #ff6f61; }
+    .brand-name { font-size: 1.8rem; font-weight: bold; color: #ff6f61; white-space: nowrap; }
     
     .search-bar {
       padding: 0.8rem; border: 1px solid #333; border-radius: 5px;
       background-color: #333; color: #fff; font-size: 1rem;
-      flex-grow: 1; /* This makes the search bar flexible */
-      min-width: 50px; /* Prevent it from disappearing completely */
+    }
+    #headbar-search {
+      flex-grow: 1;
+      min-width: 50px;
+    }
+    #sidebar-search {
+      width: 100%;
+      box-sizing: border-box; /* Ensures padding is included in width */
     }
     .search-bar:focus { outline: none; border-color: #ff6f61; }
     
@@ -105,10 +111,7 @@
       font-size: 1.5rem; cursor: pointer; position: relative;
       transition: color 0.2s ease, transform 0.2s ease;
     }
-    .headbar-icon:hover {
-      color: #ff6f61;
-      transform: scale(1.1);
-    }
+    .headbar-icon:hover { color: #ff6f61; transform: scale(1.1); }
     .account-name { font-size: 0.9rem; }
     .account-profile-icon {
       width: 40px; height: 40px; border-radius: 50%; background-color: #ff6f61;
@@ -137,7 +140,6 @@
     body.logged-in .sidebar { display: flex; }
     .sidebar.open { left: 0; }
     .sidebar-header { font-size: 1.5rem; font-weight: bold; color: #ff6f61; margin-bottom: 1rem; }
-    #sidebar-search { width: 100%; box-sizing: border-box; }
     .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
     .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0;
       border-bottom: 1px solid #333; transition: color 0.2s;
@@ -186,17 +188,8 @@
 
     /* Responsive */
     @media (max-width: 600px) {
-      .account-name {
-        display: none; /* Hide account name text on small screens to save space */
-      }
-      .headbar-left, .headbar-right {
-        gap: 0.75rem; /* Reduce gap between icons */
-      }
-    }
-    @media (max-width: 400px) {
-        .brand-name {
-            display: none; /* Hide brand name on very small screens */
-        }
+      .account-name { display: none; }
+      #headbar-search { display: none; } /* Hide search bar when space is limited */
     }
   </style>
 </head>
