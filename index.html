@@ -104,6 +104,7 @@
       z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1); box-sizing: border-box;
       transition: left 0.3s ease-in-out, width 0.3s ease-in-out, background-color 0.3s, color 0.3s;
       border-bottom: 1px solid var(--border-color);
+      gap: 1.5rem; /* Ensures space between left and right sections */
     }
     body.logged-in .headbar { display: flex; }
     body.sidebar-is-open .headbar {
@@ -189,10 +190,11 @@
     .tool-card p { font-size: 0.9rem; color: var(--text-secondary); }
     .tool-card a { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background-color: var(--accent-primary); color: #fff; border-radius: 50px; font-size: 0.9rem; transition: background-color 0.3s; }
     .tool-card a:hover { background-color: var(--accent-secondary); }
-    .tool-card::before { display: none; } /* Removed old hover effect for theme compatibility */
+    .tool-card::before { display: none; }
 
     /* Footer */
     footer { padding: 2rem; background-color: var(--bg-secondary); text-align: center; border-top: 1px solid var(--border-color); }
+    .footer-links a { margin: 0 1rem; } /* Increased gap between footer links */
     .footer-links a:hover { color: var(--accent-primary); }
     .social-links a:hover { color: var(--accent-primary); }
 
@@ -465,8 +467,6 @@
                     link.style.display = 'block';
                     if (submenuMatchFound && searchTerm) {
                         link.classList.add('open');
-                    } else if (!submenuMatchFound && isDirectMatch && !searchTerm) {
-                        link.classList.remove('open');
                     }
                 } else {
                     link.style.display = 'none';
