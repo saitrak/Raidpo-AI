@@ -183,9 +183,7 @@
 
     /* Responsive */
     @media (max-width: 768px) {
-      body.sidebar-is-open { margin-left: 0; }
-      body.sidebar-is-open .headbar { left: 0; width: 100%; }
-      .headbar .search-bar { display: none; }
+      /* REMOVED mobile-specific overrides to ensure consistent experience */
       .hero-content h1 { font-size: 3rem; }
       .hero-content p { font-size: 1.2rem; }
     }
@@ -400,40 +398,36 @@
         const mainLinks = sidebarMenu.querySelectorAll(':scope > li');
         let submenuMatchFound = false;
 
-        // First, filter the submenu items
         const submenuItems = toolsSubmenuList.querySelectorAll('li');
         submenuItems.forEach(item => {
             const itemText = item.querySelector('a').innerText.toLowerCase();
             const isMatch = itemText.startsWith(searchTerm);
             item.style.display = isMatch ? 'block' : 'none';
-            if (isMatch) {
-                submenuMatchFound = true;
-            }
+            if (isMatch) submenuMatchFound = true;
         });
 
-        // Now, filter the main menu items
         mainLinks.forEach(link => {
+            const linkAnchor = link.querySelector('a');
+            const linkText = linkAnchor.innerText.toLowerCase();
+
             if (link.id === 'tools-menu') {
-                // Handle the "Tools" parent menu
-                const toolsText = link.querySelector('a').innerText.toLowerCase();
-                if (submenuMatchFound || toolsText.startsWith(searchTerm)) {
+                const isDirectMatch = linkText.startsWith(searchTerm);
+                if (submenuMatchFound || isDirectMatch) {
                     link.style.display = 'block';
                     if (submenuMatchFound && searchTerm) {
-                        link.classList.add('open'); // Auto-open if a child matches
+                        link.classList.add('open');
                     }
                 } else {
                     link.style.display = 'none';
                 }
             } else {
-                // Handle other main links like "Account Settings"
-                const linkText = link.querySelector('a').innerText.toLowerCase();
                 link.style.display = linkText.startsWith(searchTerm) ? 'block' : 'none';
             }
         });
 
-        // If search is cleared, show all main links but don't force submenu open
         if (!searchTerm) {
             mainLinks.forEach(link => link.style.display = 'block');
+            submenuItems.forEach(item => item.style.display = 'block');
             toolsMenu.classList.remove('open');
         }
     });
