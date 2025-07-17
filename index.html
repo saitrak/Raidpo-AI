@@ -18,11 +18,10 @@
   <meta name="twitter:description" content="Free, powerful AI tools for image processing, code generation, text conversion and more.">
   <link rel="canonical" href="https://raidpo-ai.netlify.app">
   <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Pre-emptive Theme Script -->
   <script>
-    // This script runs before the page is rendered to prevent a flash of the wrong theme.
     (function() {
       const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
       if (savedTheme === 'light') {
@@ -177,9 +176,7 @@
     .sidebar.open { left: 0; }
     .sidebar-header { font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); margin-bottom: 0; }
     .sidebar-nav {
-      flex-grow: 1; /* Allows nav to take up remaining space */
-      overflow-y: auto; /* Adds scrollbar ONLY when content overflows */
-      min-height: 0; /* Critical for overflow to work in a flex container */
+      flex-grow: 1; overflow-y: auto; min-height: 0;
     }
     .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
     .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0;
@@ -204,14 +201,33 @@
     /* Tool Categories */
     .tool-categories { padding: 4rem 2rem; background-color: var(--bg-primary); text-align: center; }
     .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem; }
-    .tool-card { background-color: var(--bg-card); padding: 2rem; border-radius: 20px; transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s; position: relative; overflow: hidden; border: 1px solid var(--border-color); }
-    .tool-card:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .tool-card {
+      background-color: var(--bg-card); padding: 2rem; border-radius: 20px;
+      transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+      position: relative; overflow: hidden; border: 1px solid var(--border-color);
+    }
+    /* ORIGINAL HOVER EFFECT - RESTORED */
+    .tool-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(45deg, #ff6f61, #ff3b2f);
+      opacity: 0; transition: opacity 0.3s; z-index: -1;
+    }
+    .tool-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(255, 111, 97, 0.3);
+    }
+    .light-theme .tool-card:hover {
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
     .tool-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--accent-primary); }
     .tool-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .tool-card p { font-size: 0.9rem; color: var(--text-secondary); }
     .tool-card a { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background-color: var(--accent-primary); color: #fff; border-radius: 50px; font-size: 0.9rem; transition: background-color 0.3s; }
     .tool-card a:hover { background-color: var(--accent-secondary); }
-    .tool-card::before { display: none; }
 
     /* Footer */
     footer { padding: 2rem; background-color: var(--bg-secondary); text-align: center; border-top: 1px solid var(--border-color); }
@@ -318,7 +334,8 @@
                   <a href='/about-us'>About Us</a> <a href='/learn-more'>Learn More</a>
                 </div>
                 <div class="social-links">
-                  <a href="#"><i class="fab fa-facebook"></i></a> <a href="#"><i class="fab fa-x-twitter"></i></a>
+                  <a href="#"><i class="fab fa-facebook"></i></a>
+                  <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
                   <a href="#"><i class="fab fa-instagram"></i></a>
                 </div>
                 <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
@@ -526,7 +543,7 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-        loadInitialTheme(); // Set the correct theme on full load
+        loadInitialTheme();
         populateToolsSidebar();
     });
   </script>
