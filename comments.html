@@ -7,240 +7,76 @@
   <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* --- THEME & GLOBAL STYLES BORROWED FROM YOUR ORIGINAL FILE --- */
     :root {
-      /* --- DARK THEME (Default) --- */
-      --bg-primary: #0f0f0f;
-      --bg-secondary: #1a1a1a;
-      --bg-card: #282828; /* Slightly lighter card for comments */
-      --text-primary: #fff;
-      --text-secondary: #ccc;
-      --accent-primary: #ff6f61;
-      --accent-secondary: #ff3b2f;
-      --border-color: #333;
-      --loved-color: #e2264d;
+      --bg-primary: #0f0f0f; --bg-secondary: #1a1a1a; --bg-card: #282828; --text-primary: #fff; --text-secondary: #ccc; --accent-primary: #ff6f61; --accent-secondary: #ff3b2f; --border-color: #333; --loved-color: #e2264d; --liked-color: #4a90e2;
     }
-
     .light-theme {
-      /* --- LIGHT THEME --- */
-      --bg-primary: #f4f4f9;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --text-primary: #212529;
-      --text-secondary: #6c7d7d;
-      --border-color: #dee2e6;
+      --bg-primary: #f4f4f9; --bg-secondary: #ffffff; --bg-card: #ffffff; --text-primary: #212529; --text-secondary: #6c7d7d; --border-color: #dee2e6;
     }
-
-    /* General Styles */
-    body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: var(--text-primary);
-      background-color: var(--bg-primary);
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    /* Selection & Scrollbar Styles */
+    body { font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; padding: 0; color: var(--text-primary); background-color: var(--bg-primary); transition: background-color 0.3s, color 0.3s; }
     ::selection { background-color: var(--accent-primary); color: #fff; }
-    ::-moz-selection { background-color: var(--accent-primary); color: #fff; }
     body::-webkit-scrollbar { width: 8px; }
     body::-webkit-scrollbar-track { background: var(--bg-card); }
     body::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
-
-    /* --- NEW STYLES FOR COMMENT PAGE --- */
-    .comments-page-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--accent-primary);
-      margin-bottom: 2rem;
-    }
-
-    /* Comment Form */
-    .comment-form-container {
-      margin-bottom: 2rem;
-    }
-
-    #comment-form textarea {
-      width: 100%;
-      height: 100px;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 1rem;
-      resize: vertical;
-      box-sizing: border-box;
-    }
-
-    #comment-form textarea:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-    }
+    .comments-page-container { max-width: 800px; margin: 2rem auto; padding: 2rem; }
+    h1 { text-align: center; color: var(--accent-primary); margin-bottom: 2rem; }
+    .comment-form-container { margin-bottom: 2rem; }
+    textarea { width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-secondary); color: var(--text-primary); font-family: inherit; font-size: 1rem; resize: vertical; box-sizing: border-box; }
+    textarea:focus { outline: none; border-color: var(--accent-primary); }
+    button { border: none; border-radius: 50px; background-color: var(--accent-primary); color: #fff; font-weight: bold; font-size: 1rem; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+    button:hover { background-color: var(--accent-secondary); transform: scale(1.05); }
+    #comment-form button { display: block; margin-top: 1rem; margin-left: auto; padding: 0.75rem 1.5rem; }
+    #login-prompt { text-align: center; padding: 2rem; background-color: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: 8px; }
+    #login-prompt a { color: var(--accent-primary); font-weight: bold; text-decoration: underline; }
+    #comments-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    #loading-comments { text-align: center; color: var(--text-secondary); font-style: italic; padding: 2rem; }
+    .comment-container { padding: 1.5rem; background-color: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); }
+    .comment { display: flex; gap: 1rem; }
+    .comment-profile-icon { flex-shrink: 0; width: 50px; height: 50px; border-radius: 50%; background-color: var(--accent-primary); background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: #fff; }
+    .comment-content { width: 100%; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .comment-user-name { font-weight: bold; font-size: 1.1rem; }
+    .comment-timestamp { font-size: 0.8rem; color: var(--text-secondary); }
+    .comment-body { color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+    .comment-actions { display: flex; align-items: center; gap: 1.5rem; margin-top: 1rem; color: var(--text-secondary); }
+    .action-btn { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 1.2rem; }
+    .action-btn i { transition: color 0.2s, transform 0.2s; }
+    .action-btn:hover i { transform: scale(1.2); }
+    .love-btn.loved { color: var(--loved-color); }
+    .like-btn.liked { color: var(--liked-color); }
     
-    #comment-form button {
-      display: block;
-      margin-top: 1rem;
-      margin-left: auto;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 50px;
-      background-color: var(--accent-primary);
-      color: #fff;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    #comment-form button:hover {
-      background-color: var(--accent-secondary);
-      transform: scale(1.05);
-    }
-    
-    #login-prompt {
-        text-align: center;
-        padding: 2rem;
-        background-color: var(--bg-secondary);
-        border: 1px dashed var(--border-color);
-        border-radius: 8px;
-    }
-
-    #login-prompt a {
-        color: var(--accent-primary);
-        font-weight: bold;
-        text-decoration: underline;
-    }
-
-    /* Comments List */
-    #comments-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    
-    #loading-comments {
-        text-align: center;
-        color: var(--text-secondary);
-        font-style: italic;
-        padding: 2rem;
-    }
-
-    /* Single Comment Design */
-    .comment {
-      display: flex;
-      gap: 1rem;
-      padding: 1.5rem;
-      background-color: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-    }
-
-    .comment-profile-icon {
-      flex-shrink: 0;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: var(--accent-primary);
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.5rem;
-      color: #fff;
-    }
-
-    .comment-content {
-      width: 100%;
-    }
-
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .comment-user-name {
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-    
-    .comment-timestamp {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
-
-    .comment-body {
-      color: var(--text-secondary);
-      line-height: 1.6;
-      white-space: pre-wrap; /* To respect line breaks */
-      word-wrap: break-word;
-    }
-
-    .comment-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      color: var(--text-secondary);
-    }
-    
-    .love-btn {
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: color 0.2s, transform 0.2s;
-    }
-
-    .love-btn:hover {
-      transform: scale(1.2);
-    }
-
-    .love-btn.loved {
-      color: var(--loved-color);
-    }
+    /* NEW: Styles for Replies */
+    .replies-container { margin-top: 1.5rem; padding-left: 2rem; border-left: 2px solid var(--border-color); display: none; /* Hidden by default */ }
+    .replies-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .reply-form-container { margin-top: 1.5rem; }
+    .reply-form-container textarea { height: 60px; font-size: 0.9rem; }
+    .reply-form-container button { padding: 0.5rem 1rem; font-size: 0.9rem; float: right; }
   </style>
 </head>
 <body>
 
   <main class="comments-page-container">
     <h1>Discussion</h1>
-
-    <!-- Comment Form (for logged-in users) -->
     <div class="comment-form-container" id="comment-form-container" style="display: none;">
       <form id="comment-form">
         <textarea id="comment-input" placeholder="Join the discussion..." required></textarea>
         <button type="submit">Post Comment</button>
       </form>
     </div>
-    
-    <!-- Login Prompt (for guests) -->
     <div id="login-prompt" style="display: none;">
         <p>Please <a href="/login-form">log in</a> to post comments and share your love!</p>
     </div>
-
-    <!-- List of Comments -->
     <div id="comments-list">
         <div id="loading-comments">Loading comments...</div>
     </div>
   </main>
 
   <script>
-    // --- FIREBASE CONFIGURATION (FROM YOUR PROVIDED FILE) ---
     const firebaseConfig = {
       apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
       authDomain: "raidpo-ai-3c84b.firebaseapp.com",
@@ -251,12 +87,10 @@
       measurementId: "G-7MBZHVFCZR"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore(); // Initialize Firestore
+    const db = firebase.firestore();
 
-    // --- DOM ELEMENTS ---
     const commentFormContainer = document.getElementById('comment-form-container');
     const loginPrompt = document.getElementById('login-prompt');
     const commentForm = document.getElementById('comment-form');
@@ -264,192 +98,270 @@
     const commentsList = document.getElementById('comments-list');
     const loadingComments = document.getElementById('loading-comments');
     
-    // --- THEME LOGIC (to keep consistency) ---
     function applyTheme() {
       const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
-      if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-theme');
-      } else {
-        document.documentElement.classList.remove('light-theme');
-      }
+      document.documentElement.classList.toggle('light-theme', savedTheme === 'light');
     }
-    
-    applyTheme(); // Apply theme on page load
+    applyTheme();
 
-    // --- AUTHENTICATION & UI LOGIC ---
     let currentUser = null;
 
     auth.onAuthStateChanged(user => {
       currentUser = user;
-      if (user) {
-        // User is logged in
-        commentFormContainer.style.display = 'block';
-        loginPrompt.style.display = 'none';
-      } else {
-        // User is logged out
-        commentFormContainer.style.display = 'none';
-        loginPrompt.style.display = 'block';
-      }
-      // Load comments regardless of login state
-      loadComments();
+      commentFormContainer.style.display = user ? 'block' : 'none';
+      loginPrompt.style.display = user ? 'none' : 'block';
+      loadComments(db.collection('comments'), commentsList); // Load top-level comments
     });
 
-    // --- FIRESTORE LOGIC ---
-
-    // 1. Load and display comments from Firestore
-    function loadComments() {
-        const commentsCollection = db.collection('comments').orderBy('timestamp', 'desc');
-
-        // Use onSnapshot for real-time updates
-        commentsCollection.onSnapshot(snapshot => {
-            loadingComments.style.display = 'none';
-            commentsList.innerHTML = ''; // Clear existing comments
-
+    // GENERIC function to load comments or replies
+    function loadComments(collectionRef, targetElement) {
+        collectionRef.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            if (loadingComments.parentNode === targetElement) loadingComments.style.display = 'none';
+            
             if (snapshot.empty) {
-                commentsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No comments yet. Be the first to post!</p>';
+                targetElement.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.9em;">Be the first to contribute!</p>';
                 return;
             }
-            
-            snapshot.forEach(doc => {
-                const commentData = doc.data();
-                const commentId = doc.id;
-                renderComment(commentId, commentData);
+
+            snapshot.docChanges().forEach(change => {
+                const docData = change.doc.data();
+                const docId = change.doc.id;
+                const docPath = change.doc.ref.path;
+
+                if (change.type === 'added') {
+                    // If the placeholder text is there, remove it
+                    if (targetElement.querySelector('p')) {
+                        targetElement.innerHTML = '';
+                    }
+                    const commentElement = renderComment(docId, docPath, docData);
+                    targetElement.prepend(commentElement); // Prepend for 'desc' order
+                }
+                if (change.type === 'modified') {
+                    const existingElement = document.querySelector(`[data-id="${docId}"]`);
+                    if (existingElement) {
+                       updateCommentUI(existingElement, docData);
+                    }
+                }
+                if (change.type === 'removed') {
+                     const existingElement = document.querySelector(`[data-id="${docId}"]`);
+                     if(existingElement) existingElement.remove();
+                }
             });
         }, error => {
             console.error("Error fetching comments: ", error);
-            loadingComments.innerText = "Could not load comments.";
+            targetElement.innerHTML = `<p>Could not load. Error: ${error.message}</p>`;
         });
     }
 
-    // 2. Render a single comment element
-    function renderComment(id, data) {
-        const commentDiv = document.createElement('div');
-        commentDiv.className = 'comment';
-        commentDiv.dataset.id = id; // Store Firestore document ID
+    // GENERIC function to render a comment or a reply
+    function renderComment(id, path, data) {
+        const containerDiv = document.createElement('div');
+        containerDiv.className = 'comment-container';
+        containerDiv.dataset.id = id;
+        containerDiv.dataset.path = path;
 
         const profileIcon = data.userPhotoURL 
             ? `<div class="comment-profile-icon" style="background-image: url('${data.userPhotoURL}')"></div>`
             : `<div class="comment-profile-icon"><i class="fas fa-user"></i></div>`;
 
-        const isLoved = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid);
-        const lovedClass = isLoved ? 'loved' : '';
-
-        // Format timestamp
         const date = data.timestamp ? data.timestamp.toDate() : new Date();
         const timeAgo = formatTimeAgo(date);
 
-        commentDiv.innerHTML = `
-            ${profileIcon}
-            <div class="comment-content">
-                <div class="comment-header">
-                    <span class="comment-user-name">${data.userName || 'Anonymous'}</span>
-                    <span class="comment-timestamp">${timeAgo}</span>
-                </div>
-                <p class="comment-body">${escapeHTML(data.text)}</p>
-                <div class="comment-actions">
-                    <i class="fas fa-heart love-btn ${lovedClass}"></i>
-                    <span class="love-count">${data.likes || 0}</span>
+        containerDiv.innerHTML = `
+            <div class="comment">
+                ${profileIcon}
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-user-name">${escapeHTML(data.userName || 'Anonymous')}</span>
+                        <span class="comment-timestamp">${timeAgo}</span>
+                    </div>
+                    <p class="comment-body">${escapeHTML(data.text)}</p>
+                    <div class="comment-actions">
+                        <!-- NEW: Like Button -->
+                        <div class="action-btn like-btn">
+                            <i class="fa-regular fa-thumbs-up"></i>
+                            <span class="like-count">${data.likes || 0}</span>
+                        </div>
+                        <!-- CHANGED: Love button structure -->
+                        <div class="action-btn love-btn">
+                            <i class="fa-regular fa-heart"></i>
+                            <span class="love-count">${data.loves || 0}</span>
+                        </div>
+                        <!-- NEW: Reply Button -->
+                        <div class="action-btn reply-btn">
+                            <i class="fa-regular fa-comment-dots"></i>
+                            <span class="reply-count">${data.replyCount || 0}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- NEW: Container for replies and reply form -->
+            <div class="replies-container">
+                <div class="replies-list"></div>
+                <div class="reply-form-container"></div>
+            </div>
         `;
-        commentsList.appendChild(commentDiv);
+        
+        updateCommentUI(containerDiv, data); // Set initial state for likes/loves
+        return containerDiv;
     }
 
-    // 3. Handle new comment submission
-    commentForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    // NEW: Function to update counts and icons without re-rendering everything
+    function updateCommentUI(element, data) {
+        const isLiked = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid);
+        const isLoved = currentUser && data.lovedBy && data.lovedBy.includes(currentUser.uid);
         
-        if (!currentUser) {
-            alert("You must be logged in to post a comment.");
-            return;
-        }
+        const likeIcon = element.querySelector('.like-btn i');
+        const loveIcon = element.querySelector('.love-btn i');
+        
+        element.querySelector('.like-count').textContent = data.likes || 0;
+        element.querySelector('.love-count').textContent = data.loves || 0;
+        element.querySelector('.reply-count').textContent = data.replyCount || 0;
 
-        const commentText = commentInput.value.trim();
-        if (commentText) {
-            db.collection('comments').add({
-                text: commentText,
-                userName: currentUser.displayName,
-                userPhotoURL: currentUser.photoURL,
-                userId: currentUser.uid,
-                likes: 0,
-                likedBy: [],
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                commentInput.value = ''; // Clear input field
-            }).catch(error => {
-                console.error("Error adding comment: ", error);
-                alert("There was an error posting your comment.");
-            });
+        likeIcon.className = isLiked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
+        loveIcon.className = isLoved ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        
+        element.querySelector('.like-btn').classList.toggle('liked', isLiked);
+        element.querySelector('.love-btn').classList.toggle('loved', isLoved);
+    }
+    
+    // Top-level comment submission
+    commentForm.addEventListener('submit', e => {
+        e.preventDefault();
+        postComment(commentInput.value, db.collection('comments'))
+          .then(() => commentInput.value = '');
+    });
+
+    // GENERIC function to handle clicks on Like, Love, or Reply
+    document.addEventListener('click', e => {
+        const likeBtn = e.target.closest('.like-btn');
+        const loveBtn = e.target.closest('.love-btn');
+        const replyBtn = e.target.closest('.reply-btn');
+        const replyForm = e.target.closest('.reply-form');
+
+        if (likeBtn) handleReaction(likeBtn, 'like');
+        if (loveBtn) handleReaction(loveBtn, 'love');
+        if (replyBtn) handleReplyClick(replyBtn);
+        if (replyForm) {
+            e.preventDefault();
+            const parentContainer = e.target.closest('.comment-container');
+            const parentPath = parentContainer.dataset.path;
+            const subcollectionRef = db.doc(parentPath).collection('comments');
+            const textarea = replyForm.querySelector('textarea');
+            
+            postComment(textarea.value, subcollectionRef, parentContainer.dataset.id)
+                .then(() => textarea.value = '');
         }
     });
 
-    // 4. Handle 'love' button clicks using event delegation
-    commentsList.addEventListener('click', (e) => {
-        if (e.target.classList.contains('love-btn')) {
-            if (!currentUser) {
-                alert("You must be logged in to like a comment.");
-                return;
+    function handleReaction(btnElement, reactionType) {
+        if (!currentUser) { alert("You must be logged in to react."); return; }
+        
+        const container = btnElement.closest('.comment-container');
+        const docPath = container.dataset.path;
+        const docRef = db.doc(docPath);
+
+        // OPTIMISTIC UPDATE: Update UI immediately
+        const icon = btnElement.querySelector('i');
+        const countSpan = btnElement.querySelector('span');
+        let count = parseInt(countSpan.textContent);
+        const isReacted = btnElement.classList.contains(reactionType === 'like' ? 'liked' : 'loved');
+
+        btnElement.classList.toggle(reactionType === 'like' ? 'liked' : 'loved');
+        icon.className = isReacted ? `fa-regular fa-${reactionType === 'like' ? 'thumbs-up' : 'heart'}` : `fa-solid fa-${reactionType === 'like' ? 'thumbs-up' : 'heart'}`;
+        countSpan.textContent = isReacted ? --count : ++count;
+
+        // Then update Firebase in the background
+        const fieldName = reactionType === 'like' ? 'likes' : 'loves';
+        const arrayName = reactionType === 'like' ? 'likedBy' : 'lovedBy';
+        const increment = firebase.firestore.FieldValue.increment(isReacted ? -1 : 1);
+        const arrayUpdate = isReacted 
+            ? firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
+            : firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
+
+        docRef.update({
+            [fieldName]: increment,
+            [arrayName]: arrayUpdate
+        }).catch(error => {
+            // Revert UI on failure
+            console.error("Reaction failed:", error);
+            btnElement.classList.toggle(reactionType === 'like' ? 'liked' : 'loved');
+            icon.className = !isReacted ? `fa-regular fa-${reactionType === 'like' ? 'thumbs-up' : 'heart'}` : `fa-solid fa-${reactionType === 'like' ? 'thumbs-up' : 'heart'}`;
+            countSpan.textContent = isReacted ? ++count : --count;
+        });
+    }
+    
+    // NEW: Function to handle clicking the reply button
+    function handleReplyClick(replyBtn) {
+        const container = replyBtn.closest('.comment-container');
+        const repliesContainer = container.querySelector('.replies-container');
+        const isVisible = repliesContainer.style.display === 'block';
+        
+        repliesContainer.style.display = isVisible ? 'none' : 'block';
+
+        // Load replies only if opening for the first time
+        if (!isVisible && !repliesContainer.dataset.loaded) {
+            const docPath = container.dataset.path;
+            const repliesList = repliesContainer.querySelector('.replies-list');
+            const replyFormContainer = repliesContainer.querySelector('.reply-form-container');
+            const subcollectionRef = db.doc(docPath).collection('comments');
+            
+            // Show reply form for logged-in users
+            if (currentUser) {
+                replyFormContainer.innerHTML = `
+                    <form class="reply-form">
+                        <textarea placeholder="Write a reply..." required></textarea>
+                        <button type="submit">Reply</button>
+                    </form>
+                `;
             }
 
-            const commentElement = e.target.closest('.comment');
-            const commentId = commentElement.dataset.id;
-            const commentRef = db.collection('comments').doc(commentId);
-            
-            // Use a transaction to safely update the like count
-            db.runTransaction(transaction => {
-                return transaction.get(commentRef).then(doc => {
-                    if (!doc.exists) {
-                        throw "Document does not exist!";
-                    }
+            loadComments(subcollectionRef, repliesList);
+            repliesContainer.dataset.loaded = 'true';
+        }
+    }
+    
+    // GENERIC function to post a comment or a reply
+    async function postComment(text, collectionRef, parentId = null) {
+        if (!currentUser) { alert("You must be logged in to post."); return; }
+        const commentText = text.trim();
+        if (!commentText) return;
 
-                    const likedBy = doc.data().likedBy || [];
-                    let newLikes = doc.data().likes || 0;
-                    
-                    const userIndex = likedBy.indexOf(currentUser.uid);
+        await collectionRef.add({
+            text: commentText,
+            userName: currentUser.displayName,
+            userPhotoURL: currentUser.photoURL,
+            userId: currentUser.uid,
+            likes: 0,
+            likedBy: [],
+            loves: 0,
+            lovedBy: [],
+            replyCount: 0,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-                    if (userIndex === -1) {
-                        // User has not liked it yet -> Like it
-                        newLikes++;
-                        likedBy.push(currentUser.uid);
-                    } else {
-                        // User has already liked it -> Unlike it
-                        newLikes--;
-                        likedBy.splice(userIndex, 1);
-                    }
-                    
-                    transaction.update(commentRef, { likes: newLikes, likedBy: likedBy });
-                });
-            }).catch(error => {
-                console.error("Transaction failed: ", error);
+        // If it's a reply, increment parent's replyCount
+        if (parentId) {
+            const parentRef = collectionRef.parent;
+            await parentRef.update({
+                replyCount: firebase.firestore.FieldValue.increment(1)
             });
         }
-    });
+    }
 
-    // --- UTILITY FUNCTIONS ---
-
-    // Simple HTML escaping to prevent XSS
     function escapeHTML(str) {
-        const div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
+        const p = document.createElement('p');
+        p.appendChild(document.createTextNode(str));
+        return p.innerHTML;
     }
-
-    // Function to format time ago
     function formatTimeAgo(date) {
-        const seconds = Math.floor((new Date() - date) / 1000);
-        let interval = seconds / 31536000;
-        if (interval > 1) return Math.floor(interval) + " years ago";
-        interval = seconds / 2592000;
-        if (interval > 1) return Math.floor(interval) + " months ago";
-        interval = seconds / 86400;
-        if (interval > 1) return Math.floor(interval) + " days ago";
-        interval = seconds / 3600;
-        if (interval > 1) return Math.floor(interval) + " hours ago";
-        interval = seconds / 60;
-        if (interval > 1) return Math.floor(interval) + " minutes ago";
-        return Math.floor(seconds) + " seconds ago";
+        const seconds = Math.floor((new Date() - date) / 1000); let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + "y"; interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + "mo"; interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + "d"; interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + "h"; interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + "m"; return "now";
     }
-
   </script>
 </body>
 </html>
