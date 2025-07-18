@@ -175,17 +175,16 @@
     body.logged-in .sidebar { display: flex; }
     .sidebar.open { left: 0; }
     .sidebar-header { font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); margin-bottom: 0; }
-    .sidebar-nav {
-      flex-grow: 1; overflow-y: auto; min-height: 0;
-    }
+    .sidebar-nav { flex-grow: 1; overflow-y: auto; min-height: 0; }
     .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
     .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0;
       border-bottom: 1px solid var(--border-color); transition: color 0.2s;
     }
     .sidebar-nav a:hover { color: var(--accent-primary); }
-    #tools-menu .tools-submenu { display: none; padding-left: 1.5rem; }
-    #tools-menu.open .tools-submenu { display: block; }
+    #tools-menu .tools-submenu, #favourites-menu .favourites-submenu { display: none; padding-left: 1.5rem; }
+    #tools-menu.open .tools-submenu, #favourites-menu.open .favourites-submenu { display: block; }
     #sign-out-btn { cursor: pointer; }
+    .no-favourites { color: var(--text-secondary); padding: 1rem; font-style: italic; font-size: 0.9rem; }
 
     /* Homepage Styles */
     .homepage { display: none; }
@@ -206,7 +205,6 @@
       transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
       position: relative; overflow: hidden; border: 1px solid var(--border-color);
     }
-    /* ORIGINAL HOVER EFFECT - RESTORED */
     .tool-card::before {
       content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(45deg, #ff6f61, #ff3b2f);
@@ -216,18 +214,37 @@
       transform: translateY(-10px);
       box-shadow: 0 10px 20px rgba(255, 111, 97, 0.3);
     }
-    .light-theme .tool-card:hover {
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    .tool-card:hover::before {
-      opacity: 1;
-    }
+    .light-theme .tool-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .tool-card:hover::before { opacity: 1; }
 
     .tool-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--accent-primary); }
     .tool-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .tool-card p { font-size: 0.9rem; color: var(--text-secondary); }
     .tool-card a { display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background-color: var(--accent-primary); color: #fff; border-radius: 50px; font-size: 0.9rem; transition: background-color 0.3s; }
     .tool-card a:hover { background-color: var(--accent-secondary); }
+    
+    /* Love Icon & Counter */
+    .card-love-meta {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      text-align: center;
+      z-index: 5;
+    }
+    .love-icon {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .love-icon.loved { color: #e2264d; }
+    .love-icon:hover { transform: scale(1.1); }
+    .love-counter {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
 
     /* Footer */
     footer { padding: 2rem; background-color: var(--bg-secondary); text-align: center; border-top: 1px solid var(--border-color); }
@@ -282,9 +299,11 @@
               <li><a href="/account-settings"><i class="fas fa-cog"></i> Account Settings</a></li>
               <li id="tools-menu">
                   <a href="#" id="tools-menu-toggle"><i class="fas fa-tools"></i> Tools</a>
-                  <ul class="tools-submenu" id="tools-submenu-list">
-                      <!-- Tool links will be dynamically injected by JS -->
-                  </ul>
+                  <ul class="tools-submenu" id="tools-submenu-list"></ul>
+              </li>
+              <li id="favourites-menu">
+                  <a href="#" id="favourites-menu-toggle"><i class="fas fa-heart"></i> Favourites</a>
+                  <ul class="favourites-submenu" id="favourites-submenu-list"></ul>
               </li>
               <li><a href="#" id="sign-out-btn"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
           </ul>
@@ -304,27 +323,27 @@
         </section>
         <section id="tools" class="tool-categories">
           <div class="tool-grid" id="tool-grid">
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-code"></i></div> <h3>CodeCraft Pro</h3> <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p> <a href='/codecraft-pro'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Book Library</h3> <p>Search and read legal books directly in the app.</p> <a href='/book-library'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-calculator"></i></div> <h3>Age Calculator</h3> <p>Calculate your age in years, months, and days.</p> <a href='/age-calculator'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code to Link</h3> <p>Extract links or text from QR codes.</p> <a href='/qr-code-to-link'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code Generator</h3> <p>Generate QR codes for URLs or text.</p> <a href='/qr-code-generator'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-link"></i></div> <h3>URL Shortener</h3> <p>Shorten your URLs with ease.</p> <a href='/url-shortener'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>Image to Prompt</h3> <p>Generate accurate prompts from any image.</p> <a href='/image-to-prompt'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-file-image"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-eraser"></i></div> <h3>Background Remover</h3> <p>Remove backgrounds from images instantly with AI.</p> <a href='/bg-remover'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-expand"></i></div> <h3>Image Resizer</h3> <p>Resize images to any dimension while maintaining quality.</p> <a href='/img-resizer'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-magic"></i></div> <h3>Image Enhancer</h3> <p>Enhance image quality with AI-powered tools.</p> <a href='/img-enhance'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-paint-brush"></i></div> <h3>Text-to-Image Generator</h3> <p>Transform text into stunning images with AI.</p> <a href='/text-to-image'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-language"></i></div> <h3>All Language Translator</h3> <p>Translate text from any language to any language instantly.</p> <a href='/translator'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-comment-dots"></i></div> <h3>Text to Speech</h3> <p>Convert text to speech and download the audio file.</p> <a href='/text-to-speech'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Knowledge Nexus</h3> <p>Explore knowledge, images, and more with AI.</p> <a href='/knowledge-nexus'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div> <h3>Currency Converter</h3> <p>Convert currencies in real-time with the latest exchange rates.</p> <a href='/currency-converter'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>YouTube Thumbnail Downloader</h3> <p>Download high-quality thumbnails from YouTube videos.</p> <a href='/youtube-thumbnail-downloader'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div> <h3>ImageFlow</h3> <p>Upload and manage images with ease.</p> <a href='/imageflow'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-gamepad"></i></div> <h3>Hangman Game</h3> <p>Play the classic Hangman game with AI-generated words.</p> <a href="/Hangman-Game.html">Play Now</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div> <h3>Weather App</h3> <p>Get real-time weather updates for any city.</p> <a href='/weather-app'>Use Tool</a> </div>
-            <div class="tool-card"> <div class="tool-icon"><i class="fas fa-pen"></i></div> <h3>Interactive Story Generator</h3> <p>Create unique stories with AI-powered storytelling.</p> <a href='/interactive-story-generator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="codecraft-pro"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-code"></i></div> <h3>CodeCraft Pro</h3> <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p> <a href='/codecraft-pro'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="book-library"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Book Library</h3> <p>Search and read legal books directly in the app.</p> <a href='/book-library'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="age-calculator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-calculator"></i></div> <h3>Age Calculator</h3> <p>Calculate your age in years, months, and days.</p> <a href='/age-calculator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="qr-to-link"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code to Link</h3> <p>Extract links or text from QR codes.</p> <a href='/qr-code-to-link'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="qr-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code Generator</h3> <p>Generate QR codes for URLs or text.</p> <a href='/qr-code-generator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="url-shortener"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-link"></i></div> <h3>URL Shortener</h3> <p>Shorten your URLs with ease.</p> <a href='/url-shortener'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-to-prompt"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>Image to Prompt</h3> <p>Generate accurate prompts from any image.</p> <a href='/image-to-prompt'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-compressor"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-file-image"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="bg-remover"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-eraser"></i></div> <h3>Background Remover</h3> <p>Remove backgrounds from images instantly with AI.</p> <a href='/bg-remover'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-resizer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-expand"></i></div> <h3>Image Resizer</h3> <p>Resize images to any dimension while maintaining quality.</p> <a href='/img-resizer'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-enhancer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-magic"></i></div> <h3>Image Enhancer</h3> <p>Enhance image quality with AI-powered tools.</p> <a href='/img-enhance'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="text-to-img"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-paint-brush"></i></div> <h3>Text-to-Image Generator</h3> <p>Transform text into stunning images with AI.</p> <a href='/text-to-image'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="translator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-language"></i></div> <h3>All Language Translator</h3> <p>Translate text from any language to any language instantly.</p> <a href='/translator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="text-to-speech"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-comment-dots"></i></div> <h3>Text to Speech</h3> <p>Convert text to speech and download the audio file.</p> <a href='/text-to-speech'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="knowledge-nexus"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Knowledge Nexus</h3> <p>Explore knowledge, images, and more with AI.</p> <a href='/knowledge-nexus'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="currency-converter"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div> <h3>Currency Converter</h3> <p>Convert currencies in real-time with the latest exchange rates.</p> <a href='/currency-converter'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="yt-thumbnail"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>YouTube Thumbnail Downloader</h3> <p>Download high-quality thumbnails from YouTube videos.</p> <a href='/youtube-thumbnail-downloader'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="imageflow"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div> <h3>ImageFlow</h3> <p>Upload and manage images with ease.</p> <a href='/imageflow'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="hangman-game"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-gamepad"></i></div> <h3>Hangman Game</h3> <p>Play the classic Hangman game with AI-generated words.</p> <a href="/Hangman-Game.html">Play Now</a> </div>
+            <div class="tool-card" data-tool-id="weather-app"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div> <h3>Weather App</h3> <p>Get real-time weather updates for any city.</p> <a href='/weather-app'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="story-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-pen"></i></div> <h3>Interactive Story Generator</h3> <p>Create unique stories with AI-powered storytelling.</p> <a href='/interactive-story-generator'>Use Tool</a> </div>
           </div>
         </section>
         <footer>
@@ -383,6 +402,9 @@
     const toolsMenuToggle = document.getElementById('tools-menu-toggle');
     const toolsMenu = document.getElementById('tools-menu');
     const toolsSubmenuList = document.getElementById('tools-submenu-list');
+    const favouritesMenu = document.getElementById('favourites-menu');
+    const favouritesMenuToggle = document.getElementById('favourites-menu-toggle');
+    const favouritesSubmenuList = document.getElementById('favourites-submenu-list');
     const sidebarSearch = document.getElementById('sidebar-search');
     const sidebarMenu = document.getElementById('sidebar-menu');
 
@@ -417,6 +439,92 @@
         applyTheme(savedTheme);
     }
 
+    // --- Favourites & Love Logic ---
+    function getStoredData(key, defaultValue) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+    }
+
+    function setStoredData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function renderFavouritesSidebar() {
+        const userFavourites = getStoredData('userFavourites', []);
+        favouritesSubmenuList.innerHTML = ''; // Clear existing items
+
+        if (userFavourites.length === 0) {
+            favouritesSubmenuList.innerHTML = '<li class="no-favourites">No favourites added yet.</li>';
+            return;
+        }
+
+        userFavourites.forEach(toolId => {
+            const toolCard = document.querySelector(`.tool-card[data-tool-id="${toolId}"]`);
+            if (toolCard) {
+                const title = toolCard.querySelector('h3').innerText;
+                const link = toolCard.querySelector('a').href;
+                const iconClass = toolCard.querySelector('.tool-icon i').className;
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="${link}"><i class="${iconClass}"></i> ${title}</a>`;
+                favouritesSubmenuList.appendChild(listItem);
+            }
+        });
+    }
+
+    function initializeToolCards() {
+        const userFavourites = getStoredData('userFavourites', []);
+        const toolLoveCounts = getStoredData('toolLoveCounts', {});
+
+        document.querySelectorAll('.tool-card').forEach(card => {
+            const toolId = card.dataset.toolId;
+            const loveIcon = card.querySelector('.love-icon');
+            const loveCounter = card.querySelector('.love-counter');
+
+            // Set initial loved state
+            if (userFavourites.includes(toolId)) {
+                loveIcon.classList.add('loved');
+                loveIcon.classList.replace('fa-regular', 'fa-solid');
+            }
+
+            // Set initial love count
+            loveCounter.textContent = toolLoveCounts[toolId] || 0;
+        });
+    }
+
+    function handleLoveClick(event) {
+        if (!event.target.classList.contains('love-icon')) return;
+
+        const loveIcon = event.target;
+        const toolCard = loveIcon.closest('.tool-card');
+        const toolId = toolCard.dataset.toolId;
+        const loveCounter = toolCard.querySelector('.love-counter');
+
+        let userFavourites = getStoredData('userFavourites', []);
+        let toolLoveCounts = getStoredData('toolLoveCounts', {});
+
+        const isLoved = userFavourites.includes(toolId);
+
+        if (isLoved) {
+            // Unlove the tool
+            userFavourites = userFavourites.filter(id => id !== toolId);
+            toolLoveCounts[toolId] = (toolLoveCounts[toolId] || 1) - 1;
+            loveIcon.classList.remove('loved');
+            loveIcon.classList.replace('fa-solid', 'fa-regular');
+        } else {
+            // Love the tool
+            userFavourites.push(toolId);
+            toolLoveCounts[toolId] = (toolLoveCounts[toolId] || 0) + 1;
+            loveIcon.classList.add('loved');
+            loveIcon.classList.replace('fa-regular', 'fa-solid');
+        }
+        
+        // Update UI and Storage
+        loveCounter.textContent = toolLoveCounts[toolId];
+        setStoredData('userFavourites', userFavourites);
+        setStoredData('toolLoveCounts', toolLoveCounts);
+        renderFavouritesSidebar();
+    }
+
     // --- Headbar and Sidebar Logic ---
     sidebarToggle.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -426,10 +534,8 @@
         else { sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars'); }
     });
     
-    themeToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleTheme();
-    });
+    themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
+    toolGrid.addEventListener('click', handleLoveClick);
 
     accountProfileIcon.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); userProfileInfo.classList.add('active'); });
     accountProfileIcon.addEventListener('click', (e) => { e.stopPropagation(); userProfileInfo.classList.toggle('active'); });
@@ -450,6 +556,7 @@
     });
 
     toolsMenuToggle.addEventListener('click', (e) => { e.preventDefault(); toolsMenu.classList.toggle('open'); });
+    favouritesMenuToggle.addEventListener('click', (e) => { e.preventDefault(); favouritesMenu.classList.toggle('open'); });
 
     function populateToolsSidebar() {
         const toolCards = toolGrid.querySelectorAll('.tool-card');
@@ -479,35 +586,42 @@
     sidebarSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         const mainLinks = sidebarMenu.querySelectorAll(':scope > li');
-        let submenuMatchFound = false;
-
-        const submenuItems = toolsSubmenuList.querySelectorAll('li');
-        submenuItems.forEach(item => {
-            const itemText = item.querySelector('a').innerText.toLowerCase();
-            const isMatch = itemText.startsWith(searchTerm);
-            item.style.display = isMatch ? 'block' : 'none';
-            if (isMatch) submenuMatchFound = true;
-        });
-
+        
         mainLinks.forEach(link => {
+            let hasVisibleChildren = false;
+            const submenu = link.querySelector('.tools-submenu, .favourites-submenu');
+            
+            if (submenu) {
+                const submenuItems = submenu.querySelectorAll('li');
+                submenuItems.forEach(item => {
+                    const itemText = item.innerText.toLowerCase();
+                    const isMatch = itemText.startsWith(searchTerm);
+                    item.style.display = isMatch ? 'block' : 'none';
+                    if (isMatch) hasVisibleChildren = true;
+                });
+            }
+
             const linkAnchor = link.querySelector('a');
             const linkText = linkAnchor.innerText.toLowerCase();
-
-            if (link.id === 'tools-menu') {
-                const isDirectMatch = linkText.startsWith(searchTerm);
-                if (submenuMatchFound || isDirectMatch) {
-                    link.style.display = 'block';
-                    if (submenuMatchFound && searchTerm) { link.classList.add('open'); }
-                } else { link.style.display = 'none'; }
+            const isDirectMatch = linkText.startsWith(searchTerm);
+            
+            if (isDirectMatch || hasVisibleChildren) {
+                link.style.display = 'block';
+                if (hasVisibleChildren && searchTerm) {
+                    link.classList.add('open');
+                }
             } else {
-                link.style.display = linkText.startsWith(searchTerm) ? 'block' : 'none';
+                link.style.display = 'none';
             }
         });
 
         if (!searchTerm) {
-            mainLinks.forEach(link => link.style.display = 'block');
-            submenuItems.forEach(item => item.style.display = 'block');
-            toolsMenu.classList.remove('open');
+            mainLinks.forEach(link => {
+                link.style.display = 'block';
+                const submenuItems = link.querySelectorAll('.tools-submenu li, .favourites-submenu li');
+                submenuItems.forEach(item => item.style.display = 'block');
+                link.classList.remove('open');
+            });
         }
     });
 
@@ -545,6 +659,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadInitialTheme();
         populateToolsSidebar();
+        initializeToolCards();
+        renderFavouritesSidebar();
     });
   </script>
 </body>
