@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comments - Raidpo AI</title>
+  <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* --- THEME & GLOBAL STYLES BORROWED FROM YOUR ORIGINAL FILE --- */
+    :root {
+      /* --- DARK THEME (Default) --- */
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #282828; /* Slightly lighter card for comments */
+      --text-primary: #fff;
+      --text-secondary: #ccc;
+      --accent-primary: #ff6f61;
+      --accent-secondary: #ff3b2f;
+      --border-color: #333;
+      --loved-color: #e2264d;
+    }
+
+    .light-theme {
+      /* --- LIGHT THEME --- */
+      --bg-primary: #f4f4f9;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #6c7d7d;
+      --border-color: #dee2e6;
+    }
+
+    /* General Styles */
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Selection & Scrollbar Styles */
+    ::selection { background-color: var(--accent-primary); color: #fff; }
+    ::-moz-selection { background-color: var(--accent-primary); color: #fff; }
+    body::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track { background: var(--bg-card); }
+    body::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+
+    /* --- NEW STYLES FOR COMMENT PAGE --- */
+    .comments-page-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--accent-primary);
+      margin-bottom: 2rem;
+    }
+
+    /* Comment Form */
+    .comment-form-container {
+      margin-bottom: 2rem;
+    }
+
+    #comment-form textarea {
+      width: 100%;
+      height: 100px;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    #comment-form textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+    
+    #comment-form button {
+      display: block;
+      margin-top: 1rem;
+      margin-left: auto;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      background-color: var(--accent-primary);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    #comment-form button:hover {
+      background-color: var(--accent-secondary);
+      transform: scale(1.05);
+    }
+    
+    #login-prompt {
+        text-align: center;
+        padding: 2rem;
+        background-color: var(--bg-secondary);
+        border: 1px dashed var(--border-color);
+        border-radius: 8px;
+    }
+
+    #login-prompt a {
+        color: var(--accent-primary);
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    /* Comments List */
+    #comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    #loading-comments {
+        text-align: center;
+        color: var(--text-secondary);
+        font-style: italic;
+        padding: 2rem;
+    }
+
+    /* Single Comment Design */
+    .comment {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem;
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .comment-profile-icon {
+      flex-shrink: 0;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    .comment-content {
+      width: 100%;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .comment-user-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    .comment-timestamp {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .comment-body {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-wrap; /* To respect line breaks */
+      word-wrap: break-word;
+    }
+
+    .comment-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: var(--text-secondary);
+    }
+    
+    .love-btn {
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .love-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .love-btn.loved {
+      color: var(--loved-color);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="comments-page-container">
+    <h1>Discussion</h1>
+
+    <!-- Comment Form (for logged-in users) -->
+    <div class="comment-form-container" id="comment-form-container" style="display: none;">
+      <form id="comment-form">
+        <textarea id="comment-input" placeholder="Join the discussion..." required></textarea>
+        <button type="submit">Post Comment</button>
+      </form>
+    </div>
+    
+    <!-- Login Prompt (for guests) -->
+    <div id="login-prompt" style="display: none;">
+        <p>Please <a href="/login-form">log in</a> to post comments and share your love!</p>
+    </div>
+
+    <!-- List of Comments -->
+    <div id="comments-list">
+        <div id="loading-comments">Loading comments...</div>
+    </div>
+  </main>
+
+  <script>
+    // --- FIREBASE CONFIGURATION (FROM YOUR PROVIDED FILE) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
+      projectId: "raidpo-ai-3c84b",
+      storageBucket: "raidpo-ai-3c84b.appspot.com",
+      messagingSenderId: "41213161184",
+      appId: "1:41213161184:web:58604fc48f2c026f5aaa85",
+      measurementId: "G-7MBZHVFCZR"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore(); // Initialize Firestore
+
+    // --- DOM ELEMENTS ---
+    const commentFormContainer = document.getElementById('comment-form-container');
+    const loginPrompt = document.getElementById('login-prompt');
+    const commentForm = document.getElementById('comment-form');
+    const commentInput = document.getElementById('comment-input');
+    const commentsList = document.getElementById('comments-list');
+    const loadingComments = document.getElementById('loading-comments');
+    
+    // --- THEME LOGIC (to keep consistency) ---
+    function applyTheme() {
+      const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      } else {
+        document.documentElement.classList.remove('light-theme');
+      }
+    }
+    
+    applyTheme(); // Apply theme on page load
+
+    // --- AUTHENTICATION & UI LOGIC ---
+    let currentUser = null;
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (user) {
+        // User is logged in
+        commentFormContainer.style.display = 'block';
+        loginPrompt.style.display = 'none';
+      } else {
+        // User is logged out
+        commentFormContainer.style.display = 'none';
+        loginPrompt.style.display = 'block';
+      }
+      // Load comments regardless of login state
+      loadComments();
+    });
+
+    // --- FIRESTORE LOGIC ---
+
+    // 1. Load and display comments from Firestore
+    function loadComments() {
+        const commentsCollection = db.collection('comments').orderBy('timestamp', 'desc');
+
+        // Use onSnapshot for real-time updates
+        commentsCollection.onSnapshot(snapshot => {
+            loadingComments.style.display = 'none';
+            commentsList.innerHTML = ''; // Clear existing comments
+
+            if (snapshot.empty) {
+                commentsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No comments yet. Be the first to post!</p>';
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const commentData = doc.data();
+                const commentId = doc.id;
+                renderComment(commentId, commentData);
+            });
+        }, error => {
+            console.error("Error fetching comments: ", error);
+            loadingComments.innerText = "Could not load comments.";
+        });
+    }
+
+    // 2. Render a single comment element
+    function renderComment(id, data) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        commentDiv.dataset.id = id; // Store Firestore document ID
+
+        const profileIcon = data.userPhotoURL 
+            ? `<div class="comment-profile-icon" style="background-image: url('${data.userPhotoURL}')"></div>`
+            : `<div class="comment-profile-icon"><i class="fas fa-user"></i></div>`;
+
+        const isLoved = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid);
+        const lovedClass = isLoved ? 'loved' : '';
+
+        // Format timestamp
+        const date = data.timestamp ? data.timestamp.toDate() : new Date();
+        const timeAgo = formatTimeAgo(date);
+
+        commentDiv.innerHTML = `
+            ${profileIcon}
+            <div class="comment-content">
+                <div class="comment-header">
+                    <span class="comment-user-name">${data.userName || 'Anonymous'}</span>
+                    <span class="comment-timestamp">${timeAgo}</span>
+                </div>
+                <p class="comment-body">${escapeHTML(data.text)}</p>
+                <div class="comment-actions">
+                    <i class="fas fa-heart love-btn ${lovedClass}"></i>
+                    <span class="love-count">${data.likes || 0}</span>
+                </div>
+            </div>
+        `;
+        commentsList.appendChild(commentDiv);
+    }
+
+    // 3. Handle new comment submission
+    commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        if (!currentUser) {
+            alert("You must be logged in to post a comment.");
+            return;
+        }
+
+        const commentText = commentInput.value.trim();
+        if (commentText) {
+            db.collection('comments').add({
+                text: commentText,
+                userName: currentUser.displayName,
+                userPhotoURL: currentUser.photoURL,
+                userId: currentUser.uid,
+                likes: 0,
+                likedBy: [],
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                commentInput.value = ''; // Clear input field
+            }).catch(error => {
+                console.error("Error adding comment: ", error);
+                alert("There was an error posting your comment.");
+            });
+        }
+    });
+
+    // 4. Handle 'love' button clicks using event delegation
+    commentsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('love-btn')) {
+            if (!currentUser) {
+                alert("You must be logged in to like a comment.");
+                return;
+            }
+
+            const commentElement = e.target.closest('.comment');
+            const commentId = commentElement.dataset.id;
+            const commentRef = db.collection('comments').doc(commentId);
+            
+            // Use a transaction to safely update the like count
+            db.runTransaction(transaction => {
+                return transaction.get(commentRef).then(doc => {
+                    if (!doc.exists) {
+                        throw "Document does not exist!";
+                    }
+
+                    const likedBy = doc.data().likedBy || [];
+                    let newLikes = doc.data().likes || 0;
+                    
+                    const userIndex = likedBy.indexOf(currentUser.uid);
+
+                    if (userIndex === -1) {
+                        // User has not liked it yet -> Like it
+                        newLikes++;
+                        likedBy.push(currentUser.uid);
+                    } else {
+                        // User has already liked it -> Unlike it
+                        newLikes--;
+                        likedBy.splice(userIndex, 1);
+                    }
+                    
+                    transaction.update(commentRef, { likes: newLikes, likedBy: likedBy });
+                });
+            }).catch(error => {
+                console.error("Transaction failed: ", error);
+            });
+        }
+    });
+
+    // --- UTILITY FUNCTIONS ---
+
+    // Simple HTML escaping to prevent XSS
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    // Function to format time ago
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        return Math.floor(seconds) + " seconds ago";
+    }
+
+  </script>
+</body>
+</html>
