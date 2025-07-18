@@ -34,7 +34,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-
   <style>
     :root {
       --sidebar-width: 280px;
@@ -454,7 +453,7 @@
 
     function renderFavouritesSidebar() {
         const userFavourites = getStoredData('userFavourites', []);
-        favouritesSubmenuList.innerHTML = ''; 
+        favouritesSubmenuList.innerHTML = '';
 
         if (userFavourites.length === 0) {
             favouritesSubmenuList.innerHTML = '<li class="no-favourites">No favourites added yet.</li>';
@@ -477,25 +476,22 @@
     function initializeToolCards() {
         const userFavourites = getStoredData('userFavourites', []);
         
-        // Listen for real-time updates from Firebase
-        db.ref('toolLoves').on('value', (snapshot) => {
-            const toolLoveCounts = snapshot.val() || {};
-            document.querySelectorAll('.tool-card').forEach(card => {
-                const toolId = card.dataset.toolId;
-                const loveIcon = card.querySelector('.love-icon');
-                const loveCounter = card.querySelector('.love-counter');
+        document.querySelectorAll('.tool-card').forEach(card => {
+            const toolId = card.dataset.toolId;
+            const loveIcon = card.querySelector('.love-icon');
+            const loveCounter = card.querySelector('.love-counter');
 
-                // Update love count from Firebase
-                loveCounter.textContent = toolLoveCounts[toolId] || 0;
+            // Set user's personal loved state from localStorage
+            if (userFavourites.includes(toolId)) {
+                loveIcon.classList.add('loved');
+                loveIcon.classList.replace('fa-regular', 'fa-solid');
+            }
 
-                // Set user's liked status from local storage
-                if (userFavourites.includes(toolId)) {
-                    loveIcon.classList.add('loved');
-                    loveIcon.classList.replace('fa-regular', 'fa-solid');
-                } else {
-                    loveIcon.classList.remove('loved');
-                    loveIcon.classList.replace('fa-solid', 'fa-regular');
-                }
+            // Set up real-time listener for global love count from Firebase
+            const dbRef = db.ref('tool-love-counts/' + toolId);
+            dbRef.on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                loveCounter.textContent = count;
             });
         });
     }
@@ -506,27 +502,29 @@
         const loveIcon = event.target;
         const toolCard = loveIcon.closest('.tool-card');
         const toolId = toolCard.dataset.toolId;
-
+        
         let userFavourites = getStoredData('userFavourites', []);
         const isLoved = userFavourites.includes(toolId);
-        
-        const increment = isLoved ? -1 : 1;
-        
-        // Update Firebase with the new count
-        const toolLovesRef = db.ref('toolLoves/' + toolId);
-        toolLovesRef.transaction((currentLoves) => {
-            return (currentLoves || 0) + increment;
-        });
+        const dbRef = db.ref('tool-love-counts/' + toolId);
 
-        // Update local storage for the user's personal "loved" state
         if (isLoved) {
+            // Unlove the tool
             userFavourites = userFavourites.filter(id => id !== toolId);
+            loveIcon.classList.remove('loved');
+            loveIcon.classList.replace('fa-solid', 'fa-regular');
+            // Atomically decrement the counter in Firebase
+            dbRef.set(firebase.database.ServerValue.increment(-1));
         } else {
+            // Love the tool
             userFavourites.push(toolId);
+            loveIcon.classList.add('loved');
+            loveIcon.classList.replace('fa-regular', 'fa-solid');
+            // Atomically increment the counter in Firebase
+            dbRef.set(firebase.database.ServerValue.increment(1));
         }
-        setStoredData('userFavourites', userFavourites);
         
-        renderFavouritesSidebar(); // Update sidebar immediately
+        setStoredData('userFavourites', userFavourites);
+        renderFavouritesSidebar();
     }
 
     // --- Headbar and Sidebar Logic ---
@@ -576,6 +574,17 @@
     }
 
     // --- Search functionality ---
+    headbarSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const toolCards = toolGrid.querySelectorAll('.tool-card');
+        toolCards.forEach(card => {
+            if (!searchTerm) { card.style.display = 'block'; return; }
+            const title = card.querySelector('h3').innerText.toLowerCase();
+            const description = card.querySelector('p').innerText.toLowerCase();
+            card.style.display = (title.startsWith(searchTerm) || description.startsWith(searchTerm)) ? 'block' : 'none';
+        });
+    });
+
     sidebarSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         const mainLinks = sidebarMenu.querySelectorAll(':scope > li');
@@ -616,17 +625,6 @@
                 link.classList.remove('open');
             });
         }
-    });
-
-    headbarSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        const toolCards = toolGrid.querySelectorAll('.tool-card');
-        toolCards.forEach(card => {
-            if (!searchTerm) { card.style.display = 'block'; return; }
-            const title = card.querySelector('h3').innerText.toLowerCase();
-            const description = card.querySelector('p').innerText.toLowerCase();
-            card.style.display = (title.startsWith(searchTerm) || description.startsWith(searchTerm)) ? 'block' : 'none';
-        });
     });
 
     // --- Authentication Logic ---
