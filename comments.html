@@ -6,40 +6,42 @@
   <title>Comments - Raidpo AI</title>
   <link rel="icon" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- NEW: Added Poppins font from your design -->
+  
+  <!-- NEW: Importing Poppins font from your design reference -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-
+  
   <style>
-    /* --- RESTORED: Original Default Theme Variables & Base Styles --- */
+    /* --- NEW DESIGN & RESTORED DEFAULTS --- */
     :root {
       /* --- DARK THEME (Default) --- */
       --bg-primary: #0f0f0f;
       --bg-secondary: #1a1a1a;
-      --text-primary: #fff;
-      --text-secondary: #ccc;
+      --bg-card: rgba(255, 255, 255, 0.05); /* Translucent card from your design */
+      --text-primary: #e0e0e0; /* Slightly off-white for better readability */
+      --text-secondary: #a0a0a0;
       --accent-primary: #ff6f61;
       --accent-secondary: #ff3b2f;
-      --border-color: #333;
+      --border-color: #ff6f61; /* Border color from your design */
       --loved-color: #e2264d;
       --liked-color: #4a90e2;
-      /* NEW: Card background from your design */
-      --bg-card: rgba(255, 255, 255, 0.07);
-      --card-border-color: #ff6f61;
+      --loader-text-base: #555;
+      --loader-text-shimmer: #fff;
     }
 
     .light-theme {
-      /* --- LIGHT THEME (Restored and adapted for new design) --- */
+      /* --- LIGHT THEME (Restored) --- */
       --bg-primary: #f4f4f9;
       --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
       --text-primary: #212529;
       --text-secondary: #6c7d7d;
       --border-color: #dee2e6;
-      --bg-card: #ffffff;
-      --card-border-color: #dee2e6;
+      --loader-text-base: #e0e0e0;
+      --loader-text-shimmer: #212529;
     }
 
     /* RESTORED: Selection & Scrollbar Styles */
@@ -48,132 +50,132 @@
     body::-webkit-scrollbar { width: 8px; }
     body::-webkit-scrollbar-track { background: var(--bg-card); }
     body::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
-    
-    /* --- NEW: Design Implementation based on your example --- */
+
+    /* RESTORED: Loading Screen */
+    .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-primary); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; }
+    .loader-content { font-size: 3rem; font-weight: bold; color: var(--loader-text-base); position: relative; overflow: hidden; }
+    .loader-content::after { content: 'Raidpo AI'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; color: var(--loader-text-shimmer); background: linear-gradient(100deg, transparent 20%, var(--accent-primary) 50%, transparent 80%); background-size: 200% 100%; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer-animation 2s infinite linear; }
+    @keyframes shimmer-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* --- GENERAL STYLES BASED ON YOUR DESIGN --- */
     body {
-      /* Font from your new design */
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      padding: 0;
+      font-family: 'Poppins', sans-serif; /* NEW FONT */
+      margin: 0; padding: 0;
       color: var(--text-primary);
       background-color: var(--bg-primary);
-      transition: background-color 0.3s, color 0.3s;
     }
-    
-    /* RESTORED: Android font override */
-    body.android-device {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
+    /* RESTORED: Font override for Android */
+    body.android-device { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
 
-    .comments-page-container { max-width: 800px; margin: 3rem auto; padding: 0 2rem; }
-    h1 { text-align: center; color: var(--accent-primary); margin-bottom: 2rem; font-size: 2.5rem; }
-    
-    /* --- Main Comment Form Styling (New Design) --- */
+    .comments-page-container { max-width: 900px; margin: 3rem auto; padding: 0 2rem; }
+    h1 { text-align: center; color: var(--accent-primary); font-size: 2.5rem; margin-bottom: 2rem; }
     .comment-form-container { margin-bottom: 2rem; }
     textarea { width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--bg-card); color: var(--text-primary); font-family: inherit; font-size: 1rem; resize: vertical; box-sizing: border-box; }
-    textarea:focus { outline: none; border: 1px solid var(--accent-primary); }
-    
-    /* FIXED: Restored and restyled button */
-    .post-comment-btn {
-      display: block;
-      margin-top: 1rem;
-      margin-left: auto;
-      padding: 1rem 2rem;
-      background: var(--accent-primary);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      text-decoration: none;
-      transition: all 0.3s;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .post-comment-btn:hover {
-      background: var(--accent-secondary);
-      transform: translateY(-3px);
-    }
-    
-    /* --- Comment & Reply Styling (New Design) --- */
+    textarea:focus { outline: none; border: 1px solid var(--accent-secondary); }
+
+    /* FIXED: Post Comment button now matches your design */
+    .post-comment-btn { display: inline-block; padding: 0.75rem 2rem; background: var(--accent-primary); color: #fff; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-weight: 600; border: none; cursor: pointer; float: right; }
+    .post-comment-btn:hover { background: var(--accent-secondary); transform: translateY(-3px); }
+
+    #login-prompt { text-align: center; padding: 2rem; background-color: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 10px; }
+    #login-prompt a { color: var(--accent-primary); font-weight: bold; text-decoration: none; }
     #comments-list { display: flex; flex-direction: column; gap: 0; }
     .comment-container { padding: 1rem 0; }
-    
-    .comment {
-      background: var(--bg-card);
-      border-radius: 10px;
-      padding: 1.5rem;
-      border: 1px solid var(--card-border-color);
-      display: flex;
-      gap: 1rem;
-      position: relative;
-    }
+    .replies-section { display: none; padding-left: 20px; border-left: 2px solid var(--border-color); margin-top: 1.5rem; }
 
-    .replies-section { display: none; padding-left: 20px; border-left: 2px solid var(--accent-primary); margin-top: 1rem; }
+    /* NEW: Comment styling from your design reference */
+    .comment { display: flex; gap: 1rem; background: var(--bg-card); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--border-color); position: relative; }
+    .light-theme .comment { border: 1px solid #ddd; }
+
     .comment-profile-icon { flex-shrink: 0; width: 45px; height: 45px; border-radius: 50%; background-color: var(--accent-primary); background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: #fff; }
     .comment-content { width: 100%; }
     .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .comment-user-name { font-weight: 600; font-size: 1.1rem; color: var(--text-primary); }
+    .comment-user-name { font-weight: 600; font-size: 1.1rem; color: var(--accent-primary); }
     .comment-timestamp { font-size: 0.8rem; color: var(--text-secondary); }
-    .comment-body { color: var(--text-secondary); line-height: 1.6; }
+    .comment-body { color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+    .light-theme .comment-body { color: #333; }
     .comment-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; margin-top: 1rem; color: var(--text-secondary); }
     .action-group { display: flex; align-items: center; gap: 0.5rem; }
-    .action-btn { cursor: pointer; font-size: 1.2rem; transition: color 0.2s, transform 0.2s; background: none; border: none; color: inherit; padding: 0; }
-    .action-btn:hover { transform: scale(1.2); }
+    .action-btn { cursor: pointer; font-size: 1.1rem; transition: color 0.2s, transform 0.2s; background: none; border: none; color: inherit; padding: 0; }
+    .action-btn:hover { transform: scale(1.1); color: var(--text-primary); }
     .like-btn.liked { color: var(--liked-color); }
     .love-btn.loved { color: var(--loved-color); }
     .copy-btn.copied { color: var(--accent-primary); }
-    .reply-toggle-btn { font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+    .reply-toggle-btn { font-weight: 600; font-size: 0.9rem; cursor: pointer; color: var(--text-secondary); }
     .reply-toggle-btn:hover { color: var(--accent-primary); }
-    .comment-options { position: absolute; top: 0.75rem; right: 0.75rem; }
+    .comment-options { position: absolute; top: 1rem; right: 1rem; }
     .options-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 0.25rem; }
-    .options-dropdown { display: none; position: absolute; right: 0; top: 1.5rem; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; z-index: 10; overflow: hidden; }
+    .options-dropdown { display: none; position: absolute; right: 0; top: 1.5rem; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10; overflow: hidden; }
+    .light-theme .options-dropdown { background-color: #fff; }
     .options-dropdown.active { display: block; }
     .options-dropdown button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: 0.75rem 1rem; font-size: 0.9rem; cursor: pointer; white-space: nowrap; font-family: 'Poppins', sans-serif; }
+    .options-dropdown button:hover { background-color: var(--bg-card); }
     .options-dropdown .delete-option { color: var(--loved-color); }
     .edit-view { display: flex; flex-direction: column; }
     .edit-textarea { width: 100%; min-height: 80px; }
     .edit-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; align-self: flex-end; }
-    .edit-actions button { padding: 0.5rem 1rem; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; }
+    .edit-actions button { padding: 0.5rem 1rem; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; font-family: 'Poppins', sans-serif; }
     .save-edit-btn { background-color: var(--accent-primary); color: white; }
     .cancel-edit-btn { background-color: var(--border-color); color: var(--text-primary); }
     .reply-form-container { padding-bottom: 1rem; }
+    .reply-form-container textarea { height: 80px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
-  <main class="comments-page-container">
+  <!-- RESTORED: Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader-content">Raidpo AI</div>
+  </div>
+
+  <main class="comments-page-container" style="display: none;">
+    <!-- Changed Title -->
     <h1>Comment</h1>
     
     <div class="comment-form-container" id="comment-form-container">
       <form class="comment-form" data-parent-id="null">
+        <!-- Changed Placeholder -->
         <textarea name="comment-text" placeholder="Write a comment" required></textarea>
-        <!-- FIXED: Button has new class for styling -->
+        <!-- FIXED: Button has correct class -->
         <button type="submit" class="post-comment-btn">Post Comment</button>
       </form>
     </div>
     <div id="login-prompt" style="display: none;">
         <p>Please <a href="/login-form">log in</a> to post comments and share your love!</p>
     </div>
-    <div id="comments-list">
-        <div id="loading-comments" style="color: var(--text-secondary); text-align: center; padding: 2rem; font-style: italic;">Loading comments...</div>
-    </div>
+    <div id="comments-list"></div>
   </main>
 
   <script>
-    // --- RESTORED: Default theme and device check logic ---
+    // --- All JavaScript logic from before remains the same, with added default features ---
+
+    // --- RESTORED DEFAULTS & GLOBAL ELEMENTS ---
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContainer = document.querySelector('.comments-page-container');
+    const body = document.body;
+
+    // RESTORED: Android Font Override
+    if (/android/i.test(navigator.userAgent)) {
+        body.classList.add('android-device');
+    }
+    
+    // RESTORED: Theme Logic (though your new design is dark-first)
     function applyTheme() {
       const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
       document.documentElement.classList.toggle('light-theme', savedTheme === 'light');
     }
-    function checkAndroid() {
-        if (/android/i.test(navigator.userAgent)) {
-            document.body.classList.add('android-device');
-        }
-    }
     applyTheme();
-    checkAndroid();
+    
+    // --- FIREBASE & APP LOGIC ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY",
+      authDomain: "raidpo-ai-3c84b.firebaseapp.com",
+      projectId: "raidpo-ai-3c84b",
+      storageBucket: "raidpo-ai-3c84b.appspot.com",
+      messagingSenderId: "41213161184",
+      appId: "1:41213161184:web:58604fc8f2c026f5aaa85"
+    };
 
-    // --- Firebase and Core Logic (unchanged from previous version) ---
-    const firebaseConfig = { /* ... your config ... */ };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -181,57 +183,171 @@
     const mainCommentFormContainer = document.getElementById('comment-form-container');
     const loginPrompt = document.getElementById('login-prompt');
     const commentsList = document.getElementById('comments-list');
+    
     let currentUser = null;
 
-    auth.onAuthStateChanged(user => { /* ... same as before ... */ });
-    function loadComments() { /* ... same as before ... */ }
-    function buildAndRenderTree(comments) { /* ... same as before ... */ }
-    function renderComment(commentData, container) { /* ... same as before ... */ }
-    function createCommentElement(data) { /* ... same as before ... */ }
-    
-    // --- EVENT LISTENERS ---
-    document.addEventListener('click', (e) => { /* ... same as before ... */ });
-    commentsList.addEventListener('click', e => {
-        // This entire listener is the same, but the handleCopy function is updated below.
-        /* ... same logic ... */
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      mainCommentFormContainer.style.display = user ? 'block' : 'none';
+      loginPrompt.style.display = user ? 'none' : 'block';
+      loadComments();
+      // RESTORED: Hide loading screen after auth check
+      setTimeout(() => {
+          loadingScreen.style.opacity = '0';
+          mainContainer.style.display = 'block';
+          // Remove from DOM after transition
+          setTimeout(() => loadingScreen.style.display = 'none', 500);
+      }, 1000); 
     });
-    document.addEventListener('submit', e => { /* ... same as before ... */ });
 
-    // --- HANDLER FUNCTIONS ---
-    function handleCopy(button, commentElement) {
-        const commentText = commentElement.querySelector('.comment-body').innerText;
-        navigator.clipboard.writeText(commentText).then(() => {
-            // FIXED: This now correctly swaps between fa-copy and fa-check
-            button.classList.remove('fa-copy');
-            button.classList.add('fa-check');
-            button.classList.add('copied');
-
-            setTimeout(() => {
-                button.classList.remove('fa-check');
-                button.classList.add('fa-copy');
-                button.classList.remove('copied');
-            }, 1500);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
+    function loadComments() {
+        db.collection('comments').orderBy('timestamp', 'asc').onSnapshot(snapshot => {
+            const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            buildAndRenderTree(comments);
+        }, error => {
+            console.error("Error fetching comments: ", error);
+            commentsList.innerHTML = `<p>Could not load comments. Error: ${error.message}</p>`;
         });
     }
+
+    function buildAndRenderTree(comments) {
+        commentsList.innerHTML = '';
+        const commentMap = {};
+        comments.forEach(comment => {
+            commentMap[comment.id] = { ...comment, children: [] };
+        });
+        const tree = [];
+        comments.forEach(comment => {
+            if (comment.parentId && commentMap[comment.parentId]) {
+                commentMap[comment.parentId].children.push(commentMap[comment.id]);
+            } else {
+                tree.push(commentMap[comment.id]);
+            }
+        });
+        tree.sort((a,b) => b.timestamp - a.timestamp);
+        tree.forEach(comment => renderComment(comment, commentsList));
+    }
     
-    // --- All other functions are the same as the previous version ---
-    // Pasting the full script block again for a complete, copy-paste solution.
-    const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.appspot.com", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
-    auth.onAuthStateChanged(user => { currentUser = user; mainCommentFormContainer.style.display = user ? 'block' : 'none'; loginPrompt.style.display = user ? 'none' : 'block'; loadComments(); });
-    function loadComments() { const loadingComments = document.getElementById('loading-comments'); db.collection('comments').orderBy('timestamp', 'asc').onSnapshot(snapshot => { if (loadingComments) loadingComments.style.display = 'none'; const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); buildAndRenderTree(comments); }, error => { if(loadingComments) loadingComments.innerHTML = `Could not load comments. Error: ${error.message}`; });}
-    function buildAndRenderTree(comments) { commentsList.innerHTML = ''; const commentMap = {}; comments.forEach(comment => { commentMap[comment.id] = { ...comment, children: [] }; }); const tree = []; comments.forEach(comment => { if (comment.parentId && commentMap[comment.parentId]) { commentMap[comment.parentId].children.push(commentMap[comment.id]); } else { tree.push(commentMap[comment.id]); } }); tree.sort((a,b) => b.timestamp - a.timestamp); tree.forEach(comment => renderComment(comment, commentsList)); }
-    function renderComment(commentData, container) { const commentContainer = document.createElement('div'); commentContainer.className = 'comment-container'; commentContainer.dataset.id = commentData.id; const commentElement = createCommentElement(commentData); commentContainer.appendChild(commentElement); const repliesSection = document.createElement('div'); repliesSection.className = 'replies-section'; const replyFormHTML = `<div class="reply-form-container"><form class="reply-form" data-parent-id="${commentData.id}"><textarea name="comment-text" placeholder="Write a reply..." required></textarea><div class="edit-actions"><button type="submit" class="save-edit-btn">Reply</button></div></form></div>`; repliesSection.innerHTML = replyFormHTML; if (commentData.children && commentData.children.length > 0) { const threadContainer = document.createElement('div'); threadContainer.className = 'comment-thread'; commentData.children.sort((a, b) => a.timestamp - b.timestamp); commentData.children.forEach(reply => { renderComment(reply, threadContainer); }); repliesSection.appendChild(threadContainer); } commentContainer.appendChild(repliesSection); container.appendChild(commentContainer); }
-    function createCommentElement(data) { const commentDiv = document.createElement('div'); commentDiv.className = 'comment'; const profileIcon = data.userPhotoURL ? `<div class="comment-profile-icon" style="background-image: url('${data.userPhotoURL}')"></div>` : `<div class="comment-profile-icon"><i class="fas fa-user"></i></div>`; const isLiked = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid); const isLoved = currentUser && data.lovedBy && data.lovedBy.includes(currentUser.uid); const timeAgo = data.timestamp ? formatTimeAgo(data.timestamp.toDate()) : 'just now'; const replyCount = data.children ? data.children.length : 0; const replyText = replyCount > 0 ? `Reply (${replyCount})` : 'Reply'; const isOwner = currentUser && currentUser.uid === data.userId; const isAdmin = currentUser && currentUser.email === 'raidpoultimate@gmail.com'; const optionsMenu = (isOwner || isAdmin) ? `<div class="comment-options"><button class="options-btn"><i class="fas fa-ellipsis-v"></i></button><div class="options-dropdown"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button><button class="delete-btn delete-option"><i class="fas fa-trash"></i> Delete</button></div></div>` : ''; commentDiv.innerHTML = `${profileIcon}<div class="comment-content"><div class="comment-header"><span class="comment-user-name">${escapeHTML(data.userName || 'Anonymous')}</span><span class="comment-timestamp">${timeAgo}</span></div><div class="comment-body-wrapper"><p class="comment-body">${escapeHTML(data.text)}</p></div><div class="comment-actions"><div class="action-group"><i class="action-btn like-btn ${isLiked ? 'fa-solid liked' : 'fa-regular'} fa-thumbs-up"></i><span class="like-count">${data.likes || 0}</span></div><div class="action-group"><i class="action-btn love-btn ${isLoved ? 'fa-solid loved' : 'fa-regular'} fa-heart"></i><span class="love-count">${data.loves || 0}</span></div><div class="action-group"><i class="action-btn copy-btn fa-regular fa-copy"></i></div><div class="action-group"><button class="action-btn reply-toggle-btn">${replyText}</button></div></div></div>${optionsMenu}`; return commentDiv; }
-    document.addEventListener('click', e => { const activeDropdown = document.querySelector('.options-dropdown.active'); if (activeDropdown && !activeDropdown.closest('.comment-options').contains(e.target)) { activeDropdown.classList.remove('active'); }});
-    commentsList.addEventListener('click', e => { const button = e.target.closest('button, i'); if (!button) return; const commentContainer = button.closest('.comment-container'); if (!commentContainer) return; const commentId = commentContainer.dataset.id; const commentElement = commentContainer.querySelector(':scope > .comment'); if (button.matches('.reply-toggle-btn')) { const repliesSection = commentContainer.querySelector('.replies-section'); const isVisible = repliesSection.style.display === 'block'; repliesSection.style.display = isVisible ? 'none' : 'block'; if (!isVisible) { repliesSection.querySelector('textarea').focus(); } return; } if (button.matches('.options-btn, .options-btn *')) { const dropdown = commentElement.querySelector('.options-dropdown'); const isActive = dropdown.classList.contains('active'); document.querySelectorAll('.options-dropdown.active').forEach(d => d.classList.remove('active')); if (!isActive) dropdown.classList.add('active'); return; } if (!currentUser) { if (button.classList.contains('action-btn')) alert("You must be logged in to interact."); return; } if (button.matches('.like-btn, .love-btn')) { handleReaction(button, commentId); } if (button.matches('.copy-btn')) { handleCopy(button, commentElement); } if (button.matches('.delete-btn')) { handleDelete(commentId); } if (button.matches('.edit-btn')) { handleEdit(commentElement); } if (button.matches('.save-edit-btn')) { handleSaveEdit(commentElement, commentId); } if (button.matches('.cancel-edit-btn')) { handleCancelEdit(commentElement); } });
-    document.addEventListener('submit', e => { e.preventDefault(); if (e.target.matches('.comment-form, .reply-form')) { handleCommentSubmit(e.target); } });
-    function handleCommentSubmit(form) { if (!currentUser) { alert("You must be logged in to post."); return; } const text = form.querySelector('textarea').value.trim(); const parentId = form.dataset.parentId === 'null' ? null : form.dataset.parentId; if (!text) return; db.collection('comments').add({ text: text, parentId: parentId, userName: currentUser.displayName, userPhotoURL: currentUser.photoURL, userId: currentUser.uid, likes: 0, likedBy: [], loves: 0, lovedBy: [], timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { form.reset(); }).catch(error => { console.error("Error adding comment: ", error); alert("Error posting comment."); }); }
-    function handleDelete(commentId) { if (confirm("Delete this comment? This will also delete all its replies in the database. This cannot be undone.")) { db.collection('comments').doc(commentId).delete().catch(error => console.error("Error deleting comment:", error)); } }
-    function handleReaction(button, commentId) { if(!currentUser) return; const isLikeBtn = button.classList.contains('like-btn'); const fieldCounter = isLikeBtn ? 'likes' : 'loves'; const fieldArray = isLikeBtn ? 'likedBy' : 'lovedBy'; const countSpan = button.nextElementSibling; const isReacted = button.classList.contains(isLikeBtn ? 'liked' : 'loved'); button.classList.toggle(isLikeBtn ? 'liked' : 'loved'); button.classList.toggle('fa-solid'); button.classList.toggle('fa-regular'); countSpan.textContent = parseInt(countSpan.textContent) + (isReacted ? -1 : 1); const updateAction = isReacted ? firebase.firestore.FieldValue.arrayRemove(currentUser.uid) : firebase.firestore.FieldValue.arrayUnion(currentUser.uid); db.collection('comments').doc(commentId).update({ [fieldCounter]: firebase.firestore.FieldValue.increment(isReacted ? -1: 1), [fieldArray]: updateAction }).catch(err => console.error(err));}
+    function renderComment(commentData, container) {
+        const commentContainer = document.createElement('div');
+        commentContainer.className = 'comment-container';
+        commentContainer.dataset.id = commentData.id;
+        const commentElement = createCommentElement(commentData);
+        commentContainer.appendChild(commentElement);
+        const repliesSection = document.createElement('div');
+        repliesSection.className = 'replies-section';
+        const replyFormHTML = `<div class="reply-form-container"><form class="reply-form" data-parent-id="${commentData.id}"><textarea name="comment-text" placeholder="Write a reply..." required></textarea><div class="edit-actions"><button type="submit" class="post-comment-btn">Reply</button></div></form></div>`;
+        repliesSection.innerHTML = replyFormHTML;
+        if (commentData.children && commentData.children.length > 0) {
+            const threadContainer = document.createElement('div');
+            threadContainer.className = 'comment-thread';
+            commentData.children.sort((a, b) => a.timestamp - b.timestamp);
+            commentData.children.forEach(reply => renderComment(reply, threadContainer));
+            repliesSection.appendChild(threadContainer);
+        }
+        commentContainer.appendChild(repliesSection);
+        container.appendChild(commentContainer);
+    }
+    
+    function createCommentElement(data) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        const profileIcon = data.userPhotoURL ? `<div class="comment-profile-icon" style="background-image: url('${data.userPhotoURL}')"></div>` : `<div class="comment-profile-icon"><i class="fas fa-user"></i></div>`;
+        const isLiked = currentUser && data.likedBy && data.likedBy.includes(currentUser.uid);
+        const isLoved = currentUser && data.lovedBy && data.lovedBy.includes(currentUser.uid);
+        const timeAgo = data.timestamp ? formatTimeAgo(data.timestamp.toDate()) : 'just now';
+        const replyCount = data.children ? data.children.length : 0;
+        const replyText = replyCount > 0 ? `Reply (${replyCount})` : 'Reply';
+        const isOwner = currentUser && currentUser.uid === data.userId;
+        const isAdmin = currentUser && currentUser.email === 'raidpoultimate@gmail.com';
+        const optionsMenu = (isOwner || isAdmin) ? `<div class="comment-options"><button class="options-btn"><i class="fas fa-ellipsis-v"></i></button><div class="options-dropdown"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button><button class="delete-btn delete-option"><i class="fas fa-trash"></i> Delete</button></div></div>` : '';
+
+        commentDiv.innerHTML = `
+            ${profileIcon}
+            <div class="comment-content">
+                <div class="comment-header">
+                    <span class="comment-user-name">${escapeHTML(data.userName || 'Anonymous')}</span>
+                    <span class="comment-timestamp">${timeAgo}</span>
+                </div>
+                <div class="comment-body-wrapper">
+                    <p class="comment-body">${escapeHTML(data.text)}</p>
+                </div>
+                <div class="comment-actions">
+                    <div class="action-group"><i class="action-btn like-btn ${isLiked ? 'fa-solid liked' : 'fa-regular'} fa-thumbs-up"></i><span class="like-count">${data.likes || 0}</span></div>
+                    <div class="action-group"><i class="action-btn love-btn ${isLoved ? 'fa-solid loved' : 'fa-regular'} fa-heart"></i><span class="love-count">${data.loves || 0}</span></div>
+                    <div class="action-group"><i class="action-btn copy-btn fa-regular fa-copy"></i></div>
+                    <div class="action-group"><button class="action-btn reply-toggle-btn">${replyText}</button></div>
+                </div>
+            </div>
+            ${optionsMenu}`;
+        return commentDiv;
+    }
+
+    document.addEventListener('click', e => {
+        const activeDropdown = document.querySelector('.options-dropdown.active');
+        if (activeDropdown && !activeDropdown.closest('.comment-options').contains(e.target)) {
+            activeDropdown.classList.remove('active');
+        }
+    });
+
+    commentsList.addEventListener('click', e => {
+        const button = e.target.closest('button, i');
+        if (!button) return;
+        const commentContainer = button.closest('.comment-container');
+        if (!commentContainer) return;
+        const commentId = commentContainer.dataset.id;
+        const commentElement = commentContainer.querySelector(':scope > .comment');
+
+        if (button.matches('.reply-toggle-btn')) {
+            const repliesSection = commentContainer.querySelector('.replies-section');
+            const isVisible = repliesSection.style.display === 'block';
+            repliesSection.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) repliesSection.querySelector('textarea').focus();
+            return;
+        }
+
+        if (button.matches('.options-btn, .options-btn *')) {
+            const dropdown = commentElement.querySelector('.options-dropdown');
+            const isActive = dropdown.classList.contains('active');
+            document.querySelectorAll('.options-dropdown.active').forEach(d => d.classList.remove('active'));
+            if (!isActive) dropdown.classList.add('active');
+            return;
+        }
+
+        if (!currentUser) { if (button.matches('.action-btn, .reply-toggle-btn')) alert("You must be logged in to interact."); return; }
+        
+        if (button.matches('.like-btn, .love-btn')) handleReaction(button, commentId);
+        if (button.matches('.copy-btn')) handleCopy(button, commentElement);
+        if (button.matches('.delete-btn')) handleDelete(commentId);
+        if (button.matches('.edit-btn')) handleEdit(commentElement);
+        if (button.matches('.save-edit-btn')) handleSaveEdit(commentElement, commentId);
+        if (button.matches('.cancel-edit-btn')) handleCancelEdit(commentElement);
+    });
+    
+    document.addEventListener('submit', e => {
+        e.preventDefault();
+        if (e.target.matches('.comment-form, .reply-form')) {
+            handleCommentSubmit(e.target);
+        }
+    });
+    
+    function handleCommentSubmit(form) {
+        if (!currentUser) { alert("You must be logged in to post."); return; }
+        const text = form.querySelector('textarea').value.trim();
+        const parentId = form.dataset.parentId === 'null' ? null : form.dataset.parentId;
+        if (!text) return;
+        db.collection('comments').add({
+            text: text, parentId: parentId, userName: currentUser.displayName, userPhotoURL: currentUser.photoURL,
+            userId: currentUser.uid, likes: 0, likedBy: [], loves: 0, lovedBy: [],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => form.reset()).catch(error => console.error("Error adding comment: ", error));
+    }
+    
+    function handleReaction(button, commentId) { if(!currentUser) return; const isLikeBtn = button.classList.contains('like-btn'); const fieldCounter = isLikeBtn ? 'likes' : 'loves'; const fieldArray = isLikeBtn ? 'likedBy' : 'lovedBy'; const countSpan = button.nextElementSibling; const isReacted = button.classList.contains(isLikeBtn ? 'liked' : 'loved'); button.classList.toggle(isLikeBtn ? 'liked' : 'loved'); button.classList.toggle('fa-solid'); button.classList.toggle('fa-regular'); countSpan.textContent = parseInt(countSpan.textContent) + (isReacted ? -1 : 1); const updateAction = isReacted ? firebase.firestore.FieldValue.arrayRemove(currentUser.uid) : firebase.firestore.FieldValue.arrayUnion(currentUser.uid); db.collection('comments').doc(commentId).update({ [fieldCounter]: firebase.firestore.FieldValue.increment(isReacted ? -1: 1), [fieldArray]: updateAction }).catch(err => console.error("Reaction failed to save:", err));}
+    function handleCopy(button, commentElement) { const commentText = commentElement.querySelector('.comment-body').innerText; navigator.clipboard.writeText(commentText).then(() => { button.classList.replace('fa-copy', 'fa-check'); button.classList.add('copied'); setTimeout(() => { button.classList.replace('fa-check', 'fa-copy'); button.classList.remove('copied'); }, 1500); }).catch(err => console.error('Failed to copy text: ', err));}
+    function handleDelete(commentId) { if (confirm("Delete this comment? A Cloud Function is needed to delete replies. This action will only delete this single comment.")) { db.collection('comments').doc(commentId).delete().catch(error => console.error("Error deleting comment:", error)); } }
     function handleEdit(commentElement) { const bodyWrapper = commentElement.querySelector('.comment-body-wrapper'); const originalText = commentElement.querySelector('.comment-body').innerText; bodyWrapper.dataset.originalText = originalText; bodyWrapper.innerHTML = `<div class="edit-view"><textarea class="edit-textarea">${originalText}</textarea><div class="edit-actions"><button class="cancel-edit-btn">Cancel</button><button class="save-edit-btn">Save</button></div></div>`;}
-    function handleSaveEdit(commentElement, commentId) { const newText = commentElement.querySelector('.edit-textarea').value.trim(); if (!newText) { alert("Comment cannot be empty."); return; } db.collection('comments').doc(commentId).update({ text: newText }).catch(error => { console.error("Error updating comment:", error); alert("Could not save your changes."); });}
+    function handleSaveEdit(commentElement, commentId) { const newText = commentElement.querySelector('.edit-textarea').value.trim(); if (!newText) return; db.collection('comments').doc(commentId).update({ text: newText }).catch(error => console.error("Error updating comment:", error));}
     function handleCancelEdit(commentElement) { const bodyWrapper = commentElement.querySelector('.comment-body-wrapper'); const originalText = bodyWrapper.dataset.originalText; bodyWrapper.innerHTML = `<p class="comment-body">${escapeHTML(originalText)}</p>`;}
     function escapeHTML(str) { const p = document.createElement('p'); p.appendChild(document.createTextNode(str)); return p.innerHTML; }
     function formatTimeAgo(date) { const seconds = Math.floor((new Date() - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + " years ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + " months ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + " days ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " hours ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " minutes ago"; return "just now"; }
