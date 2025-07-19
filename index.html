@@ -16,8 +16,6 @@
   <!-- Pre-emptive Theme Script -->
   <script>
     (function() {
-      // This script checks for a logged-out user's theme preference.
-      // Logged-in user's theme will be loaded from the database later.
       const savedTheme = localStorage.getItem('raidpo-theme-guest') || 'dark';
       if (savedTheme === 'light') {
         document.documentElement.classList.add('light-theme');
@@ -406,14 +404,12 @@
         
         updateUIBasedOnFavourites();
 
-        // Update Backend
         if (currentUserUid) {
             saveUserSettings({ favourites: userFavourites });
         } else {
             localStorage.setItem('userFavourites-guest', JSON.stringify(userFavourites));
         }
         
-        // Update global count in Firestore
         const toolRef = db.collection('tool_loves').doc(toolId);
         const increment = firebase.firestore.FieldValue.increment(isLoved ? -1 : 1);
         toolRef.set({ loveCount: increment }, { merge: true });
@@ -431,34 +427,109 @@
     themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
     toolGrid.addEventListener('click', handleLoveClick);
 
-    accountProfileIcon.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); userProfileInfo.classList.add('active'); });
-    accountProfileIcon.addEventListener('click', (e) => { e.stopPropagation(); userProfileInfo.classList.toggle('active'); });
-    headbar.addEventListener('mouseleave', () => { profileMenuTimeout = setTimeout(() => { userProfileInfo.classList.remove('active'); }, 300); });
-    headbar.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); });
-
+    // RESTORED ORIGINAL POPOVER LOGIC
+    accountProfileIcon.addEventListener('mouseenter', () => {
+        clearTimeout(profileMenuTimeout);
+        userProfileInfo.classList.add('active');
+    });
+    accountProfileIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        clearTimeout(profileMenuTimeout);
+        userProfileInfo.classList.toggle('active');
+    });
+    headbar.addEventListener('mouseleave', () => {
+        profileMenuTimeout = setTimeout(() => {
+            userProfileInfo.classList.remove('active');
+        }, 300);
+    });
+    headbar.addEventListener('mouseenter', () => {
+       clearTimeout(profileMenuTimeout);
+    });
     document.addEventListener('click', (e) => {
+        if (!accountProfileIcon.parentElement.contains(e.target)) {
+             userProfileInfo.classList.remove('active');
+        }
         if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open'); body.classList.remove('sidebar-is-open');
             sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars');
         }
-        if (!accountProfileIcon.parentElement.contains(e.target)) { userProfileInfo.classList.remove('active'); }
     });
 
     signOutBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (confirm("Are you sure you want to sign out?")) { auth.signOut().catch(error => console.error("Sign out error", error)); }
     });
-
+    
+    // RESTORED ORIGINAL SIDEBAR MENU TOGGLE LOGIC
     toolsMenuToggle.addEventListener('click', (e) => { e.preventDefault(); toolsMenu.classList.toggle('open'); });
     favouritesMenuToggle.addEventListener('click', (e) => { e.preventDefault(); favouritesMenu.classList.toggle('open'); });
 
     function populateToolsSidebar() {
-        // ... (This function remains unchanged)
+        const toolCards = toolGrid.querySelectorAll('.tool-card');
+        toolsSubmenuList.innerHTML = '';
+        toolCards.forEach(card => {
+            const title = card.querySelector('h3').innerText;
+            const link = card.querySelector('a').href;
+            const iconClass = card.querySelector('.tool-icon i').className;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<a href="${link}"><i class="${iconClass}"></i> ${title}</a>`;
+            toolsSubmenuList.appendChild(listItem);
+        });
     }
 
-    // --- Search functionality (remains unchanged) ---
-    headbarSearch.addEventListener('input', (e) => { /* ... */ });
-    sidebarSearch.addEventListener('input', (e) => { /* ... */ });
+    // --- Search functionality ---
+    headbarSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const toolCards = toolGrid.querySelectorAll('.tool-card');
+        toolCards.forEach(card => {
+            if (!searchTerm) { card.style.display = 'block'; return; }
+            const title = card.querySelector('h3').innerText.toLowerCase();
+            const description = card.querySelector('p').innerText.toLowerCase();
+            card.style.display = (title.startsWith(searchTerm) || description.startsWith(searchTerm)) ? 'block' : 'none';
+        });
+    });
+
+    sidebarSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const mainLinks = sidebarMenu.querySelectorAll(':scope > li');
+        
+        mainLinks.forEach(link => {
+            let hasVisibleChildren = false;
+            const submenu = link.querySelector('.tools-submenu, .favourites-submenu');
+            
+            if (submenu) {
+                const submenuItems = submenu.querySelectorAll('li');
+                submenuItems.forEach(item => {
+                    const itemText = item.innerText.toLowerCase();
+                    const isMatch = itemText.startsWith(searchTerm);
+                    item.style.display = isMatch ? 'block' : 'none';
+                    if (isMatch) hasVisibleChildren = true;
+                });
+            }
+
+            const linkAnchor = link.querySelector('a');
+            const linkText = linkAnchor.innerText.toLowerCase();
+            const isDirectMatch = linkText.startsWith(searchTerm);
+            
+            if (isDirectMatch || hasVisibleChildren) {
+                link.style.display = 'block';
+                if (hasVisibleChildren && searchTerm) {
+                    link.classList.add('open');
+                }
+            } else {
+                link.style.display = 'none';
+            }
+        });
+
+        if (!searchTerm) {
+            mainLinks.forEach(link => {
+                link.style.display = 'block';
+                const submenuItems = link.querySelectorAll('.tools-submenu li, .favourites-submenu li');
+                submenuItems.forEach(item => item.style.display = 'block');
+                link.classList.remove('open');
+            });
+        }
+    });
 
     // --- Authentication Logic ---
     auth.onAuthStateChanged(user => {
@@ -467,7 +538,18 @@
         loginButton.style.display = 'none';
         currentUserUid = user.uid;
         loadUserSettings(user.uid);
-        // ... update profile UI
+        const displayName = user.displayName || 'User';
+        headbarAccountName.textContent = displayName;
+        if (user.photoURL) {
+            accountProfileIcon.style.backgroundImage = `url(${user.photoURL})`;
+            accountProfileIcon.innerHTML = '';
+        } else {
+            accountProfileIcon.style.backgroundImage = '';
+            accountProfileIcon.innerHTML = '<i class="fas fa-user"></i>';
+        }
+        userProfileName.textContent = displayName;
+        userProfileEmail.textContent = user.email || '';
+        userProfileUid.textContent = `UID: ${user.uid}`;
       } else {
         body.className = '';
         if (/android/i.test(navigator.userAgent)) { body.classList.add('android-device'); }
@@ -487,7 +569,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         populateToolsSidebar();
         initializeRealtimeCounters();
-        // The initial settings load is now handled by onAuthStateChanged
     });
   </script>
 </body>
