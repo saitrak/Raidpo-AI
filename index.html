@@ -279,7 +279,6 @@
     let profileMenuTimeout;
     let currentUserUid = null;
     let userFavourites = [];
-    let userSettingsListener = null; // To hold the unsubscribe function for the listener
 
     if (/android/i.test(navigator.userAgent)) {
         body.classList.add('android-device');
@@ -292,10 +291,29 @@
         await userRef.set(settingsToUpdate, { merge: true });
     }
 
+    async function loadUserSettings(uid) {
+        const userRef = db.collection('users').doc(uid);
+        const doc = await userRef.get();
+        if (doc.exists) {
+            const settings = doc.data();
+            applyTheme(settings.theme || 'dark');
+            userFavourites = settings.favourites || [];
+        } else {
+            applyTheme('dark');
+            userFavourites = [];
+        }
+        updateUIBasedOnFavourites();
+    }
+
     function loadGuestSettings() {
         applyTheme(localStorage.getItem('raidpo-theme-guest') || 'dark');
         userFavourites = JSON.parse(localStorage.getItem('userFavourites-guest') || '[]');
         updateUIBasedOnFavourites();
+    }
+
+    function hideLoadingAndShowContent() {
+        loadingScreen.style.display = 'none';
+        homepage.style.display = 'block';
     }
 
     // --- Theme Logic ---
@@ -401,7 +419,7 @@
         toolRef.set({ loveCount: increment }, { merge: true });
     }
 
-    // --- UI & Event Listeners (Original behavior restored) ---
+    // --- UI & Event Listeners ---
     sidebarToggle.addEventListener('click', (e) => {
         e.stopPropagation();
         const isOpen = sidebar.classList.toggle('open');
@@ -413,27 +431,13 @@
     themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
     toolGrid.addEventListener('click', handleLoveClick);
 
-    accountProfileIcon.addEventListener('mouseenter', () => {
-        clearTimeout(profileMenuTimeout);
-        userProfileInfo.classList.add('active');
-    });
-    accountProfileIcon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        clearTimeout(profileMenuTimeout);
-        userProfileInfo.classList.toggle('active');
-    });
-    headbar.addEventListener('mouseleave', () => {
-        profileMenuTimeout = setTimeout(() => {
-            userProfileInfo.classList.remove('active');
-        }, 300);
-    });
-    headbar.addEventListener('mouseenter', () => {
-       clearTimeout(profileMenuTimeout);
-    });
+    accountProfileIcon.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); userProfileInfo.classList.add('active'); });
+    accountProfileIcon.addEventListener('click', (e) => { e.stopPropagation(); clearTimeout(profileMenuTimeout); userProfileInfo.classList.toggle('active'); });
+    headbar.addEventListener('mouseleave', () => { profileMenuTimeout = setTimeout(() => { userProfileInfo.classList.remove('active'); }, 300); });
+    headbar.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); });
+
     document.addEventListener('click', (e) => {
-        if (!accountProfileIcon.parentElement.contains(e.target)) {
-             userProfileInfo.classList.remove('active');
-        }
+        if (!accountProfileIcon.parentElement.contains(e.target)) { userProfileInfo.classList.remove('active'); }
         if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open'); body.classList.remove('sidebar-is-open');
             sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars');
@@ -449,7 +453,16 @@
     favouritesMenuToggle.addEventListener('click', (e) => { e.preventDefault(); favouritesMenu.classList.toggle('open'); });
 
     function populateToolsSidebar() {
-        // ... (This function remains unchanged)
+        const toolCards = toolGrid.querySelectorAll('.tool-card');
+        toolsSubmenuList.innerHTML = '';
+        toolCards.forEach(card => {
+            const title = card.querySelector('h3').innerText;
+            const link = card.querySelector('a').href;
+            const iconClass = card.querySelector('.tool-icon i').className;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<a href="${link}"><i class="${iconClass}"></i> ${title}</a>`;
+            toolsSubmenuList.appendChild(listItem);
+        });
     }
 
     // --- Search functionality (remains unchanged) ---
@@ -457,28 +470,12 @@
     sidebarSearch.addEventListener('input', (e) => { /* ... */ });
 
     // --- Authentication Logic ---
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         body.classList.add('logged-in');
         loginButton.style.display = 'none';
         currentUserUid = user.uid;
-
-        // Detach any previous listener before creating a new one
-        if (userSettingsListener) userSettingsListener();
-        
-        // Set up the real-time listener for user settings
-        userSettingsListener = db.collection('users').doc(currentUserUid).onSnapshot(doc => {
-            if (doc.exists) {
-                const settings = doc.data();
-                applyTheme(settings.theme || 'dark');
-                userFavourites = settings.favourites || [];
-            } else {
-                applyTheme('dark');
-                userFavourites = [];
-            }
-            updateUIBasedOnFavourites();
-        });
-
+        await loadUserSettings(user.uid);
         const displayName = user.displayName || 'User';
         headbarAccountName.textContent = displayName;
         if (user.photoURL) {
@@ -492,26 +489,14 @@
         userProfileEmail.textContent = user.email || '';
         userProfileUid.textContent = `UID: ${user.uid}`;
       } else {
-        // User logged out
         body.className = '';
         if (/android/i.test(navigator.userAgent)) { body.classList.add('android-device'); }
         sidebar.classList.remove('open');
         loginButton.style.display = 'block';
         currentUserUid = null;
-        
-        // Detach the listener on logout
-        if (userSettingsListener) {
-            userSettingsListener();
-            userSettingsListener = null;
-        }
-
         loadGuestSettings();
       }
-      
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        homepage.style.display = 'block';
-      }, 2500);
+      hideLoadingAndShowContent();
     });
 
     // Initialize page
