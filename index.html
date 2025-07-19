@@ -26,10 +26,8 @@
   
   <!-- Pre-emptive Theme Script -->
   <script>
-    // This script runs before the page is rendered to prevent a flash of the wrong theme.
     (function() {
-      // Note: This initial theme setting is global and will be refined once the user logs in.
-      const savedTheme = localStorage.getItem('raidpo-theme_GUEST') || 'dark';
+      const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
       if (savedTheme === 'light') {
         document.documentElement.classList.add('light-theme');
       }
@@ -415,25 +413,9 @@
     const sidebarMenu = document.getElementById('sidebar-menu');
 
     let profileMenuTimeout;
-    let currentUserEmail = null; // Holds the current user's email for specific storage
     
     if (/android/i.test(navigator.userAgent)) {
         body.classList.add('android-device');
-    }
-
-    // --- User-Specific Storage Logic ---
-    function getStoredData(baseKey, defaultValue) {
-        // Use a generic key for guests, or a user-specific key for logged-in users
-        const key = currentUserEmail ? `${baseKey}_${currentUserEmail}` : `${baseKey}_GUEST`;
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : defaultValue;
-    }
-
-    function setStoredData(baseKey, data) {
-        // Only save data if a user is logged in
-        if (!currentUserEmail) return;
-        const key = `${baseKey}_${currentUserEmail}`;
-        localStorage.setItem(key, JSON.stringify(data));
     }
 
     // --- Theme Logic ---
@@ -447,24 +429,33 @@
             root.classList.remove('light-theme');
             toggleIcon.classList.replace('fa-moon', 'fa-sun');
         }
-        setStoredData('raidpo-theme', theme);
+        localStorage.setItem('raidpo-theme', theme);
     }
 
     function toggleTheme() {
-        const currentTheme = getStoredData('raidpo-theme', 'dark');
+        const currentTheme = localStorage.getItem('raidpo-theme') || 'dark';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
     }
 
     function loadInitialTheme() {
-        const savedTheme = getStoredData('raidpo-theme', 'dark');
+        const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
         applyTheme(savedTheme);
     }
-    
+
     // --- Favourites & Love Logic ---
+    function getStoredData(key, defaultValue) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+    }
+
+    function setStoredData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
     function renderFavouritesSidebar() {
         const userFavourites = getStoredData('userFavourites', []);
-        favouritesSubmenuList.innerHTML = '';
+        favouritesSubmenuList.innerHTML = ''; // Clear existing items
 
         if (userFavourites.length === 0) {
             favouritesSubmenuList.innerHTML = '<li class="no-favourites">No favourites added yet.</li>';
@@ -489,9 +480,6 @@
         document.querySelectorAll('.tool-card').forEach(card => {
             const toolId = card.dataset.toolId;
             const loveIcon = card.querySelector('.love-icon');
-            loveIcon.classList.remove('loved'); // Reset first
-            loveIcon.classList.replace('fa-solid', 'fa-regular');
-            
             if (userFavourites.includes(toolId)) {
                 loveIcon.classList.add('loved');
                 loveIcon.classList.replace('fa-regular', 'fa-solid');
@@ -523,38 +511,56 @@
         let userFavourites = getStoredData('userFavourites', []);
         const isLoved = userFavourites.includes(toolId);
 
+        // Update personal favourites in localStorage
         if (isLoved) {
             userFavourites = userFavourites.filter(id => id !== toolId);
+            loveIcon.classList.remove('loved');
+            loveIcon.classList.replace('fa-solid', 'fa-regular');
         } else {
             userFavourites.push(toolId);
+            loveIcon.classList.add('loved');
+            loveIcon.classList.replace('fa-regular', 'fa-solid');
         }
         
         setStoredData('userFavourites', userFavourites);
-        initializeToolCards(); // Re-sync the visual state of all cards
         renderFavouritesSidebar();
 
+        // Update global count in Firestore
         const toolRef = db.collection('tool_loves').doc(toolId);
         const increment = firebase.firestore.FieldValue.increment(isLoved ? -1 : 1);
         toolRef.set({ loveCount: increment }, { merge: true });
     }
-    
-    function clearUserSettings() {
-        currentUserEmail = null;
-        applyTheme('dark'); // Reset to default theme for guests
-        initializeToolCards(); // Will use empty favourites array
-        renderFavouritesSidebar(); // Will show "no favourites" message
-    }
 
     // --- Headbar and Sidebar Logic ---
-    sidebarToggle.addEventListener('click', (e) => { e.stopPropagation(); const isOpen = sidebar.classList.toggle('open'); body.classList.toggle('sidebar-is-open'); if (isOpen) { sidebarToggle.classList.replace('fa-bars', 'fa-arrow-left'); } else { sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars'); } });
+    sidebarToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = sidebar.classList.toggle('open');
+        body.classList.toggle('sidebar-is-open');
+        if (isOpen) { sidebarToggle.classList.replace('fa-bars', 'fa-arrow-left'); } 
+        else { sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars'); }
+    });
+    
     themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
     toolGrid.addEventListener('click', handleLoveClick);
+
     accountProfileIcon.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); userProfileInfo.classList.add('active'); });
     accountProfileIcon.addEventListener('click', (e) => { e.stopPropagation(); userProfileInfo.classList.toggle('active'); });
     headbar.addEventListener('mouseleave', () => { profileMenuTimeout = setTimeout(() => { userProfileInfo.classList.remove('active'); }, 300); });
     headbar.addEventListener('mouseenter', () => { clearTimeout(profileMenuTimeout); });
-    document.addEventListener('click', (e) => { if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('open')) { sidebar.classList.remove('open'); body.classList.remove('sidebar-is-open'); sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars'); } if (!accountProfileIcon.parentElement.contains(e.target)) { userProfileInfo.classList.remove('active'); } });
-    signOutBtn.addEventListener('click', (e) => { e.preventDefault(); if (confirm("Are you sure you want to sign out?")) { auth.signOut().catch(error => console.error("Sign out error", error)); } });
+
+    document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open'); body.classList.remove('sidebar-is-open');
+            sidebarToggle.classList.replace('fa-arrow-left', 'fa-bars');
+        }
+        if (!accountProfileIcon.parentElement.contains(e.target)) { userProfileInfo.classList.remove('active'); }
+    });
+
+    signOutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm("Are you sure you want to sign out?")) { auth.signOut().catch(error => console.error("Sign out error", error)); }
+    });
+
     toolsMenuToggle.addEventListener('click', (e) => { e.preventDefault(); toolsMenu.classList.toggle('open'); });
     favouritesMenuToggle.addEventListener('click', (e) => { e.preventDefault(); favouritesMenu.classList.toggle('open'); });
 
@@ -607,7 +613,9 @@
             
             if (isDirectMatch || hasVisibleChildren) {
                 link.style.display = 'block';
-                if (hasVisibleChildren && searchTerm) { link.classList.add('open'); }
+                if (hasVisibleChildren && searchTerm) {
+                    link.classList.add('open');
+                }
             } else {
                 link.style.display = 'none';
             }
@@ -628,8 +636,6 @@
       if (user) {
         body.classList.add('logged-in');
         loginButton.style.display = 'none';
-        currentUserEmail = user.email; // Set the current user's email
-
         const displayName = user.displayName || 'User';
         headbarAccountName.textContent = displayName;
         if (user.photoURL) {
@@ -642,19 +648,11 @@
         userProfileName.textContent = displayName;
         userProfileEmail.textContent = user.email || '';
         userProfileUid.textContent = `UID: ${user.uid}`;
-        
-        // Load settings specific to this user
-        loadInitialTheme();
-        initializeToolCards();
-        renderFavouritesSidebar();
       } else {
         body.className = '';
         if (/android/i.test(navigator.userAgent)) { body.classList.add('android-device'); }
         sidebar.classList.remove('open');
         loginButton.style.display = 'block';
-
-        // Clear settings when user logs out
-        clearUserSettings();
       }
       
       setTimeout(() => {
@@ -665,7 +663,6 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-        // Initial load is for a "guest" until Firebase confirms login
         loadInitialTheme();
         populateToolsSidebar();
         initializeToolCards();
