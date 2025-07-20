@@ -16,7 +16,9 @@
   <!-- Pre-emptive Theme Script -->
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('raidpo-theme-guest') || 'dark';
+      // This script runs before the page is rendered to prevent a flash of the wrong theme.
+      // It applies the theme for ALL users (logged-in or guest) from localStorage.
+      const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
       if (savedTheme === 'light') {
         document.documentElement.classList.add('light-theme');
       }
@@ -196,7 +198,7 @@
             <div class="tool-card" data-tool-id="qr-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code Generator</h3> <p>Generate QR codes for URLs or text.</p> <a href='/qr-code-generator'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="url-shortener"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-link"></i></div> <h3>URL Shortener</h3> <p>Shorten your URLs with ease.</p> <a href='/url-shortener'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="img-to-prompt"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>Image to Prompt</h3> <p>Generate accurate prompts from any image.</p> <a href='/image-to-prompt'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="img-compressor"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fa-solid fa-compress"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-compressor"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-file-image"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="bg-remover"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-eraser"></i></div> <h3>Background Remover</h3> <p>Remove backgrounds from images instantly with AI.</p> <a href='/bg-remover'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="img-resizer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-expand"></i></div> <h3>Image Resizer</h3> <p>Resize images to any dimension while maintaining quality.</p> <a href='/img-resizer'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="img-enhancer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-magic"></i></div> <h3>Image Enhancer</h3> <p>Enhance image quality with AI-powered tools.</p> <a href='/img-enhance'>Use Tool</a> </div>
@@ -288,6 +290,7 @@
     async function saveUserSettings(settingsToUpdate) {
         if (!currentUserUid) return;
         const userRef = db.collection('users').doc(currentUserUid);
+        // Only saves favourites to Firestore now
         await userRef.set(settingsToUpdate, { merge: true });
     }
 
@@ -296,17 +299,17 @@
         const doc = await userRef.get();
         if (doc.exists) {
             const settings = doc.data();
-            applyTheme(settings.theme || 'dark');
+            // Does NOT load theme from DB
             userFavourites = settings.favourites || [];
         } else {
-            applyTheme('dark');
+            // New user defaults
             userFavourites = [];
         }
         updateUIBasedOnFavourites();
     }
 
     function loadGuestSettings() {
-        applyTheme(localStorage.getItem('raidpo-theme-guest') || 'dark');
+        // Loads ONLY favourites from localStorage for guests
         userFavourites = JSON.parse(localStorage.getItem('userFavourites-guest') || '[]');
         updateUIBasedOnFavourites();
     }
@@ -322,18 +325,20 @@
             root.classList.remove('light-theme');
             toggleIcon.classList.replace('fa-moon', 'fa-sun');
         }
+        // ALWAYS save theme to localStorage, for everyone.
+        localStorage.setItem('raidpo-theme', theme);
     }
 
     function toggleTheme() {
-        const root = document.documentElement;
-        const newTheme = root.classList.contains('light-theme') ? 'dark' : 'light';
+        const currentTheme = localStorage.getItem('raidpo-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
+    }
 
-        if (currentUserUid) {
-            saveUserSettings({ theme: newTheme });
-        } else {
-            localStorage.setItem('raidpo-theme-guest', newTheme);
-        }
+    function loadInitialTheme() {
+        // This function sets the icon state on page load. The pre-emptive script handles the initial class.
+        const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
+        applyTheme(savedTheme);
     }
 
     // --- Favourites & Love Logic ---
@@ -404,6 +409,7 @@
         updateUIBasedOnFavourites();
 
         if (currentUserUid) {
+            // ONLY save favourites to Firestore
             saveUserSettings({ favourites: userFavourites });
         } else {
             localStorage.setItem('userFavourites-guest', JSON.stringify(userFavourites));
@@ -532,7 +538,7 @@
     const timerPromise = new Promise(resolve => setTimeout(resolve, 3000));
     
     const dataLoadingPromise = new Promise(resolve => {
-        auth.onAuthStateChanged(async (user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 body.classList.add('logged-in');
                 loginButton.style.display = 'none';
@@ -560,7 +566,8 @@
                 currentUserUid = null;
                 loadGuestSettings();
             }
-            resolve(); // Resolve the promise once auth state is handled and data is loaded.
+            unsubscribe();
+            resolve();
         });
     });
 
@@ -571,6 +578,7 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
+        loadInitialTheme();
         populateToolsSidebar();
         initializeRealtimeCounters();
     });
