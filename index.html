@@ -16,8 +16,6 @@
   <!-- Pre-emptive Theme Script -->
   <script>
     (function() {
-      // This script runs before the page is rendered to prevent a flash of the wrong theme.
-      // It applies the theme for ALL users (logged-in or guest) from localStorage.
       const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
       if (savedTheme === 'light') {
         document.documentElement.classList.add('light-theme');
@@ -69,6 +67,9 @@
     .headbar-left, .headbar-right { display: flex; align-items: center; gap: 1rem; }
     .headbar-left { flex-grow: 1; min-width: 0; }
     .headbar-right { flex-shrink: 0; }
+    .brand-link { display: flex; align-items: center; gap: 0.5rem; }
+    .header-logo { height: 35px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .brand-link:hover .header-logo { transform: scale(1.15) rotate(-10deg); }
     .brand-name { font-size: 1.8rem; font-weight: bold; color: var(--accent-primary); white-space: nowrap; }
     .search-bar { padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 5px; background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; }
     #headbar-search { flex-grow: 1; min-width: 50px; }
@@ -140,7 +141,10 @@
   <header class="headbar" id="headbar">
     <div class="headbar-left">
       <i class="fas fa-bars headbar-icon" id="sidebar-toggle"></i>
-      <a href="https://raidpo-ai.netlify.app"><span class="brand-name">Raidpo-AI</span></a>
+      <a href="https://raidpo-ai.netlify.app" class="brand-link">
+        <img src="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png" alt="Raidpo AI Logo" class="header-logo">
+        <span class="brand-name">Raidpo-AI</span>
+      </a>
       <input type="text" class="search-bar" id="headbar-search" placeholder="Search for tools...">
     </div>
     <div class="headbar-right">
@@ -191,27 +195,34 @@
         </section>
         <section id="tools" class="tool-categories">
           <div class="tool-grid" id="tool-grid">
-            <div class="tool-card" data-tool-id="codecraft-pro"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-code"></i></div> <h3>CodeCraft Pro</h3> <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p> <a href='/codecraft-pro'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="book-library"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Book Library</h3> <p>Search and read legal books directly in the app.</p> <a href='/book-library'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="age-calculator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-calculator"></i></div> <h3>Age Calculator</h3> <p>Calculate your age in years, months, and days.</p> <a href='/age-calculator'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="qr-to-link"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code to Link</h3> <p>Extract links or text from QR codes.</p> <a href='/qr-code-to-link'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="qr-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code Generator</h3> <p>Generate QR codes for URLs or text.</p> <a href='/qr-code-generator'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="url-shortener"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-link"></i></div> <h3>URL Shortener</h3> <p>Shorten your URLs with ease.</p> <a href='/url-shortener'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="img-to-prompt"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>Image to Prompt</h3> <p>Generate accurate prompts from any image.</p> <a href='/image-to-prompt'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="img-compressor"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-file-image"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
+            <!-- Image Tools -->
             <div class="tool-card" data-tool-id="bg-remover"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-eraser"></i></div> <h3>Background Remover</h3> <p>Remove backgrounds from images instantly with AI.</p> <a href='/bg-remover'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="img-resizer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-expand"></i></div> <h3>Image Resizer</h3> <p>Resize images to any dimension while maintaining quality.</p> <a href='/img-resizer'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-compressor"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-file-image"></i></div> <h3>Image Compressor</h3> <p>Reduce image size without losing quality.</p> <a href='/img-compressor'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="img-enhancer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-magic"></i></div> <h3>Image Enhancer</h3> <p>Enhance image quality with AI-powered tools.</p> <a href='/img-enhance'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-resizer"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-expand"></i></div> <h3>Image Resizer</h3> <p>Resize images to any dimension while maintaining quality.</p> <a href='/img-resizer'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="img-to-prompt"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-image"></i></div> <h3>Image to Prompt</h3> <p>Generate accurate prompts from any image.</p> <a href='/image-to-prompt'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="text-to-img"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-paint-brush"></i></div> <h3>Text-to-Image Generator</h3> <p>Transform text into stunning images with AI.</p> <a href='/text-to-image'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="translator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-language"></i></div> <h3>All Language Translator</h3> <p>Translate text from any language to any language instantly.</p> <a href='/translator'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="text-to-speech"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-comment-dots"></i></div> <h3>Text to Speech</h3> <p>Convert text to speech and download the audio file.</p> <a href='/text-to-speech'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="knowledge-nexus"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Knowledge Nexus</h3> <p>Explore knowledge, images, and more with AI.</p> <a href='/knowledge-nexus'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="currency-converter"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div> <h3>Currency Converter</h3> <p>Convert currencies in real-time with the latest exchange rates.</p> <a href='/currency-converter'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="yt-thumbnail"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fa-brands fa-youtube"></i></div> <h3>YouTube Thumbnail Downloader</h3> <p>Download high-quality thumbnails from YouTube videos.</p> <a href='/youtube-thumbnail-downloader'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="imageflow"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-cloud-upload-alt"></i></div> <h3>ImageFlow</h3> <p>Upload and manage images with ease.</p> <a href='/imageflow'>Use Tool</a> </div>
-            <div class="tool-card" data-tool-id="hangman-game"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-gamepad"></i></div> <h3>Hangman Game</h3> <p>Play the classic Hangman game with AI-generated words.</p> <a href="/Hangman-Game.html">Play Now</a> </div>
-            <div class="tool-card" data-tool-id="weather-app"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div> <h3>Weather App</h3> <p>Get real-time weather updates for any city.</p> <a href='/weather-app'>Use Tool</a> </div>
+
+            <!-- Content & Text Tools -->
+            <div class="tool-card" data-tool-id="translator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-language"></i></div> <h3>All Language Translator</h3> <p>Translate text from any language to any language instantly.</p> <a href='/translator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="book-library"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Book Library</h3> <p>Search and read legal books directly in the app.</p> <a href='/book-library'>Use Tool</a> </div>
             <div class="tool-card" data-tool-id="story-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-pen"></i></div> <h3>Interactive Story Generator</h3> <p>Create unique stories with AI-powered storytelling.</p> <a href='/interactive-story-generator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="knowledge-nexus"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-book"></i></div> <h3>Knowledge Nexus</h3> <p>Explore knowledge, images, and more with AI.</p> <a href='/knowledge-nexus'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="text-to-speech"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-comment-dots"></i></div> <h3>Text to Speech</h3> <p>Convert text to speech and download the audio file.</p> <a href='/text-to-speech'>Use Tool</a> </div>
+
+            <!-- Code & Web Tools -->
+            <div class="tool-card" data-tool-id="codecraft-pro"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-code"></i></div> <h3>CodeCraft Pro</h3> <p>Write, preview, merge, and separate HTML, CSS, and JavaScript code.</p> <a href='/codecraft-pro'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="url-shortener"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-link"></i></div> <h3>URL Shortener</h3> <p>Shorten your URLs with ease.</p> <a href='/url-shortener'>Use Tool</a> </div>
+            
+            <!-- Utility Tools -->
+            <div class="tool-card" data-tool-id="age-calculator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-calculator"></i></div> <h3>Age Calculator</h3> <p>Calculate your age in years, months, and days.</p> <a href='/age-calculator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="currency-converter"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-money-bill-wave"></i></div> <h3>Currency Converter</h3> <p>Convert currencies in real-time with the latest exchange rates.</p> <a href='/currency-converter'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="hangman-game"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-gamepad"></i></div> <h3>Hangman Game</h3> <p>Play the classic Hangman game with AI-generated words.</p> <a href="/Hangman-Game.html">Play Now</a> </div>
+            <div class="tool-card" data-tool-id="qr-generator"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code Generator</h3> <p>Generate QR codes for URLs or text.</p> <a href='/qr-code-generator'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="qr-to-link"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-qrcode"></i></div> <h3>QR Code to Link</h3> <p>Extract links or text from QR codes.</p> <a href='/qr-code-to-link'>Use Tool</a> </div>
+            <div class="tool-card" data-tool-id="weather-app"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-icon"><i class="fas fa-cloud-sun"></i></div> <h3>Weather App</h3> <p>Get real-time weather updates for any city.</p> <a href='/weather-app'>Use Tool</a> </div>
           </div>
         </section>
         <footer>
@@ -290,7 +301,6 @@
     async function saveUserSettings(settingsToUpdate) {
         if (!currentUserUid) return;
         const userRef = db.collection('users').doc(currentUserUid);
-        // Only saves favourites to Firestore now
         await userRef.set(settingsToUpdate, { merge: true });
     }
 
@@ -299,17 +309,14 @@
         const doc = await userRef.get();
         if (doc.exists) {
             const settings = doc.data();
-            // Does NOT load theme from DB
             userFavourites = settings.favourites || [];
         } else {
-            // New user defaults
             userFavourites = [];
         }
         updateUIBasedOnFavourites();
     }
 
     function loadGuestSettings() {
-        // Loads ONLY favourites from localStorage for guests
         userFavourites = JSON.parse(localStorage.getItem('userFavourites-guest') || '[]');
         updateUIBasedOnFavourites();
     }
@@ -325,7 +332,6 @@
             root.classList.remove('light-theme');
             toggleIcon.classList.replace('fa-moon', 'fa-sun');
         }
-        // ALWAYS save theme to localStorage, for everyone.
         localStorage.setItem('raidpo-theme', theme);
     }
 
@@ -334,9 +340,8 @@
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
     }
-
+    
     function loadInitialTheme() {
-        // This function sets the icon state on page load. The pre-emptive script handles the initial class.
         const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
         applyTheme(savedTheme);
     }
@@ -409,7 +414,6 @@
         updateUIBasedOnFavourites();
 
         if (currentUserUid) {
-            // ONLY save favourites to Firestore
             saveUserSettings({ favourites: userFavourites });
         } else {
             localStorage.setItem('userFavourites-guest', JSON.stringify(userFavourites));
@@ -539,6 +543,7 @@
     
     const dataLoadingPromise = new Promise(resolve => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            loadInitialTheme();
             if (user) {
                 body.classList.add('logged-in');
                 loginButton.style.display = 'none';
@@ -578,7 +583,6 @@
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
-        loadInitialTheme();
         populateToolsSidebar();
         initializeRealtimeCounters();
     });
