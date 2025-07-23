@@ -2,31 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Thank You! | Raidpo AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | Raidpo AI</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <style>
+    /* General Styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    ::selection { background-color: #ff6f61; color: #fff; }
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
       color: #fff; background-color: #0f0f0f; display: flex;
       justify-content: center; align-items: center; min-height: 100vh;
-      text-align: center; padding: 20px;
+      overflow: hidden;
     }
-    .container { max-width: 600px; }
-    h1 { color: #ff6f61; font-size: 2.5rem; margin-bottom: 1rem; }
-    p { font-size: 1.2rem; color: #ccc; margin-bottom: 2rem; }
-    a {
-      display: inline-block; padding: 1rem 2rem; background-color: #ff6f61;
-      color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold;
-      transition: background-color 0.3s;
+    input, button, textarea, select { font-family: inherit; }
+    input:-webkit-autofill, textarea:-webkit-autofill {
+        -webkit-text-fill-color: #fff !important;
+        box-shadow: 0 0 0 1000px #333 inset !important;
     }
-    a:hover { background-color: #ff3b2f; }
+    h1, h2, h3 { font-weight: bold; margin: 0; }
+    a { text-decoration: none; color: inherit; }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #0f0f0f; display: flex; justify-content: center;
+      align-items: center; z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .loader-content {
+        font-size: 3rem; font-weight: bold; color: #555; position: relative; overflow: hidden;
+    }
+    .loader-content::after {
+        content: 'Raidpo AI'; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        color: #fff; background: linear-gradient(100deg, transparent 20%, #ff6f61 50%, transparent 80%);
+        background-size: 200% 100%; background-clip: text; -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent; animation: shimmer-animation 2s infinite linear;
+    }
+    @keyframes shimmer-animation {
+        0% { background-position: 200% 0; } 100% { background-position: -200% 0; }
+    }
+
+    /* Form Box & Panels */
+    .form-box {
+      width: 95vw; height: 90vh; background: #1a1a1a; position: relative;
+      border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none; flex-direction: column;
+    }
+    .form-box.active { display: flex; }
+    .form-container { display: flex; width: 100%; height: 100%; }
+    .form-left-panel {
+      flex: 1;
+      background: url('https://res.cloudinary.com/dml8j7b8w/image/upload/v1751839388/snecckwbcaskf8rvltw1.jpg') no-repeat center center;
+      background-size: cover; position: relative;
+    }
+    .form-right-panel {
+      flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
+      padding: 2rem; background-color: #1a1a1a; overflow-y: auto;
+    }
+    .form-right-panel::-webkit-scrollbar { width: 8px; }
+    .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
+    .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
+    
+    /* Form Elements */
+    .form-header { text-align: center; margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.5rem; position: relative; }
+    .form-group label { display: block; margin-bottom: 0.5rem; }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 0.8rem; border: 1px solid #333; border-radius: 5px;
+      background-color: #333; color: #fff; font-size: clamp(0.9rem, 3vw, 1rem);
+    }
+    .form-group textarea {
+        line-height: 1.5; resize: none; overflow-y: auto;
+    }
+    /* FIX 1: Custom Scrollbar for Textarea */
+    .form-group textarea::-webkit-scrollbar { width: 8px; }
+    .form-group textarea::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
+    .form-group textarea::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
+
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #ff6f61; }
+    
+    .auth-btn {
+      width: 100%; padding: 1rem; background-color: #ff6f61; color: #fff;
+      border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem);
+      font-weight: bold; cursor: pointer; transition: background-color 0.3s;
+    }
+    .auth-btn:hover { background-color: #ff3b2f; }
+    
+    /* Not Logged In Prompt */
+    .not-logged-in-container {
+      display: flex; justify-content: center; align-items: center;
+      height: 100%; padding: 2rem; text-align: center;
+    }
+    .not-logged-in-message { font-size: clamp(1.2rem, 4vw, 1.5rem); color: #ccc; }
+    .not-logged-in-message a { color: #ff6f61; font-weight: bold; text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      .form-box { width: 100%; max-width: 450px; height: auto; max-height: 95vh; flex-direction: column; }
+      .form-container { flex-direction: column; }
+      .form-left-panel { flex: 0 0 220px; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Thank You!</h1>
-    <p>Your message has been sent successfully. We'll get back to you as soon as possible.</p>
-    <a href="/">Return to Homepage</a>
+  <div class="loading-screen" id="initialLoadingScreen"><div class="loader-content">Raidpo AI</div></div>
+
+  <div class="form-box" id="contactFormBox">
+    <div class="form-container">
+      <div class="form-left-panel"></div>
+      <div class="form-right-panel" id="formRightPanel"></div>
+    </div>
   </div>
+
+  <script>
+    const AUTH_PAGE_URL = 'https://raidpo-ai.netlify.app/auth'; 
+    const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
+
+    const initialLoadingScreen = document.getElementById('initialLoadingScreen');
+    const contactFormBox = document.getElementById('contactFormBox');
+    const formRightPanel = document.getElementById('formRightPanel');
+
+    function setupAutoGrowTextarea(textarea) {
+        const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight);
+        textarea.style.height = (lineHeight * 3) + 'px';
+        const maxHeight = lineHeight * 5;
+        textarea.style.maxHeight = maxHeight + 'px';
+
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            let newHeight = textarea.scrollHeight;
+            if (newHeight > maxHeight) newHeight = maxHeight;
+            textarea.style.height = newHeight + 'px';
+        });
+    }
+
+    function renderContactForm(user) {
+      // FIX 3: FormSubmit.co Integration
+      formRightPanel.innerHTML = `
+        <div class="form-header">
+          <h1>Contact Us</h1>
+          <p>Have a question or feedback? Let us know!</p>
+        </div>
+        <form action="https://formsubmit.co/raidpoultimate@gmail.com" method="POST">
+          <!-- FormSubmit Hidden Inputs -->
+          <input type="hidden" name="_next" value="https://raidpo-ai.netlify.app/thank-you.html">
+          <input type="hidden" name="_subject" value="New Contact Form Submission from Raidpo AI">
+          <input type="hidden" name="_captcha" value="false">
+
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" placeholder="Your Name" required value="${user.displayName || ''}">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" placeholder="Your Email" required value="${user.email || ''}" readonly>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea name="message" id="message" placeholder="Your message here..." required></textarea>
+          </div>
+          <button type="submit" class="auth-btn">Send Message</button>
+        </form>
+      `;
+      
+      const messageTextarea = document.getElementById('message');
+      setupAutoGrowTextarea(messageTextarea);
+    }
+
+    function renderLoginPrompt() {
+      formRightPanel.style.justifyContent = 'center';
+      formRightPanel.innerHTML = `
+        <div class="not-logged-in-container">
+            <p class="not-logged-in-message">
+                Please <a href="${AUTH_PAGE_URL}">log in</a> to share your thoughts!
+            </p>
+        </div>
+      `;
+    }
+    
+    function showContent() {
+        initialLoadingScreen.style.opacity = '0';
+        setTimeout(() => {
+            initialLoadingScreen.style.display = 'none';
+            contactFormBox.classList.add('active');
+        }, 500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      let authUser = null;
+
+      // FIX 2: Wait for auth check AND a 3-second timer
+      const authPromise = new Promise(resolve => {
+          auth.onAuthStateChanged(user => {
+              if (user && user.emailVerified) {
+                  authUser = user;
+              }
+              resolve();
+          });
+      });
+
+      const timerPromise = new Promise(resolve => setTimeout(resolve, 3000));
+
+      Promise.all([authPromise, timerPromise]).then(() => {
+          if (authUser) {
+              renderContactForm(authUser);
+          } else {
+              renderLoginPrompt();
+          }
+          showContent();
+      });
+    });
+  </script>
 </body>
 </html>
