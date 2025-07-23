@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meme Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background-color: #1a1a1a;
+      color: white;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Search Box */
+    .search-box {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    
+    #search-input {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #ff6f61;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+      padding-right: 3rem;
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ff6f61;
+    }
+    
+    /* Meme Grid */
+    .meme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .meme-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s;
+      aspect-ratio: 1/1;
+    }
+    
+    .meme-item:hover {
+      transform: translateY(-5px);
+    }
+    
+    .meme-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Exact Overlay Style from Reference */
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .meme-item:hover .image-overlay {
+      opacity: 1;
+    }
+    
+    .image-controls {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px;
+    }
+    
+    .image-controls button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .image-controls button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .download-btn {
+      background: #28a745;
+    }
+    
+    .fullscreen-btn {
+      background: #ff6f61;
+    }
+    
+    /* Fullscreen View */
+    .fullscreen-view {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    .fullscreen-view.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .fullscreen-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    
+    .close-fullscreen {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      font-size: 1.8rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    
+    .close-fullscreen:hover {
+      opacity: 1;
+    }
+    
+    /* Status Messages */
+    .status {
+      text-align: center;
+      padding: 2rem;
+      font-size: 1.2rem;
+    }
+    
+    .loading {
+      color: #ff6f61;
+      display: none;
+    }
+    
+    .error {
+      color: #ff6f61;
+      display: none;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .header {
+        padding: 3rem 1rem;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .container {
+        padding: 1rem;
+      }
+      
+      .meme-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      
+      .image-controls button {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        padding: 2rem 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .meme-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Meme Search</h1>
+    <p>Find and download any meme instantly</p>
+  </header>
+  
+  <main class="container">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Search for memes...">
+      <div class="search-icon">🔍</div>
+    </div>
+    
+    <div class="status loading" id="loading">Loading memes...</div>
+    <div class="status error" id="error"></div>
+    
+    <div class="meme-grid" id="meme-grid"></div>
+  </main>
+
+  <!-- Fullscreen View -->
+  <div class="fullscreen-view" id="fullscreen-view">
+    <img class="fullscreen-img" id="fullscreen-img" src="" alt="">
+    <button class="close-fullscreen" id="close-fullscreen">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM Elements
+      const searchInput = document.getElementById('search-input');
+      const memeGrid = document.getElementById('meme-grid');
+      const loadingElement = document.getElementById('loading');
+      const errorElement = document.getElementById('error');
+      const fullscreenView = document.getElementById('fullscreen-view');
+      const fullscreenImg = document.getElementById('fullscreen-img');
+      const closeFullscreen = document.getElementById('close-fullscreen');
+      
+      // API configuration
+      const API_URL = 'https://api.giphy.com/v1/gifs';
+      const API_KEY = 'hpvZycW22qCjn5cRM1xtWB8NKq4dQ2My';
+      
+      // Request control
+      let currentController = null;
+      let lastQuery = '';
+      let requestTimeout = null;
+      
+      // Initial load
+      loadMemes('trending');
+      
+      // Search input handler
+      searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Cancel previous timeout and request
+        clearTimeout(requestTimeout);
+        if (currentController) {
+          currentController.abort();
+        }
+        
+        // Skip if same query
+        if (query === lastQuery) return;
+        
+        // Set loading state
+        showLoading();
+        lastQuery = query;
+        
+        // Create new controller for current request
+        const controller = new AbortController();
+        currentController = controller;
+        
+        // Debounce the API call
+        requestTimeout = setTimeout(() => {
+          if (query.length > 0) {
+            loadMemes(query, controller.signal);
+          } else {
+            loadMemes('trending', controller.signal);
+          }
+        }, 300);
+      });
+      
+      // Load memes function
+      async function loadMemes(query, signal) {
+        try {
+          const endpoint = query === 'trending' ? 'trending' : 'search';
+          const url = `${API_URL}/${endpoint}?api_key=${API_KEY}&q=${encodeURIComponent(query)}&rating=pg-13`;
+          
+          const response = await fetch(url, { signal });
+          
+          // Check if request was aborted
+          if (signal?.aborted) return;
+          if (!response.ok) throw new Error('Network error');
+          
+          const data = await response.json();
+          
+          // Check again if aborted
+          if (signal?.aborted) return;
+          displayMemes(data.data || []);
+          
+        } catch (err) {
+          // Ignore abort errors
+          if (err.name === 'AbortError') return;
+          
+          showError('Failed to load memes. Please try again.');
+          console.error(err);
+        } finally {
+          currentController = null;
+        }
+      }
+      
+      // Display memes
+      function displayMemes(memes) {
+        hideStatus();
+        
+        if (memes.length === 0) {
+          showError('No memes found. Try a different search.');
+          return;
+        }
+        
+        memeGrid.innerHTML = '';
+        
+        memes.forEach(meme => {
+          const memeItem = document.createElement('div');
+          memeItem.className = 'meme-item';
+          
+          const img = document.createElement('img');
+          img.className = 'meme-img';
+          img.src = meme.images.fixed_height.url;
+          img.alt = meme.title || 'Meme';
+          img.loading = 'lazy';
+          
+          // Create overlay with exact style from reference
+          const overlay = document.createElement('div');
+          overlay.className = 'image-overlay';
+          
+          const controls = document.createElement('div');
+          controls.className = 'image-controls';
+          
+          // Fullscreen button
+          const fullscreenBtn = document.createElement('button');
+          fullscreenBtn.className = 'fullscreen-btn';
+          fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+          fullscreenBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openFullscreen(meme.images.original.url);
+          });
+          
+          // Download button
+          const downloadBtn = document.createElement('button');
+          downloadBtn.className = 'download-btn';
+          downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+          downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            downloadMeme(meme.images.original.url);
+          });
+          
+          controls.appendChild(fullscreenBtn);
+          controls.appendChild(downloadBtn);
+          overlay.appendChild(controls);
+          
+          memeItem.appendChild(img);
+          memeItem.appendChild(overlay);
+          memeGrid.appendChild(memeItem);
+        });
+      }
+      
+      // Download function
+      function downloadMeme(url) {
+        fetch(url)
+          .then(res => res.blob())
+          .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = `meme-${Date.now()}.gif`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+            }, 100);
+          })
+          .catch(err => {
+            console.error('Download failed:', err);
+            showError('Download failed. Please try again.');
+          });
+      }
+      
+      // Fullscreen functions
+      function openFullscreen(url) {
+        fullscreenImg.src = url;
+        fullscreenView.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeFullscreenHandler() {
+        fullscreenView.classList.remove('active');
+        document.body.style.overflow = '';
+        fullscreenImg.src = ''; // Clear the image source when closing
+      }
+      
+      closeFullscreen.addEventListener('click', closeFullscreenHandler);
+      fullscreenView.addEventListener('click', (e) => {
+        if (e.target === fullscreenView) {
+          closeFullscreenHandler();
+        }
+      });
+      
+      // Status helpers
+      function showLoading() {
+        loadingElement.style.display = 'block';
+        errorElement.style.display = 'none';
+        memeGrid.innerHTML = '';
+      }
+      
+      function showError(message) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        loadingElement.style.display = 'none';
+        memeGrid.innerHTML = '';
+      }
+      
+      function hideStatus() {
+        loadingElement.style.display = 'none';
+        errorElement.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
