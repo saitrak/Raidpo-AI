@@ -6,12 +6,38 @@
   <title>Login or Register | Raidpo AI</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Pre-emptive Theme Script to prevent flash of wrong theme -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      }
+    })();
+  </script>
+  
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <!-- reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
   <style>
+    /* --- THEME VARIABLES --- */
+    :root {
+      /* --- DARK THEME (Default) --- */
+      --bg-primary: #0f0f0f; --bg-secondary: #1a1a1a; --bg-card: #333;
+      --text-primary: #fff; --text-secondary: #ccc; --accent-primary: #ff6f61;
+      --accent-secondary: #ff3b2f; --border-color: #333;
+      --loader-text-base: #555; --loader-text-shimmer: #fff;
+    }
+    .light-theme {
+      /* --- LIGHT THEME --- */
+      --bg-primary: #f4f4f9; --bg-secondary: #ffffff; --bg-card: #ffffff;
+      --text-primary: #212529; --text-secondary: #6c7d7d; --border-color: #dee2e6;
+      --loader-text-base: #e0e0e0; --loader-text-shimmer: #212529;
+    }
+    
     /* General Styles */
     * {
       box-sizing: border-box;
@@ -19,13 +45,13 @@
       padding: 0;
     }
 
-    ::selection { background-color: #ff6f61; color: #fff; }
-    ::-moz-selection { background-color: #ff6f61; color: #fff; }
+    ::selection { background-color: var(--accent-primary); color: #fff; }
+    ::-moz-selection { background-color: var(--accent-primary); color: #fff; }
     
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      color: #fff;
-      background-color: #0f0f0f;
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       display: flex;
@@ -38,18 +64,14 @@
     body.android-device, body.android-device input, body.android-device button, body.android-device textarea, body.android-device select {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
-
     input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-        -webkit-text-fill-color: #fff !important;
-        box-shadow: 0 0 0 1000px #333 inset !important;
+        -webkit-text-fill-color: var(--text-primary) !important;
+        box-shadow: 0 0 0 1000px var(--bg-card) inset !important;
         transition: background-color 5000s ease-in-out 0s;
     }
-
-
     h1, h2, h3 { font-weight: bold; margin: 0; }
     a { text-decoration: none; color: inherit; }
 
-    /* Base Layer Styles */
     .form-layer {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       display: none; justify-content: center; align-items: center;
@@ -57,39 +79,35 @@
     }
     .form-layer.active { display: flex; }
 
-    /* Loading Screen */
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: #0f0f0f; display: flex; justify-content: center;
+      background-color: var(--bg-primary); display: flex; justify-content: center;
       align-items: center; z-index: 9999;
     }
     .loader-content {
-        font-size: 3rem; font-weight: bold; color: #555; position: relative; overflow: hidden;
+        font-size: 3rem; font-weight: bold; color: var(--loader-text-base); position: relative; overflow: hidden;
     }
     .loader-content::after {
         content: 'Raidpo AI'; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        color: #fff; background: linear-gradient(100deg, transparent 20%, #ff6f61 50%, transparent 80%);
+        color: var(--loader-text-shimmer); background: linear-gradient(100deg, transparent 20%, var(--accent-primary) 50%, transparent 80%);
         background-size: 200% 100%; background-clip: text; -webkit-background-clip: text;
         -webkit-text-fill-color: transparent; animation: shimmer-animation 2s infinite linear;
     }
-    @keyframes shimmer-animation {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
+    @keyframes shimmer-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
     .challenge-container {
-      background-color: #1a1a1a; padding: 2rem; border-radius: 10px;
+      background-color: var(--bg-secondary); padding: 2rem; border-radius: 10px;
       width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      text-align: center;
+      text-align: center; border: 1px solid var(--border-color);
     }
-    .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
-    .challenge-description { color: #ccc; margin-bottom: 1.5rem; font-size: 1rem; }
+    .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; }
     .challenge-complete { color: #4CAF50; font-weight: bold; margin-top: 1rem; display: none; }
 
     .form-box {
-      width: 95vw; height: 90vh; background: #1a1a1a; position: relative;
+      width: 95vw; height: 90vh; background: var(--bg-secondary); position: relative;
       border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
+      display: flex; border: 1px solid var(--border-color);
     }
     
     .form-container { display: flex; width: 100%; height: 100%; }
@@ -100,22 +118,22 @@
     }
     .form-right-panel {
       flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
-      padding: 2rem; background-color: #1a1a1a; overflow-y: auto;
+      padding: 2rem; background-color: var(--bg-secondary); overflow-y: auto;
     }
-    .form-right-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
-    .form-right-panel p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
+    .form-right-panel h1 { color: var(--text-primary); font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
+    .form-right-panel p { color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 1rem); margin-bottom: 2rem; }
     .form-right-panel::-webkit-scrollbar { width: 8px; }
-    .form-right-panel::-webkit-scrollbar-track { background: #333; border-radius: 4px; }
-    .form-right-panel::-webkit-scrollbar-thumb { background: #ff6f61; border-radius: 4px; }
-    .form-right-panel::-webkit-scrollbar-thumb:hover { background: #ff3b2f; }
+    .form-right-panel::-webkit-scrollbar-track { background: var(--bg-card); }
+    .form-right-panel::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+    .form-right-panel::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
     
     .back-to-methods, .back-to-auth {
       position: absolute; top: 20px; left: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
     }
     .method-header, .auth-header { text-align: center; margin-bottom: 2rem; }
-    .method-header h1, .auth-header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
-    .method-header p, .auth-header p { color: #ccc; font-size: clamp(0.9rem, 3vw, 1rem); }
+    .method-header h1, .auth-header h1 { color: var(--text-primary); font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 0.5rem; }
+    .method-header p, .auth-header p { color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 1rem); }
     .method-btn {
       width: 100%; padding: 1rem; border: none; border-radius: 5px;
       font-size: clamp(0.9rem, 3vw, 1rem); font-weight: bold; cursor: pointer;
@@ -124,87 +142,86 @@
     }
     .google-btn { background-color: #4285F4; color: #fff; }
     .github-btn { background-color: #333; color: #fff; }
-    .email-btn { background-color: #ff6f61; color: #fff; }
+    .email-btn { background-color: var(--accent-primary); color: #fff; }
     .or-divider {
-      display: flex; align-items: center; margin: 1.5rem 0; color: #ccc;
+      display: flex; align-items: center; margin: 1.5rem 0; color: var(--text-secondary);
     }
-    .or-divider::before, .or-divider::after { content: ""; flex: 1; border-bottom: 1px solid #333; }
+    .or-divider::before, .or-divider::after { content: ""; flex: 1; border-bottom: 1px solid var(--border-color); }
     .or-divider::before { margin-right: 1rem; }
     .or-divider::after { margin-left: 1rem; }
-    .method-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.7rem, 3vw, 0.8rem); }
-    .method-footer a { color: #ff6f61; text-decoration: underline; }
-    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid #333; }
+    .method-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.7rem, 3vw, 0.8rem); }
+    .method-footer a { color: var(--accent-primary); text-decoration: underline; }
+    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
     .auth-tab {
-      flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative;
+      flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative; color: var(--text-secondary);
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
-    .auth-tab.active { color: #ff6f61; }
+    .auth-tab.active { color: var(--accent-primary); }
     .auth-tab.active::after {
       content: ''; position: absolute; bottom: -1px; left: 0; width: 100%;
-      height: 2px; background-color: #ff6f61;
+      height: 2px; background-color: var(--accent-primary);
     }
     .auth-form { display: none; }
     .auth-form.active { display: block; }
     .form-group { margin-bottom: 1.5rem; position: relative; }
-    .form-group label { display: block; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 3vw, 0.9rem); color: #ccc; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 3vw, 0.9rem); color: var(--text-secondary); }
     .form-group input {
-      width: 100%; padding: 0.8rem; border: 1px solid #333; border-radius: 5px;
-      background-color: #333; color: #fff; font-size: clamp(0.9rem, 3vw, 1rem);
+      width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 5px;
+      background-color: var(--bg-card); color: var(--text-primary); font-size: clamp(0.9rem, 3vw, 1rem);
     }
-    .form-group input:focus { outline: none; border-color: #ff6f61; }
+    .form-group input:focus { outline: none; border-color: var(--accent-primary); }
     
-    /* --- Composite Email Input --- */
     .composite-email-input {
-        display: flex; align-items: stretch; background-color: #333;
-        border: 1px solid #333; border-radius: 5px;
+        display: flex; align-items: stretch; background-color: var(--bg-card);
+        border: 1px solid var(--border-color); border-radius: 5px;
         transition: border-color 0.2s;
     }
-    .composite-email-input:focus-within { border-color: #ff6f61; }
+    .composite-email-input:focus-within { border-color: var(--accent-primary); }
     .composite-email-input input {
         flex-grow: 1; border: none; background-color: transparent;
         padding: 0.8rem; min-width: 60%;
     }
-    .input-separator { width: 1px; background-color: #555; }
+    .input-separator { width: 1px; background-color: var(--border-color); }
     .select-wrapper {
         position: relative; flex-basis: 40%;
         display: flex; align-items: center;
     }
-    .email-at-symbol { color: #ccc; padding-left: 1rem; }
+    .email-at-symbol { color: var(--text-secondary); padding-left: 1rem; }
     .composite-email-input select {
-        background-color: transparent; border: none; color: #fff;
+        background-color: transparent; border: none; color: var(--text-primary);
         padding: 0.8rem 2rem 0.8rem 0.5rem; cursor: pointer; outline: none; -webkit-appearance: none;
         -moz-appearance: none; appearance: none;
         width: 100%; height: 100%;
         color-scheme: dark;
     }
-    .composite-email-input select option { background: #1a1a1a; color: #fff; }
+    .light-theme .composite-email-input select { color-scheme: light; }
+    .composite-email-input select option { background: var(--bg-secondary); color: var(--text-primary); }
     .select-wrapper::after {
-        content: '▼'; font-size: 0.6em; color: #ccc;
+        content: '▼'; font-size: 0.6em; color: var(--text-secondary);
         position: absolute; right: 1rem; top: 50%;
         transform: translateY(-50%); pointer-events: none;
     }
 
-
     .password-toggle {
-      position: absolute; right: 10px; top: 35px; cursor: pointer; color: #ccc;
+      position: absolute; right: 10px; top: 35px; cursor: pointer; color: var(--text-secondary);
       background: none; border: none; padding: 5px;
     }
     .auth-btn {
-      width: 100%; padding: 1rem; background-color: #ff6f61; color: #fff;
+      width: 100%; padding: 1rem; background-color: var(--accent-primary); color: #fff;
       border: none; border-radius: 5px; font-size: clamp(0.9rem, 3vw, 1rem);
       font-weight: bold; cursor: pointer; transition: background-color 0.3s;
     }
-    .auth-btn:hover { background-color: #ff3b2f; }
+    .auth-btn:hover { background-color: var(--accent-secondary); }
     .auth-btn:disabled { background-color: #555; cursor: not-allowed; }
     .forgot-password-link { text-align: right; margin: -1rem 0 1.5rem 0; }
-    .forgot-password-link a { color: #ff6f61; text-decoration: underline; font-size: 0.8rem; }
-    .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: #ccc; }
+    .forgot-password-link a { color: var(--accent-primary); text-decoration: underline; font-size: 0.8rem; }
+    .password-requirements { display: none; margin-top: 0.5rem; font-size: clamp(0.7rem, 3vw, 0.8rem); color: var(--text-secondary); }
     .requirement { display: flex; align-items: center; margin-bottom: 0.3rem; }
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: #ccc; font-size: clamp(0.8rem, 3vw, 0.9rem); }
-    .auth-footer a { color: #ff6f61; text-decoration: underline; }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
+    .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
       display: flex; justify-content: center; align-items: center; z-index: 2000;
@@ -212,13 +229,13 @@
     }
     .requirements-overlay.active { opacity: 1; pointer-events: all; }
     .requirements-menu {
-      background-color: #1a1a1a; border: 1px solid #ff6f61; border-radius: 10px;
+      background-color: var(--bg-secondary); border: 1px solid var(--accent-primary); border-radius: 10px;
       padding: 20px; width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       position: relative; transform: translateY(20px); transition: transform 0.3s ease;
     }
     .requirements-overlay.active .requirements-menu { transform: translateY(0); }
     .requirements-title {
-      font-weight: bold; color: #ff6f61; margin-bottom: 15px; text-align: center;
+      font-weight: bold; color: var(--accent-primary); margin-bottom: 15px; text-align: center;
       font-size: clamp(1rem, 4vw, 1.2rem);
     }
     .requirements-list { list-style-type: none; padding: 0; margin: 0 0 15px 0; }
@@ -226,14 +243,13 @@
     .requirement-item i { margin-right: 10px; font-size: 0.9rem; min-width: 16px; }
     .requirement-item.valid i { color: #4CAF50; }
     .requirement-item.invalid i { color: #ff6f61; }
-    .countdown-bar { height: 4px; background-color: #333; border-radius: 2px; overflow: hidden; width: 100%; }
-    .countdown-progress { height: 100%; background-color: #ff6f61; width: 0%; transition: width 3s linear; }
+    .countdown-bar { height: 4px; background-color: var(--bg-card); border-radius: 2px; overflow: hidden; width: 100%; }
+    .countdown-progress { height: 100%; background-color: var(--accent-primary); width: 0%; transition: width 3s linear; }
     .close-button {
       position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #fff;
       cursor: pointer; z-index: 100; background: none; border: none; padding: 5px;
     }
 
-    /* --- MOBILE ONLY STYLES --- */
     @media (max-width: 768px) {
       .form-box {
         width: 100%; max-width: 450px; height: auto;
@@ -375,7 +391,7 @@
           sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
-            setTimeout(() => { document.body.style.backgroundColor = '#0f0f0f'; showLayer(dom.methodSelectorLayer); }, 1000);
+            setTimeout(() => { document.body.style.backgroundColor = ''; showLayer(dom.methodSelectorLayer); }, 1000);
           }
         });
       }
@@ -456,7 +472,6 @@
       const password = dom.signupPassword.value; const errors = [];
       if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
       if (!localPart) { errors.push('Please enter the first part of your email.'); }
-      else if (!isValidEmail(email)) { errors.push('Invalid email format. Check for extra spaces.'); }
       if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password !== dom.signupConfirmPassword.value) errors.push('Passwords do not match.');
       if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
