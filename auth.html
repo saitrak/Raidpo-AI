@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- 
+    REMINDER: DO NOT MAKE ANY CHANGES, ADDITIONS, REMOVALS, OR COMPRESSIONS TO THIS CODE 
+    WITHOUT EXPLICIT PERMISSION FROM THE USER. PRESERVE ALL ORIGINAL FUNCTIONALITY AND DESIGN.
+  -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login or Register | Raidpo AI</title>
+  <meta name="theme-color" id="theme-color-meta" content="#0f0f0f">
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
-  <!-- Pre-emptive Theme Script to prevent flash of wrong theme -->
+  <!-- Pre-emptive Theme Script -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('raidpo-theme') || 'dark';
@@ -75,9 +80,12 @@
     .form-layer {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       display: none; justify-content: center; align-items: center;
-      z-index: 1000; padding: 20px; background-color: transparent;
+      z-index: 1000; padding: 20px; 
+      background-color: rgba(0,0,0,0.5); /* Black overlay effect by default */
     }
     .form-layer.active { display: flex; }
+    
+    #securityChallengeLayer, #postActionNoteLayer { background-color: transparent; }
 
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -95,7 +103,7 @@
     }
     @keyframes shimmer-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    .challenge-container {
+    .challenge-container, .note-container {
       background-color: var(--bg-secondary); padding: 2rem; border-radius: 10px;
       width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center; border: 1px solid var(--border-color);
@@ -103,6 +111,15 @@
     .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
     .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; }
     .challenge-complete { color: #4CAF50; font-weight: bold; margin-top: 1rem; display: none; }
+    
+    /* --- Post Action Note Menu --- */
+    #postActionNoteLayer { z-index: 2500; background-color: rgba(0,0,0,0.5); }
+    .note-container {
+        background-color: rgba(15, 15, 15, 0.3); /* #0F0F0F at 30% opacity */
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    .note-container p { margin-bottom: 2rem; }
 
     .form-box {
       width: 95vw; height: 90vh; background: var(--bg-secondary); position: relative;
@@ -201,7 +218,6 @@
         position: absolute; right: 1rem; top: 50%;
         transform: translateY(-50%); pointer-events: none;
     }
-
     .password-toggle {
       position: absolute; right: 10px; top: 35px; cursor: pointer; color: var(--text-secondary);
       background: none; border: none; padding: 5px;
@@ -263,6 +279,15 @@
 </head>
 <body>
   <div class="loading-screen" id="initialLoadingScreen"><div class="loader-content">Raidpo AI</div></div>
+  
+  <div class="form-layer" id="alreadyLoggedInLayer">
+    <div class="challenge-container">
+        <h2 class="challenge-title">Welcome Back!</h2>
+        <p class="challenge-description already-logged-in-message">You are already logged in.</p>
+        <button id="goToHomepageBtn" class="auth-btn">Go back to Homepage</button>
+    </div>
+  </div>
+
   <div class="form-layer" id="securityChallengeLayer">
     <div class="challenge-container">
       <h2 class="challenge-title">Security Challenge</h2>
@@ -338,6 +363,13 @@
           </div>
       </div>
   </div>
+  <div class="form-layer" id="postActionNoteLayer">
+    <div class="note-container">
+        <h2 id="noteTitle" class="challenge-title"></h2>
+        <p id="noteMessage" class="challenge-description"></p>
+        <button id="noteGoToHomepageBtn" class="auth-btn">Go to Homepage</button>
+    </div>
+  </div>
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
       <div class="requirements-title">Please fill these requirements</div>
@@ -347,6 +379,9 @@
   </div>
 
   <script>
+    // REMINDER: DO NOT MAKE ANY CHANGES, ADDITIONS, REMOVALS, OR COMPRESSIONS TO THIS CODE 
+    // WITHOUT EXPLICIT PERMISSION FROM THE USER. PRESERVE ALL ORIGINAL FUNCTIONALITY AND DESIGN.
+
     if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
     const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
@@ -356,7 +391,10 @@
     const dom = {
         initialLoadingScreen: document.getElementById('initialLoadingScreen'), securityChallengeLayer: document.getElementById('securityChallengeLayer'),
         methodSelectorLayer: document.getElementById('methodSelectorLayer'), authLayer: document.getElementById('authLayer'),
-        forgotPasswordLayer: document.getElementById('forgotPasswordLayer'), closeButton: document.getElementById('closeButton'),
+        forgotPasswordLayer: document.getElementById('forgotPasswordLayer'), alreadyLoggedInLayer: document.getElementById('alreadyLoggedInLayer'),
+        postActionNoteLayer: document.getElementById('postActionNoteLayer'), noteTitle: document.getElementById('noteTitle'),
+        noteMessage: document.getElementById('noteMessage'), noteGoToHomepageBtn: document.getElementById('noteGoToHomepageBtn'),
+        goToHomepageBtn: document.getElementById('goToHomepageBtn'), closeButton: document.getElementById('closeButton'),
         backToMethods: document.getElementById('backToMethods'), googleMethodBtn: document.getElementById('googleMethodBtn'),
         githubMethodBtn: document.getElementById('githubMethodBtn'), emailMethodBtn: document.getElementById('emailMethodBtn'),
         signupBtn: document.getElementById('signupBtn'), signupUsername: document.getElementById('signupUsername'),
@@ -367,7 +405,7 @@
         resetEmail: document.getElementById('resetEmail'), resetPasswordBtn: document.getElementById('resetPasswordBtn'),
         backToAuthFromReset: document.getElementById('backToAuthFromReset'), backToLoginFromReset: document.getElementById('backToLoginFromReset'),
         reqLength: document.getElementById('req-length'), reqUppercase: document.getElementById('req-uppercase'),
-        reqLowercase: document.getElementById('req-lowercase')
+        reqLowercase: document.getElementById('req-lowercase'), themeColorMeta: document.getElementById('theme-color-meta')
     };
     let isSigningUp = false;
     const errorMessages = { "auth/invalid-email": "Invalid email format.", "auth/user-not-found": "No account found.", "auth/wrong-password": "Incorrect password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
@@ -391,24 +429,32 @@
           sitekey: '6Lc_yGsrAAAAAPU2jNkESV4OvUm0x_oQYEryo5Bu',
           callback: () => {
             document.getElementById('challengeComplete').style.display = 'block';
-            setTimeout(() => { document.body.style.backgroundColor = ''; showLayer(dom.methodSelectorLayer); }, 1000);
+            setTimeout(() => { document.body.style.backgroundColor = ''; dom.themeColorMeta.setAttribute('content', '#0f0f0f'); showLayer(dom.methodSelectorLayer); }, 1000);
           }
         });
       }
     }
     const showLayer = (layerToShow) => {
-        [dom.securityChallengeLayer, dom.methodSelectorLayer, dom.authLayer, dom.forgotPasswordLayer].forEach(l => l.classList.remove('active'));
+        [dom.securityChallengeLayer, dom.methodSelectorLayer, dom.authLayer, dom.forgotPasswordLayer, dom.alreadyLoggedInLayer, dom.postActionNoteLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
+    function showPostActionNote(title, message) {
+        dom.noteTitle.textContent = title;
+        dom.noteMessage.textContent = message;
+        showLayer(dom.postActionNoteLayer);
+    }
     setTimeout(() => {
       auth.onAuthStateChanged(user => {
         if (isSigningUp) return;
         dom.initialLoadingScreen.style.display = 'none';
         if (user && user.emailVerified) {
-          window.location.href = 'https://raidpo-ai.netlify.app/';
+          document.body.style.backgroundColor = '#ff3b2f';
+          dom.themeColorMeta.setAttribute('content', '#ff3b2f');
+          showLayer(dom.alreadyLoggedInLayer);
         } else {
           if (user && !user.emailVerified) auth.signOut();
           document.body.style.backgroundColor = '#ff3b2f';
+          dom.themeColorMeta.setAttribute('content', '#ff3b2f');
           showLayer(dom.securityChallengeLayer);
         }
       });
@@ -422,6 +468,8 @@
     });
     dom.signupEmailLocalPart.addEventListener('keydown', (e) => { if (e.key === '.') { e.preventDefault(); } });
     dom.closeButton.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    dom.goToHomepageBtn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    dom.noteGoToHomepageBtn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     dom.backToMethods.addEventListener('click', () => showLayer(dom.methodSelectorLayer));
     dom.emailMethodBtn.addEventListener('click', () => showLayer(dom.authLayer));
     dom.forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(dom.forgotPasswordLayer); });
@@ -482,7 +530,9 @@
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
+        setTimeout(() => { 
+            showPostActionNote('Verify Your Email', 'A verification link has been sent to your email. Please check your inbox to complete registration.');
+        }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
         isSigningUp = false;
@@ -496,7 +546,7 @@
         dom.resetPasswordBtn.disabled = true; dom.resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
+            showPostActionNote('Reset Link Sent', 'A password reset link has been sent to your email. Please check your inbox.');
         } catch (error) {
             showFeedback(getErrorMessage(error));
             dom.resetPasswordBtn.disabled = false; dom.resetPasswordBtn.textContent = 'Send Reset Link';
