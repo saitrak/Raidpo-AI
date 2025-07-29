@@ -355,7 +355,8 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
+    
+    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method." };
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
       if (!Array.isArray(messages)) messages = [messages];
@@ -369,7 +370,7 @@
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
     }
-    function getErrorMessage(error) { return errorMessages[error.code] || `An error occurred: ${error.code}`; }
+    function getErrorMessage(error) { return errorMessages[error.code] || `An unexpected error occurred: ${error.code}`; }
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
         grecaptcha.render('securityRecaptcha', {
@@ -464,7 +465,7 @@
           showFeedback("Please verify your email to log in.");
         }
       } catch (error) {
-        if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential'].includes(error.code)) {
+        if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(error.code)) {
             showFeedback('Invalid email or password.');
         } else {
             showFeedback(getErrorMessage(error));
@@ -506,25 +507,6 @@
         } catch (error) {
             showFeedback(getErrorMessage(error));
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
-        }
-    });
-
-    const secretKeys = { q: false, p: false, a: false, l: false, z: false, m: false };
-    const requiredKeys = Object.keys(secretKeys);
-    document.addEventListener('keydown', (e) => {
-        const key = e.key.toLowerCase();
-        if (requiredKeys.includes(key)) {
-            secretKeys[key] = true;
-            if (securityChallengeLayer.classList.contains('active') && requiredKeys.every(k => secretKeys[k])) {
-                document.getElementById('challengeComplete').style.display = 'block';
-                setTimeout(() => { document.body.style.backgroundColor = ''; showLayer(methodSelectorLayer); }, 500);
-            }
-        }
-    });
-    document.addEventListener('keyup', (e) => {
-        const key = e.key.toLowerCase();
-        if (requiredKeys.includes(key)) {
-            secretKeys[key] = false;
         }
     });
   </script>
