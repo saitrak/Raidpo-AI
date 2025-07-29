@@ -7,7 +7,7 @@
   -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login or Register | Raidpo AI</title>
+  <title>Auth | Raidpo AI</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dml8j7b8w/image/upload/v1751829931/lzk7ckkwyrhiqtio8g8i.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
@@ -317,6 +317,7 @@
   </div>
 
   <script>
+    document.title = "Hold on..."; // Set loading title
     if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
     const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
@@ -324,7 +325,6 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const githubProvider = new firebase.auth.GithubAuthProvider();
     
-    // DOM Elements
     const initialLoadingScreen = document.getElementById('initialLoadingScreen');
     const securityChallengeLayer = document.getElementById('securityChallengeLayer');
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
@@ -357,7 +357,7 @@
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
     
-    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/user-not-found": "No account found with this email.", "auth/wrong-password": "Incorrect password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
+    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/user-not-found": "Invalid email or password.", "auth/wrong-password": "Invalid email or password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
       if (!Array.isArray(messages)) messages = [messages];
@@ -390,6 +390,7 @@
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
+            document.title = "Auth | Raidpo AI"; // Restore title
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
                 window.location.href = 'https://raidpo-ai.netlify.app/';
             } else {
