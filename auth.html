@@ -42,7 +42,7 @@
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
       color: var(--text-primary); background-color: var(--bg-primary);
-      overflow: hidden; -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent;
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh; transition: background-color 0.4s ease;
     }
@@ -355,7 +355,6 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method." };
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
