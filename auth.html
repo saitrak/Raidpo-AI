@@ -221,6 +221,17 @@
     .requirement-item.invalid i { color: #ff6f61; }
     .countdown-bar { height: 4px; background-color: var(--bg-card); border-radius: 2px; overflow: hidden; width: 100%; }
     .countdown-progress { height: 100%; background-color: var(--accent-primary); width: 0%; transition: width 3s linear; }
+    .ripple {
+        position: fixed;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.7);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+    @keyframes ripple-animation {
+      to { transform: scale(4); opacity: 0; }
+    }
     @media (max-width: 768px) {
       .form-box {
         width: 100%; max-width: 450px; height: auto;
@@ -317,7 +328,7 @@
   </div>
 
   <script>
-    document.title = "Hold on..."; // Set loading title
+    document.title = "Loading...";
     if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
     const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
@@ -357,7 +368,7 @@
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
     
-    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/user-not-found": "Invalid email or password.", "auth/wrong-password": "Invalid email or password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
+    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/user-not-found": "Invalid email or password.", "auth/wrong-password": "Invalid email or password.", "auth/invalid-credential": "Invalid email or password.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method.", "default": "An unexpected error occurred." };
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
       if (!Array.isArray(messages)) messages = [messages];
@@ -390,7 +401,7 @@
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
-            document.title = "Auth | Raidpo AI"; // Restore title
+            document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
                 window.location.href = 'https://raidpo-ai.netlify.app/';
             } else {
@@ -503,6 +514,26 @@
             showFeedback(getErrorMessage(error));
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
+    });
+
+    document.body.addEventListener('click', (e) => {
+        const isTextInput = e.target.matches('input[type="text"], input[type="email"], input[type="password"], select');
+        if (isTextInput) return;
+
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        document.body.appendChild(ripple);
+
+        const rect = e.target.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        
+        ripple.style.width = ripple.style.height = `${size * 2}px`;
+        ripple.style.left = `${e.clientX - size}px`;
+        ripple.style.top = `${e.clientY - size}px`;
+
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
     });
   </script>
 </body>
