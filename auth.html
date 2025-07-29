@@ -42,7 +42,7 @@
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
       color: var(--text-primary); background-color: var(--bg-primary);
-      -webkit-tap-highlight-color: transparent;
+      overflow: hidden; -webkit-tap-highlight-color: transparent;
       display: flex; justify-content: center; align-items: center;
       min-height: 100vh; transition: background-color 0.4s ease;
     }
@@ -75,14 +75,17 @@
         -webkit-text-fill-color: transparent; animation: shimmer-animation 2s infinite linear;
     }
     @keyframes shimmer-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .challenge-container {
+    
+    .note-container, .challenge-container {
       background-color: var(--bg-secondary); padding: 2rem; border-radius: 10px;
-      width: 100%; max-width: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      width: 100%; max-width: 450px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center; border: 1px solid var(--border-color);
     }
-    .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
-    .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; }
+    .note-title, .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .note-description, .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.6; }
+    .note-title { color: var(--accent-primary); }
     .challenge-complete { color: #4CAF50; font-weight: bold; margin-top: 1rem; display: none; }
+
     .form-box {
       width: 95vw; height: 90vh; background: var(--bg-secondary); position: relative;
       border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -224,7 +227,7 @@
     @media (max-width: 768px) {
       .form-box {
         width: 100%; max-width: 450px; height: auto;
-        max-height: 95vh; flex-direction: column;
+        max-height: 95vh; flex-direction: column; overflow-y: auto;
       }
       .form-container { flex-direction: column; }
       .form-left-panel { flex: 0 0 220px; }
@@ -308,6 +311,27 @@
           </div>
       </div>
   </div>
+  <div class="form-layer" id="verifyNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Verify Your Email</h2>
+          <p class="note-description">A verification link has been sent to your email. Please check your inbox (and spam folder) to complete registration.</p>
+          <button class="auth-btn go-home-btn">Go to Homepage</button>
+      </div>
+  </div>
+  <div class="form-layer" id="resetNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Reset Link Sent</h2>
+          <p class="note-description">A password reset link has been sent to your email. Please check your inbox to create a new password.</p>
+          <button class="auth-btn go-home-btn">Go to Homepage</button>
+      </div>
+  </div>
+  <div class="form-layer" id="loggedInLayer">
+      <div class="note-container">
+          <h2 class="note-title">Already Logged In</h2>
+          <p class="note-description">It looks like you are already signed in. You will be redirected shortly.</p>
+          <button class="auth-btn go-home-btn">Go to Homepage Now</button>
+      </div>
+  </div>
   <div class="requirements-overlay" id="requirementsOverlay">
     <div class="requirements-menu">
       <div class="requirements-title">Please fill these requirements</div>
@@ -329,6 +353,9 @@
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
     const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
+    const verifyNoteLayer = document.getElementById('verifyNoteLayer');
+    const resetNoteLayer = document.getElementById('resetNoteLayer');
+    const loggedInLayer = document.getElementById('loggedInLayer');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
@@ -355,7 +382,8 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method." };
+    
+    const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
       if (!Array.isArray(messages)) messages = [messages];
@@ -382,7 +410,7 @@
       }
     }
     const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer].forEach(l => l.classList.remove('active'));
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, verifyNoteLayer, resetNoteLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
     setTimeout(() => {
@@ -390,7 +418,7 @@
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
-                window.location.href = 'https://raidpo-ai.netlify.app/';
+                showLayer(loggedInLayer);
             } else {
                 if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
@@ -411,6 +439,9 @@
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
     backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
     backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
+    document.querySelectorAll('.go-home-btn').forEach(btn => {
+        btn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
+    });
     const signInWithProvider = (provider) => {
         auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error)));
     };
@@ -489,9 +520,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
+        showLayer(verifyNoteLayer);
       } catch (error) {
         showFeedback(getErrorMessage(error));
+      } finally {
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
       }
     });
@@ -502,9 +534,10 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
+            showLayer(resetNoteLayer);
         } catch (error) {
             showFeedback(getErrorMessage(error));
+        } finally {
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
