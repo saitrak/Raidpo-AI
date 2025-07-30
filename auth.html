@@ -202,7 +202,7 @@
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 0.9rem); }
     .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
@@ -369,6 +369,8 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+    let isSigningUp = false;
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -383,7 +385,7 @@
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
     }
-    function getErrorMessage(error) { return errorMessages[error.code] || `An error occurred: ${error.code}`; }
+    function getErrorMessage(error) { return errorMessages[error.code] || `An unexpected error occurred: ${error.code}`; }
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
         grecaptcha.render('securityRecaptcha', {
@@ -401,6 +403,7 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
+            if (isSigningUp) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
@@ -485,6 +488,7 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
+      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
@@ -493,7 +497,7 @@
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { return showFeedback(errors); }
+      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -502,10 +506,11 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
+        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
+        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
