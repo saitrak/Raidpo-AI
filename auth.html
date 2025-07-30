@@ -80,7 +80,7 @@
       background-color: var(--bg-secondary); padding: 2rem; border-radius: 10px;
       width: 100%; max-width: 450px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center; border: 1px solid var(--border-color); display: flex;
-      flex-direction: column; align-items: center;
+      flex-direction: column; align-items: center; /* This centers the reCAPTCHA */
     }
     .note-title, .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
     .note-description, .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.6; }
@@ -518,7 +518,7 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        showLayer(verifyNoteLayer);
+        setTimeout(() => { showLayer(verifyNoteLayer); }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
       } finally {
