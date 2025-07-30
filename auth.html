@@ -138,15 +138,15 @@
     .or-divider::after { margin-left: 1rem; }
     .method-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.7rem, 3vw, 0.8rem); line-height: 1.5; }
     .method-footer a { color: var(--accent-primary); text-decoration: underline; }
-    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); position: relative; }
     .auth-tab {
       flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative; color: var(--text-secondary);
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
     .auth-tab.active { color: var(--accent-primary); }
-    .auth-tab.active::after {
-      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%;
-      height: 2px; background-color: var(--accent-primary);
+    .underline {
+        position: absolute; bottom: -1px; height: 2px; background-color: var(--accent-primary);
+        transition: left 0.3s ease, width 0.3s ease;
     }
     .auth-form { display: none; }
     .auth-form.active { display: block; }
@@ -202,7 +202,7 @@
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 0.9rem); }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
@@ -235,6 +235,10 @@
       .form-container { flex-direction: column; }
       .form-left-panel { flex: 0 0 220px; }
       .form-right-panel { flex-grow: 1; }
+      .form-box::-webkit-scrollbar { width: 8px; }
+      .form-box::-webkit-scrollbar-track { background: var(--bg-card); }
+      .form-box::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+      .form-box::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
     }
   </style>
 </head>
@@ -269,7 +273,7 @@
         <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
           <div class="auth-header"><h1>Raidpo-AI</h1><p>Access powerful tools with your account</p></div>
-          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div></div>
+          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div><div class="underline"></div></div>
           <div id="loginForm" class="auth-form active">
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
@@ -369,8 +373,6 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    let isSigningUp = false;
-    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -403,11 +405,10 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
-            if (isSigningUp) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
-                showLayer(loggedInLayer);
+                window.location.href = 'https://raidpo-ai.netlify.app/';
             } else {
                 if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
@@ -422,7 +423,7 @@
         if (domain === 'gmail.com') option.selected = true;
         signupEmailDomain.appendChild(option);
     });
-    signupEmailLocalPart.addEventListener('keydown', (e) => { if (e.key === '.') { e.preventDefault(); } });
+    
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
     emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
     forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
@@ -440,7 +441,7 @@
       element.classList.toggle('valid', isValid); element.classList.toggle('invalid', !isValid);
       element.querySelector('i').className = isValid ? 'fas fa-check' : 'fas fa-times';
     }
-    const isValidUsername = username => username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+    const isValidUsername = username => /^[a-zA-Z0-9]([a-zA-Z0-9_ ]*[a-zA-Z0-9])?$/.test(username) && username.length >= 3;
     function isValidPassword(password) {
       const checks = { length: password.length >= 6, upper: /[A-Z]/.test(password), lower: /[a-z]/.test(password) };
       updateRequirement(reqLength, checks.length); updateRequirement(reqUppercase, checks.upper);
@@ -461,10 +462,19 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
+    
+    const underline = document.querySelector('.underline');
+    const firstTab = authTabs[0];
+    underline.style.width = `${firstTab.offsetWidth}px`;
+    underline.style.left = `${firstTab.offsetLeft}px`;
+
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+      underline.style.width = `${tab.offsetWidth}px`;
+      underline.style.left = `${tab.offsetLeft}px`;
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
       document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
+      document.querySelector('.form-right-panel').scrollTop = 0;
     }));
     document.getElementById('switchToSignup').addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
     document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
@@ -488,16 +498,15 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
-      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
-      if (!isValidUsername(username)) errors.push('Username: 3+ chars (letters, numbers, _).');
+      if (!isValidUsername(username)) errors.push('Username: 3+ chars, no spaces/underscores at start/end.');
       if (!localPart) { errors.push('Please enter the first part of your email.'); }
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
+      if (errors.length > 0) { return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -506,11 +515,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-note'; }, 700);
+        window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note';
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
-        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
