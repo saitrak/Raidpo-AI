@@ -278,7 +278,7 @@
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
             <div class="forgot-password-link"><a href="#" id="forgotPasswordLink">Forgot password?</a></div>
-            <button id="loginBtn" class="auth-btn">Log in</button>
+            <button id="loginBtn" class="auth-btn">Log In</button>
             <div class="auth-footer">Don't have an account? <a href="#" id="switchToSignup">Register</a></div>
           </div>
           <div id="signupForm" class="auth-form">
@@ -351,6 +351,7 @@
     const googleMethodBtn = document.getElementById('googleMethodBtn');
     const githubMethodBtn = document.getElementById('githubMethodBtn');
     const emailMethodBtn = document.getElementById('emailMethodBtn');
+    const loginBtn = document.getElementById('loginBtn');
     const signupBtn = document.getElementById('signupBtn');
     const signupUsername = document.getElementById('signupUsername');
     const signupEmailLocalPart = document.getElementById('signupEmailLocalPart');
@@ -370,11 +371,10 @@
     const reqLowercase = document.getElementById('req-lowercase');
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    let isSigningUp = false; let isLoggingIn = false;
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -407,11 +407,10 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
-            if (isSigningUp || isLoggingIn) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
-                showLayer(loggedInLayer);
+                window.location.href = 'https://raidpo-ai.netlify.app/';
             } else {
                 if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
@@ -468,13 +467,15 @@
     
     const underline = document.querySelector('.underline');
     const firstTab = authTabs[0];
-    underline.style.width = `${firstTab.offsetWidth}px`;
-    underline.style.left = `${firstTab.offsetLeft}px`;
+    function setUnderline(tab) {
+        underline.style.width = `${tab.offsetWidth}px`;
+        underline.style.left = `${tab.offsetLeft}px`;
+    }
+    setUnderline(firstTab);
 
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
-      underline.style.width = `${tab.offsetWidth}px`;
-      underline.style.left = `${tab.offsetLeft}px`;
+      setUnderline(tab);
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
       document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
       document.querySelector('.form-right-panel').scrollTop = 0;
@@ -483,30 +484,27 @@
     document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
     
     loginBtn.addEventListener('click', async () => {
-      isLoggingIn = true;
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value;
       const errors = [];
       if (!email) { errors.push('Email is required.'); }
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
-      if (errors.length > 0) { isLoggingIn = false; return showFeedback(errors); }
-      loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
+      if (errors.length > 0) return showFeedback(errors);
+      loginBtn.disabled = true; loginBtn.textContent = "Logging in...";
       try {
         await auth.signInWithEmailAndPassword(email, password);
       } catch (error) {
-        isLoggingIn = false;
         if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(error.code)) {
             showFeedback('Invalid email or password.');
         } else {
             showFeedback(getErrorMessage(error));
         }
       } finally {
-        loginBtn.disabled = false; loginBtn.textContent = 'Log in';
+        loginBtn.disabled = false; loginBtn.textContent = "Log In";
       }
     });
     signupBtn.addEventListener('click', async () => {
-      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
@@ -515,7 +513,7 @@
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
+      if (errors.length > 0) { return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -524,11 +522,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
+        setTimeout(() => { window.location.href = '/verify-email-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
-        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
@@ -538,7 +535,7 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
+            window.location.href = '/reset-password-note';
         } catch (error) {
             showFeedback(getErrorMessage(error));
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
