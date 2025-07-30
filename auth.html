@@ -202,7 +202,7 @@
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 0.9rem); }
     .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
@@ -374,6 +374,7 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+    let isSigningUp = false;
     
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -407,6 +408,7 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
+            if (isSigningUp) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
@@ -487,7 +489,6 @@
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
       if (errors.length > 0) return showFeedback(errors);
-
       loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
       try {
         await auth.signInWithEmailAndPassword(email, password);
@@ -502,7 +503,7 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
-      let isSigningUp = true;
+      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
