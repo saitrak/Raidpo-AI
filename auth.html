@@ -80,7 +80,7 @@
       background-color: var(--bg-secondary); padding: 2rem; border-radius: 10px;
       width: 100%; max-width: 450px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       text-align: center; border: 1px solid var(--border-color); display: flex;
-      flex-direction: column; align-items: center; /* This centers the reCAPTCHA */
+      flex-direction: column; align-items: center;
     }
     .note-title, .challenge-title { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
     .note-description, .challenge-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.6; }
@@ -314,24 +314,10 @@
           </div>
       </div>
   </div>
-  <div class="form-layer" id="verifyNoteLayer">
-      <div class="note-container">
-          <h2 class="note-title">Verify Your Email</h2>
-          <p class="note-description">A verification link has been sent to your email. Please check your inbox (and spam folder) to complete registration.</p>
-          <button class="auth-btn go-home-btn">Go to Homepage</button>
-      </div>
-  </div>
-  <div class="form-layer" id="resetNoteLayer">
-      <div class="note-container">
-          <h2 class="note-title">Reset Link Sent</h2>
-          <p class="note-description">A password reset link has been sent to your email. Please check your inbox to create a new password.</p>
-          <button class="auth-btn go-home-btn">Go to Homepage</button>
-      </div>
-  </div>
   <div class="form-layer" id="loggedInLayer">
       <div class="note-container">
           <h2 class="note-title">Already Logged In</h2>
-          <p class="note-description">It looks like you are already logged in. You will be redirected shortly.</p>
+          <p class="note-description">It looks like you are already logged in. You will be redirected to the homepage.</p>
           <button class="auth-btn go-home-btn">Go to Homepage</button>
       </div>
   </div>
@@ -356,8 +342,6 @@
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
     const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
-    const verifyNoteLayer = document.getElementById('verifyNoteLayer');
-    const resetNoteLayer = document.getElementById('resetNoteLayer');
     const loggedInLayer = document.getElementById('loggedInLayer');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
@@ -399,7 +383,7 @@
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
     }
-    function getErrorMessage(error) { return errorMessages[error.code] || `An unexpected error occurred: ${error.code}`; }
+    function getErrorMessage(error) { return errorMessages[error.code] || `An error occurred: ${error.code}`; }
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
         grecaptcha.render('securityRecaptcha', {
@@ -412,7 +396,7 @@
       }
     }
     const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, verifyNoteLayer, resetNoteLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
     setTimeout(() => {
@@ -518,10 +502,9 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { showLayer(verifyNoteLayer); }, 700);
+        window.location.href = 'https://raidpo-ai.netlify.app/verify-note';
       } catch (error) {
         showFeedback(getErrorMessage(error));
-      } finally {
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
       }
     });
@@ -532,10 +515,9 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            showLayer(resetNoteLayer);
+            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
             showFeedback(getErrorMessage(error));
-        } finally {
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
