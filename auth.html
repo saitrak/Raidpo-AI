@@ -374,7 +374,7 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    let isSigningUp = false;
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -406,8 +406,7 @@
         layerToShow.classList.add('active');
     };
     setTimeout(() => {
-        auth.onAuthStateChanged(user => {
-            if (isSigningUp) return;
+        const unsubscribe = auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
             if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
@@ -417,6 +416,7 @@
                 document.body.style.backgroundColor = '#ff3b2f';
                 showLayer(securityChallengeLayer);
             }
+            unsubscribe(); // CRITICAL: Only run this check once on initial load.
         });
     }, 3000);
     const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com', 'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com', 'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'];
@@ -482,7 +482,6 @@
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
       if (errors.length > 0) return showFeedback(errors);
-
       loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
       try {
         await auth.signInWithEmailAndPassword(email, password);
