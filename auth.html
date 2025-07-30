@@ -374,7 +374,6 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -389,7 +388,7 @@
       setTimeout(() => { countdownProgress.style.width = '100%'; }, 10);
       setTimeout(() => { requirementsOverlay.classList.remove('active'); }, 3000);
     }
-    function getErrorMessage(error) { return errorMessages[error.code] || `An unexpected error occurred: ${error.code}`; }
+    function getErrorMessage(error) { return errorMessages[error.code] || `An error occurred: ${error.code}`; }
     function onRecaptchaLoad() {
       if (document.getElementById('securityRecaptcha')) {
         grecaptcha.render('securityRecaptcha', {
@@ -405,19 +404,18 @@
         [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
-    setTimeout(() => {
-        auth.onAuthStateChanged(user => {
-            initialLoadingScreen.style.display = 'none';
-            document.title = "Auth | Raidpo AI";
-            if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
-                window.location.href = 'https://raidpo-ai.netlify.app/';
-            } else {
-                if (user) { auth.signOut(); }
-                document.body.style.backgroundColor = '#ff3b2f';
-                showLayer(securityChallengeLayer);
-            }
-        });
-    }, 3000);
+    const authCheck = auth.onAuthStateChanged(user => {
+        authCheck(); // Unsubscribe after the first check
+        initialLoadingScreen.style.display = 'none';
+        document.title = "Auth | Raidpo AI";
+        if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
+            showLayer(loggedInLayer);
+        } else {
+            if (user) { auth.signOut(); }
+            document.body.style.backgroundColor = '#ff3b2f';
+            showLayer(securityChallengeLayer);
+        }
+    });
     const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com', 'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com', 'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'];
     allowedDomains.forEach(domain => {
         const option = document.createElement('option');
@@ -427,14 +425,15 @@
     });
     
     backToMethods.addEventListener('click', () => showLayer(methodSelectorLayer));
-    emailMethodBtn.addEventListener('click', () => showLayer(authLayer));
-    forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); showLayer(forgotPasswordLayer); });
+    emailMethodBtn.addEventListener('click', () => { if (auth.currentUser) return showLayer(loggedInLayer); showLayer(authLayer); });
+    forgotPasswordLink.addEventListener('click', (e) => { e.preventDefault(); if (auth.currentUser) return showLayer(loggedInLayer); showLayer(forgotPasswordLayer); });
     backToAuthFromReset.addEventListener('click', () => showLayer(authLayer));
     backToLoginFromReset.addEventListener('click', (e) => { e.preventDefault(); showLayer(authLayer); });
     document.querySelectorAll('.go-home-btn').forEach(btn => {
         btn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     });
     const signInWithProvider = (provider) => {
+        if (auth.currentUser) return showLayer(loggedInLayer);
         auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error)));
     };
     googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
@@ -464,7 +463,6 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    
     const underline = document.querySelector('.underline');
     const firstTab = authTabs[0];
     function setUnderline(tab) {
@@ -484,6 +482,7 @@
     document.getElementById('switchToLogin').addEventListener('click', e => { e.preventDefault(); authTabs[0].click(); });
     
     loginBtn.addEventListener('click', async () => {
+      if (auth.currentUser) return showLayer(loggedInLayer);
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value;
       const errors = [];
@@ -505,6 +504,7 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
+      if (auth.currentUser) return showLayer(loggedInLayer);
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
@@ -522,13 +522,14 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = '/verify-email-note'; }, 700);
+        window.location.href = '/verify-email-note';
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
+        if (auth.currentUser) return showLayer(loggedInLayer);
         const email = resetEmail.value.trim();
         if (!email) return showFeedback("Please enter your email address.");
         if (!isValidEmail(email)) return showFeedback("Please enter a valid email format.");
