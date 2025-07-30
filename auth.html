@@ -138,15 +138,15 @@
     .or-divider::after { margin-left: 1rem; }
     .method-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.7rem, 3vw, 0.8rem); line-height: 1.5; }
     .method-footer a { color: var(--accent-primary); text-decoration: underline; }
-    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); position: relative; }
+    .auth-tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
     .auth-tab {
       flex: 1; text-align: center; padding: 1rem; cursor: pointer; position: relative; color: var(--text-secondary);
       font-size: clamp(0.9rem, 3vw, 1rem);
     }
     .auth-tab.active { color: var(--accent-primary); }
-    .underline {
-        position: absolute; bottom: -1px; height: 2px; background-color: var(--accent-primary);
-        transition: left 0.3s ease, width 0.3s ease;
+    .auth-tab.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%;
+      height: 2px; background-color: var(--accent-primary);
     }
     .auth-form { display: none; }
     .auth-form.active { display: block; }
@@ -202,7 +202,7 @@
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 0.9rem); }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
@@ -273,7 +273,7 @@
         <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
           <div class="auth-header"><h1>Raidpo-AI</h1><p>Access powerful tools with your account</p></div>
-          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div><div class="underline"></div></div>
+          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div></div>
           <div id="loginForm" class="auth-form active">
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
@@ -375,7 +375,6 @@
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
     let isSigningUp = false;
-    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -466,14 +465,8 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    const underline = document.querySelector('.underline');
-    const firstTab = authTabs[0];
-    underline.style.width = `${firstTab.offsetWidth}px`;
-    underline.style.left = `${firstTab.offsetLeft}px`;
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
-      underline.style.width = `${tab.offsetWidth}px`;
-      underline.style.left = `${tab.offsetLeft}px`;
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
       document.getElementById('signupForm').classList.toggle('active', tab.dataset.tab === 'signup');
       document.querySelector('.form-right-panel').scrollTop = 0;
@@ -489,6 +482,7 @@
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
       if (errors.length > 0) return showFeedback(errors);
+
       loginBtn.disabled = true; loginBtn.textContent = 'Logging in...';
       try {
         await auth.signInWithEmailAndPassword(email, password);
