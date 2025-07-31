@@ -374,7 +374,6 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -436,7 +435,9 @@
         btn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     });
     const signInWithProvider = (provider) => {
-        auth.signInWithPopup(provider).catch(error => showFeedback(getErrorMessage(error)));
+        auth.signInWithPopup(provider)
+        .then(() => { window.location.href = 'https://raidpo-ai.netlify.app/'; })
+        .catch(error => showFeedback(getErrorMessage(error)));
     };
     googleMethodBtn.addEventListener('click', () => signInWithProvider(googleProvider));
     githubMethodBtn.addEventListener('click', () => signInWithProvider(githubProvider));
@@ -465,7 +466,6 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    
     const underline = document.querySelector('.underline');
     const firstTab = authTabs[0];
     underline.style.width = `${firstTab.offsetWidth}px`;
@@ -493,7 +493,7 @@
       try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         if (userCredential.user.emailVerified) {
-             window.location.href = 'https://raidpo-ai.netlify.app/';
+            window.location.href = 'https://raidpo-ai.netlify.app/';
         } else {
           await auth.signOut();
           showFeedback("Please verify your email to log in.");
