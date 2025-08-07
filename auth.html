@@ -60,6 +60,7 @@
       z-index: 1000; padding: 20px; background-color: transparent;
     }
     .form-layer.active { display: flex; }
+    #loggedInLayer { background-color: #ff3b2f; } /* Specific background for this layer */
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background-color: var(--bg-primary); display: flex; justify-content: center;
@@ -273,7 +274,7 @@
         <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
           <div class="auth-header"><h1>Raidpo-AI</h1><p>Access powerful tools with your account</p></div>
-          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div></div>
+          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div><div class="underline"></div></div>
           <div id="loginForm" class="auth-form active">
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
@@ -318,6 +319,20 @@
           </div>
       </div>
   </div>
+  <div class="form-layer" id="verifyNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Verify Your Email</h2>
+          <p class="note-description">A verification link has been sent to your email. Please check your inbox (and spam folder) to complete registration.</p>
+          <button class="auth-btn go-home-btn">Go to Homepage</button>
+      </div>
+  </div>
+  <div class="form-layer" id="resetNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Reset Link Sent</h2>
+          <p class="note-description">A password reset link has been sent to your email. Please check your inbox to create a new password.</p>
+          <button class="auth-btn" id="goToLoginBtn">Go to Login</button>
+      </div>
+  </div>
   <div class="form-layer" id="loggedInLayer">
       <div class="note-container">
           <h2 class="note-title">Already Logged In</h2>
@@ -346,6 +361,8 @@
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
     const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
+    const verifyNoteLayer = document.getElementById('verifyNoteLayer');
+    const resetNoteLayer = document.getElementById('resetNoteLayer');
     const loggedInLayer = document.getElementById('loggedInLayer');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
@@ -374,7 +391,7 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
-    let isSigningUp = false;
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -402,17 +419,16 @@
       }
     }
     const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, verifyNoteLayer, resetNoteLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
     setTimeout(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
-            if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
+            if (user) {
                 showLayer(loggedInLayer);
             } else {
-                if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
                 showLayer(securityChallengeLayer);
             }
@@ -435,6 +451,8 @@
     document.querySelectorAll('.go-home-btn').forEach(btn => {
         btn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     });
+    document.getElementById('goToLoginBtn').addEventListener('click', () => showLayer(authLayer));
+
     const signInWithProvider = (provider) => {
         auth.signInWithPopup(provider)
         .then(() => { window.location.href = 'https://raidpo-ai.netlify.app/'; })
@@ -504,7 +522,6 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
-      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
@@ -513,7 +530,7 @@
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
+      if (errors.length > 0) { return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -522,11 +539,11 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
+        showLayer(verifyNoteLayer);
       } catch (error) {
         showFeedback(getErrorMessage(error));
+      } finally {
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
-        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
@@ -536,9 +553,10 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
+            showLayer(resetNoteLayer);
         } catch (error) {
             showFeedback(getErrorMessage(error));
+        } finally {
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
