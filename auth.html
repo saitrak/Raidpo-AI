@@ -60,7 +60,7 @@
       z-index: 1000; padding: 20px; background-color: transparent;
     }
     .form-layer.active { display: flex; }
-    #loggedInLayer { background-color: #ff3b2f; }
+    #loggedInLayer { background-color: #ff3b2f; } /* Specific background for this layer */
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background-color: var(--bg-primary); display: flex; justify-content: center;
@@ -203,7 +203,7 @@
     .requirement i { margin-right: 0.5rem; font-size: 0.8rem; }
     .requirement.valid i { color: #4CAF50; }
     .requirement.invalid i { color: #ff6f61; }
-    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.9rem, 3vw, 0.9rem); }
+    .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: clamp(0.8rem, 3vw, 0.9rem); }
     .auth-footer a { color: var(--accent-primary); text-decoration: underline; }
     .requirements-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9);
@@ -319,6 +319,20 @@
           </div>
       </div>
   </div>
+  <div class="form-layer" id="verifyNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Verify Your Email</h2>
+          <p class="note-description">A verification link has been sent to your email. Please check your inbox (and spam folder) to complete registration.</p>
+          <button class="auth-btn go-home-btn">Go to Homepage</button>
+      </div>
+  </div>
+  <div class="form-layer" id="resetNoteLayer">
+      <div class="note-container">
+          <h2 class="note-title">Reset Link Sent</h2>
+          <p class="note-description">A password reset link has been sent to your email. Please check your inbox to create a new password.</p>
+          <button class="auth-btn" id="goToLoginBtn">Go to Login</button>
+      </div>
+  </div>
   <div class="form-layer" id="loggedInLayer">
       <div class="note-container">
           <h2 class="note-title">Already Logged In</h2>
@@ -347,6 +361,8 @@
     const methodSelectorLayer = document.getElementById('methodSelectorLayer');
     const authLayer = document.getElementById('authLayer');
     const forgotPasswordLayer = document.getElementById('forgotPasswordLayer');
+    const verifyNoteLayer = document.getElementById('verifyNoteLayer');
+    const resetNoteLayer = document.getElementById('resetNoteLayer');
     const loggedInLayer = document.getElementById('loggedInLayer');
     const backToMethods = document.getElementById('backToMethods');
     const googleMethodBtn = document.getElementById('googleMethodBtn');
@@ -403,17 +419,16 @@
       }
     }
     const showLayer = (layerToShow) => {
-        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
+        [securityChallengeLayer, methodSelectorLayer, authLayer, forgotPasswordLayer, verifyNoteLayer, resetNoteLayer, loggedInLayer].forEach(l => l.classList.remove('active'));
         layerToShow.classList.add('active');
     };
     setTimeout(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
-            if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
+            if (user) {
                 showLayer(loggedInLayer);
             } else {
-                if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
                 showLayer(securityChallengeLayer);
             }
@@ -436,6 +451,8 @@
     document.querySelectorAll('.go-home-btn').forEach(btn => {
         btn.addEventListener('click', () => window.location.href = 'https://raidpo-ai.netlify.app/');
     });
+    document.getElementById('goToLoginBtn').addEventListener('click', () => showLayer(authLayer));
+
     const signInWithProvider = (provider) => {
         auth.signInWithPopup(provider)
         .then(() => { window.location.href = 'https://raidpo-ai.netlify.app/'; })
@@ -522,9 +539,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        window.location.href = '/verify-email-note';
+        showLayer(verifyNoteLayer);
       } catch (error) {
         showFeedback(getErrorMessage(error));
+      } finally {
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
       }
     });
@@ -535,13 +553,10 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = '/reset-password-note';
+            showLayer(resetNoteLayer);
         } catch (error) {
-            if(error.code === 'auth/user-not-found'){
-                showFeedback('No account found with this email.');
-            } else {
-                showFeedback(getErrorMessage(error));
-            }
+            showFeedback(getErrorMessage(error));
+        } finally {
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
         }
     });
