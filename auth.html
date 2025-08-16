@@ -239,6 +239,8 @@
       .form-box::-webkit-scrollbar-track { background: var(--bg-card); }
       .form-box::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
       .form-box::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+      .composite-email-input input { min-width: 50%; }
+      .select-wrapper { flex-basis: 50%; }
     }
   </style>
 </head>
@@ -273,7 +275,7 @@
         <div class="form-left-panel"><button class="back-to-methods" id="backToMethods"><i class="fas fa-arrow-left"></i></button></div>
         <div class="form-right-panel">
           <div class="auth-header"><h1>Raidpo-AI</h1><p>Access powerful tools with your account</p></div>
-          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div><div class="underline"></div></div>
+          <div class="auth-tabs"><div class="auth-tab active" data-tab="login">Login</div><div class="auth-tab" data-tab="signup">Register</div></div>
           <div id="loginForm" class="auth-form active">
             <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required autocomplete="off"></div>
             <div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password"><button class="password-toggle" id="toggleLoginPassword"><i class="fas fa-eye"></i></button></div>
@@ -408,14 +410,13 @@
         const unsubscribe = auth.onAuthStateChanged(user => {
             initialLoadingScreen.style.display = 'none';
             document.title = "Auth | Raidpo AI";
-            if (user && (user.emailVerified || (user.providerData[0] && user.providerData[0].providerId !== 'password'))) {
+            if (user) {
                 showLayer(loggedInLayer);
             } else {
-                if (user) { auth.signOut(); }
                 document.body.style.backgroundColor = '#ff3b2f';
                 showLayer(securityChallengeLayer);
             }
-            unsubscribe();
+            unsubscribe(); 
         });
     }, 3000);
     const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'aol.com', 'icloud.com', 'mail.com', 'gmx.com', 'zoho.com', 'proton.me', 'tutanota.com', 'yandex.com', 'qq.com', 'naver.com', '163.com', 'rediffmail.com'];
@@ -466,14 +467,6 @@
     signupPassword.addEventListener('focus', () => signupPasswordRequirements.style.display = 'block');
     signupPassword.addEventListener('blur', () => { if (!signupPassword.value) signupPasswordRequirements.style.display = 'none'; });
     signupPassword.addEventListener('input', () => isValidPassword(signupPassword.value));
-    
-    const underline = document.querySelector('.underline');
-    const firstTab = authTabs[0];
-    if(firstTab) {
-        underline.style.width = `${firstTab.offsetWidth}px`;
-        underline.style.left = `${firstTab.offsetLeft}px`;
-    }
-
     authTabs.forEach(tab => tab.addEventListener('click', () => {
       authTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
       document.getElementById('loginForm').classList.toggle('active', tab.dataset.tab === 'login');
@@ -511,17 +504,15 @@
       }
     });
     signupBtn.addEventListener('click', async () => {
-      isSigningUp = true;
       const localPart = signupEmailLocalPart.value.trim(); const domain = signupEmailDomain.value;
       const email = `${localPart}@${domain}`; const username = signupUsername.value.trim();
       const password = signupPassword.value; const errors = [];
       if (!isValidUsername(username)) errors.push('Username: 3+ chars, no spaces/underscores at start/end.');
       if (!localPart) { errors.push('Please enter the first part of your email.'); }
-      else if(!isValidEmail(email)) { errors.push('Please enter a valid email format.'); }
       if (!password) { errors.push('Please write a password.'); }
       else if (!isValidPassword(password)) errors.push('Password does not meet all requirements.');
       if (password && password !== signupConfirmPassword.value) errors.push('Passwords do not match.');
-      if (errors.length > 0) { isSigningUp = false; return showFeedback(errors); }
+      if (errors.length > 0) { return showFeedback(errors); }
       signupBtn.disabled = true; signupBtn.textContent = 'Registering...';
       try {
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -530,11 +521,10 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = '/verify-email-note'; }, 700);
+        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
-        isSigningUp = false;
       }
     });
     resetPasswordBtn.addEventListener('click', async () => {
@@ -544,7 +534,7 @@
         resetPasswordBtn.disabled = true; resetPasswordBtn.textContent = 'Sending...';
         try {
             await auth.sendPasswordResetEmail(email);
-            window.location.href = '/reset-password-note';
+            window.location.href = 'https://raidpo-ai.netlify.app/reset-password-note';
         } catch (error) {
             showFeedback(getErrorMessage(error));
             resetPasswordBtn.disabled = false; resetPasswordBtn.textContent = 'Send Reset Link';
