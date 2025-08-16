@@ -60,6 +60,7 @@
       z-index: 1000; padding: 20px; background-color: transparent;
     }
     .form-layer.active { display: flex; }
+    #loggedInLayer { background-color: #ff3b2f; }
     .loading-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background-color: var(--bg-primary); display: flex; justify-content: center;
@@ -163,10 +164,10 @@
         transition: border-color 0.2s;
     }
     .composite-email-input:focus-within { border-color: var(--accent-primary); }
-    .composite-email-input input { flex-grow: 1; border: none; background-color: transparent; padding: 0.8rem; min-width: 60%; }
+    .composite-email-input input { flex-grow: 1; border: none; background-color: transparent; padding: 0.8rem; min-width: 55%; }
     .input-separator { width: 1px; background-color: #444; }
     .select-wrapper {
-        position: relative; flex-basis: 40%;
+        position: relative; flex-basis: 45%;
         display: flex; align-items: center;
     }
     .email-at-symbol { color: var(--text-secondary); padding-left: 1rem; }
@@ -174,7 +175,7 @@
         background-color: transparent; border: none; color: var(--text-primary);
         padding: 0.8rem 2rem 0.8rem 0.5rem; cursor: pointer; outline: none; -webkit-appearance: none;
         -moz-appearance: none; appearance: none;
-        width: 100%; height: 100%;
+        width: 100%; height: 100%; font-size: clamp(0.8rem, 3vw, 0.9rem);
         color-scheme: dark;
     }
     .light-theme .composite-email-input select { color-scheme: light; }
@@ -239,8 +240,6 @@
       .form-box::-webkit-scrollbar-track { background: var(--bg-card); }
       .form-box::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
       .form-box::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
-      .composite-email-input input { min-width: 50%; }
-      .select-wrapper { flex-basis: 50%; }
     }
   </style>
 </head>
@@ -376,6 +375,7 @@
     const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
     const toggleSignupPasswordBtn = document.getElementById('toggleSignupPassword');
     const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+    
     const errorMessages = { "auth/invalid-email": "Please enter a valid email format.", "auth/email-already-in-use": "Email already exists.", "auth/weak-password": "Password too weak.", "auth/network-request-failed": "Network error.", "auth/too-many-requests": "Too many attempts.", "auth/popup-blocked": "Popup blocked.", "auth/popup-closed-by-user": "Login popup was closed.", "auth/account-exists-with-different-credential": "Account exists with another login method."};
     const isValidEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     function showFeedback(messages) {
@@ -480,7 +480,7 @@
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value;
       const errors = [];
-      if (!email) { errors.push('Please enter your email address.'); }
+      if (!email) { errors.push('Email is required.'); }
       else if (!isValidEmail(email)) { errors.push('Please enter a valid email format.')}
       if (!password) { errors.push('Please write a password.'); }
       if (errors.length > 0) return showFeedback(errors);
@@ -521,7 +521,7 @@
         await userCredential.user.updateProfile({ displayName: username });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
-        setTimeout(() => { window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note'; }, 700);
+        window.location.href = 'https://raidpo-ai.netlify.app/verify-email-note';
       } catch (error) {
         showFeedback(getErrorMessage(error));
         signupBtn.disabled = false; signupBtn.textContent = 'Register';
