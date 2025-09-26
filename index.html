@@ -130,9 +130,15 @@
     .footer-links a { margin: 0.5rem 1rem; }
     .footer-links a:hover { color: var(--accent-primary); }
     .social-links a:hover { color: var(--accent-primary); }
+    .ad-container { margin: 1.5rem auto; text-align: center; width: 100%; }
+    .ad-container iframe { margin: 0 auto; }
     .login-button { position: fixed; top: 1rem; right: 1rem; z-index: 100; padding: 0.5rem 1rem; background-color: var(--accent-primary); color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; display: none; transition: transform 0.3s; }
     .login-button:hover { transform: scale(1.1); }
-    @media (max-width: 600px) { .account-name { display: none; } #headbar-search { display: none; } }
+    @media (max-width: 600px) { 
+      .account-name { display: none; } 
+      #headbar-search { display: none; } 
+      .footer-links { flex-direction: column; gap: 0.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -238,40 +244,40 @@
             <div class="tool-card" data-tool-id="meme-search"> <div class="card-love-meta"><i class="fa-regular fa-heart love-icon"></i><span class="love-counter">0</span></div> <div class="tool-card-content"><div class="tool-icon"><i class="fas fa-face-laugh-squint"></i></div> <h3>Meme Search</h3> <p>Find and download any meme instantly.</p></div> <a href='/meme-searcher'>Use Tool</a> </div>
           </div>
         </section>
-<footer>
-    <div class="footer-content">
-        <div class="footer-links">
-            <a href='/terms-and-conditions'>Terms & Conditions</a>
-            <a href='/privacy-policy'>Privacy Policy</a>
-            <a href='/about-us'>About Us</a>
-            <a href='/learn-more'>Learn More</a>
-            <a href='/help'>Help</a>
-            <a href='/contact-us'>Contact Us</a>
-            <a href='/community'>Community</a>
-        </div>
-        
-        <!-- Ads Code placed here -->
-        <div class="ad-container" style="margin: 1rem auto; text-align: center;">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '68f7e44b5cc655b9f7e2409e299cfd86',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/68f7e44b5cc655b9f7e2409e299cfd86/invoke.js"></script>
-        </div>
-        
-        <div class="social-links">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-        </div>
-        <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
-    </div>
-</footer>
+        <footer>
+            <div class="footer-content">
+                <div class="footer-links">
+                  <a href='/terms-and-conditions'>Terms & Conditions</a>
+                  <a href='/privacy-policy'>Privacy Policy</a>
+                  <a href='/about-us'>About Us</a>
+                  <a href='/learn-more'>Learn More</a>
+                  <a href='/help'>Help</a>
+                  <a href='/contact-us'>Contact Us</a>
+                  <a href='/community'>Community</a>
+                </div>
+                
+                <!-- Ads Code placed between mandatory pages and social icons -->
+                <div class="ad-container">
+                    <script type="text/javascript">
+                        atOptions = {
+                            'key' : '68f7e44b5cc655b9f7e2409e299cfd86',
+                            'format' : 'iframe',
+                            'height' : 50,
+                            'width' : 320,
+                            'params' : {}
+                        };
+                    </script>
+                    <script type="text/javascript" src="//www.highperformanceformat.com/68f7e44b5cc655b9f7e2409e299cfd86/invoke.js"></script>
+                </div>
+                
+                <div class="social-links">
+                  <a href="#"><i class="fab fa-facebook"></i></a>
+                  <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                  <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p>© 2025 Raidpo AI | Free & Powerful AI Tools</p>
+            </div>
+        </footer>
       </div>
   </div>
 
