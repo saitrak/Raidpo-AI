@@ -130,14 +130,18 @@
     .footer-links a { margin: 0.5rem 1rem; }
     .footer-links a:hover { color: var(--accent-primary); }
     .social-links a:hover { color: var(--accent-primary); }
-    .ad-container { margin: 1.5rem auto; text-align: center; width: 100%; }
-    .ad-container iframe { margin: 0 auto; }
+    .ad-container { margin: 1.5rem auto; text-align: center; width: 100%; min-height: 90px; display: flex; justify-content: center; align-items: center; }
+    .ad-container iframe { margin: 0 auto; border: none; }
+    .ad-placeholder { width: 320px; height: 50px; background-color: var(--bg-primary); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); border-radius: 5px; border: 1px dashed var(--border-color); }
     .login-button { position: fixed; top: 1rem; right: 1rem; z-index: 100; padding: 0.5rem 1rem; background-color: var(--accent-primary); color: #fff; border-radius: 5px; font-weight: bold; cursor: pointer; display: none; transition: transform 0.3s; }
     .login-button:hover { transform: scale(1.1); }
     @media (max-width: 600px) { 
       .account-name { display: none; } 
       #headbar-search { display: none; } 
       .footer-links { flex-direction: column; gap: 0.5rem; }
+    }
+    @media (min-width: 768px) {
+      .ad-container { min-height: 250px; }
     }
   </style>
 </head>
